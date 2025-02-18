@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.effect.DropShadow?>
+
+<VBox spacing="20" xmlns="http://javafx.com/javafx/8"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.pidev.controller.AddFormationController"
+      style="-fx-background-color: linear-gradient(to bottom right, #f5f7fa, #c3cfe2);">
+
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+
+    <Label text="Add Formation">
+        <font>
+            <Font name="System Bold" size="24"/>
+        </font>
+        <effect>
+            <DropShadow color="rgba(0,0,0,0.3)" radius="5" spread="0.2"/>
+        </effect>
+    </Label>
+
+    <GridPane hgap="15" vgap="15"
+              style="-fx-background-color: rgba(255,255,255,0.95);
+                     -fx-background-radius: 20;
+                     -fx-border-radius: 20;
+                     -fx-border-color: rgba(0,0,0,0.1);
+                     -fx-border-width: 1;
+                     -fx-padding: 25;">
+        <effect>
+            <DropShadow color="rgba(0,0,0,0.2)" radius="20" spread="0.1"/>
+        </effect>
+
+        <Label text="Title:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="titreField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Description:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextArea fx:id="descriptionField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Duration:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="dureeField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Price:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="prixField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Type:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <TextField fx:id="typeField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+        <Label text="Trainer:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+        <TextField fx:id="formateurField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+        <Label text="Participants:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <TextField fx:id="nbParticipantField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+        <Label text="Status:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="statusComboBox" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+    </GridPane>
+
+    <Button text="Save Formation" onAction="#handleSubmitFormation"
+            style="-fx-background-color: linear-gradient(to right, #2ecc71, #27ae60);
+                   -fx-text-fill: white;
+                   -fx-font-weight: bold;
+                   -fx-font-size: 14px;
+                   -fx-background-radius: 25;
+                   -fx-padding: 12 30;">
+        <effect>
+            <DropShadow color="rgba(46,204,113,0.3)" radius="8"/>
+        </effect>
+    </Button>
+
+</VBox>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.paint.LinearGradient?>
+<?import javafx.scene.paint.Stop?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx/8"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.pidev.controller.DisplayFormationController"
+      alignment="CENTER"
+      style="-fx-background-color: linear-gradient(to bottom right, #ecf0f1, #bdc3c7);
+             -fx-padding: 30;
+             -fx-border-radius: 15px;
+             -fx-border-width: 1px;
+             -fx-pref-width: 900;
+             -fx-pref-height: 500;
+             -fx-border-color: rgba(0, 0, 0, 0.1);
+             -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 15, 0, 0, 5);">
+
+    <!-- Title Label -->
+    <Label text="Formation Details"
+           style="-fx-font-size: 24px;
+                  -fx-text-fill: #2c3e50;
+                  -fx-font-family: 'Arial';
+                  -fx-font-weight: bold;
+                  -fx-padding: 10;"/>
+
+    <VBox spacing="10" style="-fx-background-color: #ffffff;
+                              -fx-padding: 20;
+                              -fx-border-radius: 10px;
+                              -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 10, 0, 0, 3);">
+        <!-- Title -->
+        <HBox spacing="10">
+            <Label text="📌 Title:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            <Label fx:id="titleLabel" style="-fx-text-fill: #34495e;"/>
+        </HBox>
+
+        <!-- Description -->
+        <HBox spacing="10">
+            <Label text="📝 Description:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            <Label fx:id="descriptionLabel" style="-fx-text-fill: #34495e;"/>
+        </HBox>
+
+        <!-- Duration -->
+        <HBox spacing="10">
+            <Label text="⏳ Duration:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            <Label fx:id="durationLabel" style="-fx-text-fill: #34495e;"/>
+        </HBox>
+
+        <!-- Price -->
+        <HBox spacing="10">
+            <Label text="💰 Price:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            <Label fx:id="priceLabel" style="-fx-text-fill: #34495e;"/>
+        </HBox>
+
+        <!-- Type -->
+        <HBox spacing="10">
+            <Label text="📂 Type:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            <Label fx:id="typeLabel" style="-fx-text-fill: #34495e;"/>
+        </HBox>
+
+        <!-- Trainer -->
+        <HBox spacing="10">
+            <Label text="🎓 Trainer:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            <Label fx:id="trainerLabel" style="-fx-text-fill: #34495e;"/>
+        </HBox>
+
+        <!-- Participants -->
+        <HBox spacing="10">
+            <Label text="👥 Participants:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            <Label fx:id="participantsLabel" style="-fx-text-fill: #34495e;"/>
+        </HBox>
+
+        <!-- Status -->
+        <HBox spacing="10">
+            <Label text="📌 Status:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            <Label fx:id="statusLabel" style="-fx-text-fill: #34495e;"/>
+        </HBox>
+    </VBox>
+
+</VBox>

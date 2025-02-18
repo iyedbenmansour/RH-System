@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.paint.LinearGradient?>
+<?import javafx.scene.paint.Stop?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.effect.Glow?>
+
+<VBox spacing="20" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/8"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.pidev.controller.ViewEventsController"
+      style="-fx-background-color: linear-gradient(to bottom right, #ecf0f1, #d0d3d4);
+             -fx-padding: 30;
+             -fx-pref-width: 1430;
+             -fx-pref-height: 700;">
+
+    <!-- Title Label with Advanced Glow & DropShadow -->
+    <Label text="📋 View All Events"
+           style="-fx-font-size: 28px;
+                  -fx-text-fill: linear-gradient(to right, #2c3e50, #3498db);
+                  -fx-font-family: 'Arial';
+                  -fx-font-weight: bold;
+                  -fx-padding: 10;">
+        <effect>
+            <Glow level="0.8"/>
+            <DropShadow color="rgba(0,0,0,0.3)" radius="5" spread="0.2"/>
+        </effect>
+    </Label>
+
+    <!-- TableView with Enhanced Styling -->
+    <TableView fx:id="eventsTable"
+               style="-fx-background-color: rgba(255,255,255,0.98);
+                      -fx-background-radius: 15;
+                      -fx-border-radius: 15;
+                      -fx-border-color: rgba(0,0,0,0.1);
+                      -fx-border-width: 1;
+                      -fx-padding: 10;
+                      -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+
+        <!-- Alternating row colors -->
+        <style>
+            .table-row-cell:even {
+            -fx-background-color: #ffffff;
+            }
+            .table-row-cell:odd {
+            -fx-background-color: #f8f9fa;
+            }
+            .table-row-cell:hover {
+            -fx-background-color: #d6eaf8;
+            }
+        </style>
+
+        <!-- Table Columns -->
+        <columns>
+            <TableColumn text="📌 Name" prefWidth="80" fx:id="nameColumn"/>
+            <TableColumn text="📖 Description" prefWidth="150" fx:id="descriptionColumn"/>
+            <TableColumn text="📆 Date" prefWidth="80" fx:id="dateColumn"/>
+            <TableColumn text="📍 Location" prefWidth="80" fx:id="locationColumn"/>
+            <TableColumn text="👤 Organiser" prefWidth="80" fx:id="organiserColumn"/>
+            <TableColumn text="🎭 Event Type" prefWidth="80" fx:id="eventTypeColumn"/>
+            <TableColumn text="👥 Participants" prefWidth="100" fx:id="nbParticipantColumn"/>
+            <TableColumn text="💰 Ticket Price" prefWidth="100" fx:id="ticketPriceColumn"/>
+            <TableColumn text="📚 Formation" prefWidth="80" fx:id="formationColumn"/>
+            <TableColumn text="⚡ Actions" prefWidth="400" fx:id="actionsColumn"/>
+        </columns>
+    </TableView>
+
+    <!-- Buttons Container -->
+    <VBox spacing="15" alignment="CENTER">
+        <!-- Search Button -->
+        <Button text="🔍 Search by ID" onAction="#openSearchEventWindow"
+                style="-fx-background-color: linear-gradient(to right, #3498db, #2980b9);
+                       -fx-text-fill: white;
+                       -fx-font-weight: bold;
+                       -fx-font-size: 16px;
+                       -fx-background-radius: 25;
+                       -fx-padding: 12 30;
+                       -fx-min-width: 160px;
+                       -fx-min-height: 40px;
+                       -fx-cursor: hand;">
+            <effect>
+                <DropShadow color="rgba(52,152,219,0.3)" radius="8"/>
+            </effect>
+        </Button>
+
+        <!-- Refresh Table Button -->
+        <Button text="🔄 Refresh Events" onAction="#loadEvents"
+                style="-fx-background-color: linear-gradient(to right, #2ecc71, #27ae60);
+                       -fx-text-fill: white;
+                       -fx-font-weight: bold;
+                       -fx-font-size: 16px;
+                       -fx-background-radius: 25;
+                       -fx-padding: 12 30;
+                       -fx-min-width: 160px;
+                       -fx-min-height: 40px;
+                       -fx-cursor: hand;">
+            <effect>
+                <DropShadow color="rgba(39,174,96,0.3)" radius="8"/>
+            </effect>
+        </Button>
+    </VBox>
+
+</VBox>

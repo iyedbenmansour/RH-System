@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.text.Font?>
+
+<VBox fx:id="dialogContainer" xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.pidev.controller.ConfirmationDialogController"
+      alignment="CENTER"
+      spacing="20"
+      style="-fx-background-color: #ffffff;
+             -fx-padding: 30;
+             -fx-border-radius: 15px;
+             -fx-border-width: 1px;
+             -fx-border-color: rgba(0, 0, 0, 0.1);
+             -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.15), 10, 0, 0, 5);">
+
+    <!-- Title Label -->
+    <Label text="⚠ Confirmation Required"
+           style="-fx-font-size: 20px;
+                  -fx-text-fill: #2c3e50;
+                  -fx-font-family: 'Arial';
+                  -fx-font-weight: bold;
+                  -fx-padding: 5 0;"/>
+
+    <!-- Message Label -->
+    <Label fx:id="messageLabel"
+           text="Are you sure you want to proceed?"
+           style="-fx-font-size: 16px;
+                  -fx-text-fill: #34495e;
+                  -fx-font-family: 'Arial';
+                  -fx-padding: 10 20;
+                  -fx-wrap-text: true;
+                  -fx-alignment: center;"/>
+
+    <!-- Buttons Container -->
+    <HBox spacing="20" alignment="CENTER">
+
+        <!-- Cancel Button -->
+        <Button fx:id="cancelButton" text="Cancel" onAction="#handleCancel"
+                style="-fx-background-color: #e74c3c;
+                       -fx-background-radius: 25px;
+                       -fx-text-fill: white;
+                       -fx-padding: 10 30;
+                       -fx-font-family: 'Arial';
+                       -fx-font-size: 14px;
+                       -fx-font-weight: bold;
+                       -fx-cursor: hand;
+                       -fx-border-width: 0;">
+            <effect>
+                <DropShadow color="rgba(231,76,60,0.3)" radius="10"/>
+            </effect>
+        </Button>
+
+        <!-- Confirm Button -->
+        <Button fx:id="confirmButton" text="Confirm" onAction="#handleConfirm"
+                style="-fx-background-color: linear-gradient(to right, #2ecc71, #27ae60);
+                       -fx-background-radius: 25px;
+                       -fx-text-fill: white;
+                       -fx-padding: 10 30;
+                       -fx-font-family: 'Arial';
+                       -fx-font-size: 14px;
+                       -fx-font-weight: bold;
+                       -fx-cursor: hand;
+                       -fx-border-width: 0;">
+            <effect>
+                <DropShadow color="rgba(46,204,113,0.3)" radius="10"/>
+            </effect>
+        </Button>
+
+    </HBox>
+
+</VBox>
