@@ -8,16 +8,16 @@ import java.util.List;
 
 public class FormationService {
 
-    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/carrerbridge"; // Update if needed
-    private static final String USERNAME = "root"; // Replace with your username
-    private static final String PASSWORD = ""; // Replace with your password
+    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/carrerbridge"; // Replace with your database URL
+    private static final String USERNAME = "root"; // Replace with your database username
+    private static final String PASSWORD = ""; // Replace with your database password
 
-    // ✅ Method to establish a database connection
+    // Method to establish a database connection
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
     }
 
-    // ✅ Retrieve all formations
+    // Method to retrieve all formations
     public List<Formation> getAllFormations() {
         List<Formation> formations = new ArrayList<>();
         String sql = "SELECT * FROM formation";
@@ -42,74 +42,85 @@ public class FormationService {
             }
 
         } catch (SQLException e) {
-            System.err.println("❌ Error retrieving formations: " + e.getMessage());
+            System.err.println("Error retrieving formations: " + e.getMessage());
         }
 
         return formations;
     }
 
-    // ✅ Get a formation by ID
-    public Formation getFormationById(int id) {
-        String sql = "SELECT * FROM formation WHERE id = ?";
+    // Method to add a new formation (returns generated ID)
+    public int addFormation(Formation formation) {
+        String sql = "INSERT INTO formation (titre, description, duree, prix, type, formateur, nbparticipant, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        int generatedId = -1;
+
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            statement.setString(1, formation.getTitre());
+            statement.setString(2, formation.getDescription());
+            statement.setString(3, formation.getDuree());
+            statement.setFloat(4, formation.getPrix());
+            statement.setString(5, formation.getType());
+            statement.setString(6, formation.getFormateur());
+            statement.setInt(7, formation.getNbParticipant());
+            statement.setString(8, formation.getStatus());
+
+            statement.executeUpdate();
+
+            // Get the generated ID for the new formation
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                generatedId = generatedKeys.getInt(1);
+            }
+
+            System.out.println("Formation added: " + formation.getTitre());
+
+        } catch (SQLException e) {
+            System.err.println("Error adding formation: " + e.getMessage());
+        }
+
+        return generatedId;  // Return the generated formation ID
+    }
+    public void deleteFormation(int formationId) {
+        String sql = "DELETE FROM formation WHERE id = ?";
 
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setInt(1, id);
-            ResultSet resultSet = statement.executeQuery();
+            statement.setInt(1, formationId);
+            statement.executeUpdate();
 
-            if (resultSet.next()) {
-                return new Formation(
-                        resultSet.getInt("id"),
-                        resultSet.getString("titre"),
-                        resultSet.getString("description"),
-                        resultSet.getString("duree"),
-                        resultSet.getFloat("prix"),
-                        resultSet.getString("type"),
-                        resultSet.getString("formateur"),
-                        resultSet.getInt("nbparticipant"),
-                        resultSet.getString("status")
-                );
-            }
+            System.out.println("Formation deleted: " + formationId);
 
         } catch (SQLException e) {
-            System.err.println("❌ Error retrieving formation by ID: " + e.getMessage());
+            System.err.println("Error deleting formation: " + e.getMessage());
         }
-
-        return null;
     }
-
-    // ✅ Modify `addFormation` to return the new formation ID
-    public int addFormation(Formation formation) {
-        String sql = "INSERT INTO formation (titre, description, duree, prix, type, formateur, nbparticipant, status) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    // Method to update an existing formation in the database
+    public void updateFormation(Formation formation) {
+        String sql = "UPDATE formation SET titre = ?, description = ?, duree = ?, prix = ?, type = ?, formateur = ?, nbparticipant = ?, status = ? WHERE id = ?";
 
         try (Connection connection = getConnection();
-             PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            pstmt.setString(1, formation.getTitre());
-            pstmt.setString(2, formation.getDescription());
-            pstmt.setString(3, formation.getDuree());
-            pstmt.setFloat(4, formation.getPrix());
-            pstmt.setString(5, formation.getType());
-            pstmt.setString(6, formation.getFormateur());
-            pstmt.setInt(7, formation.getNbParticipant());
-            pstmt.setString(8, formation.getStatus());
+            statement.setString(1, formation.getTitre());
+            statement.setString(2, formation.getDescription());
+            statement.setString(3, formation.getDuree());
+            statement.setFloat(4, formation.getPrix());
+            statement.setString(5, formation.getType());
+            statement.setString(6, formation.getFormateur());
+            statement.setInt(7, formation.getNbParticipant());
+            statement.setString(8, formation.getStatus());
+            statement.setInt(9, formation.getId());
 
-            pstmt.executeUpdate();
+            statement.executeUpdate();
 
-            // ✅ Retrieve generated formation ID
-            ResultSet generatedKeys = pstmt.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                int generatedId = generatedKeys.getInt(1);
-                System.out.println("✅ Formation added with ID: " + generatedId);
-                return generatedId;
-            }
+
+            System.out.println("Formation updated: " + formation.getTitre());
 
         } catch (SQLException e) {
-            System.err.println("❌ Error adding formation: " + e.getMessage());
+            System.err.println("Error updating formation: " + e.getMessage());
         }
-
-        return -1; // Return -1 if insertion fails
     }
+
 }
