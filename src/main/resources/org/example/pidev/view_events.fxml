@@ -1,31 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.text.Font?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.effect.DropShadow?>
-<?import javafx.scene.paint.LinearGradient?>
-<?import javafx.scene.paint.Stop?>
-<?import javafx.scene.Cursor?>
 <?import javafx.scene.effect.Glow?>
+<?import javafx.scene.layout.HBox?>
 
 <VBox spacing="20" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/8"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.pidev.controller.ViewEventsController"
-      style="-fx-background-color: linear-gradient(to bottom right, #ecf0f1, #d0d3d4);
+      style="-fx-background-color: linear-gradient(to bottom, #000000, #FF0000);
              -fx-padding: 30;
              -fx-pref-width: 1430;
              -fx-pref-height: 700;">
 
-    <!-- Title Label with Advanced Glow & DropShadow -->
     <Label text="📋 View All Events"
            style="-fx-font-size: 28px;
-                  -fx-text-fill: linear-gradient(to right, #2c3e50, #3498db);
-                  -fx-font-family: 'Arial';
+                  -fx-text-fill: white;
+                  -fx-font-family: 'Roboto Light';
                   -fx-font-weight: bold;
                   -fx-padding: 10;">
         <effect>
@@ -34,9 +28,8 @@
         </effect>
     </Label>
 
-    <!-- TableView with Enhanced Styling -->
     <TableView fx:id="eventsTable"
-               style="-fx-background-color: rgba(255,255,255,0.98);
+                   style="-fx-background-color: rgba(207,207,207,0.53);
                       -fx-background-radius: 15;
                       -fx-border-radius: 15;
                       -fx-border-color: rgba(0,0,0,0.1);
@@ -44,7 +37,6 @@
                       -fx-padding: 10;
                       -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
 
-        <!-- Alternating row colors -->
         <style>
             .table-row-cell:even {
             -fx-background-color: #ffffff;
@@ -57,26 +49,23 @@
             }
         </style>
 
-        <!-- Table Columns -->
         <columns>
-            <TableColumn text="📌 Name" prefWidth="80" fx:id="nameColumn"/>
-            <TableColumn text="📖 Description" prefWidth="150" fx:id="descriptionColumn"/>
-            <TableColumn text="📆 Date" prefWidth="80" fx:id="dateColumn"/>
-            <TableColumn text="📍 Location" prefWidth="80" fx:id="locationColumn"/>
-            <TableColumn text="👤 Organiser" prefWidth="80" fx:id="organiserColumn"/>
-            <TableColumn text="🎭 Event Type" prefWidth="80" fx:id="eventTypeColumn"/>
-            <TableColumn text="👥 Participants" prefWidth="100" fx:id="nbParticipantColumn"/>
-            <TableColumn text="💰 Ticket Price" prefWidth="100" fx:id="ticketPriceColumn"/>
-            <TableColumn text="📚 Formation" prefWidth="80" fx:id="formationColumn"/>
-            <TableColumn text="⚡ Actions" prefWidth="400" fx:id="actionsColumn"/>
+            <TableColumn text="📌 Name" prefWidth="80" fx:id="nameColumn" style="-fx-font-size: 14px;-fx-text-fill: black; -fx-font-family: 'Roboto Light';"/>
+            <TableColumn text="📖 Description" prefWidth="150" fx:id="descriptionColumn" style="-fx-font-size: 14px;-fx-text-fill: black; -fx-font-family: 'Roboto Light';"/>
+            <TableColumn text="📆 Date" prefWidth="80" fx:id="dateColumn" style="-fx-font-size: 14px;-fx-text-fill: black; -fx-font-family: 'Roboto Light';"/>
+            <TableColumn text="📍 Location" prefWidth="80" fx:id="locationColumn" style="-fx-font-size: 14px;-fx-text-fill: black; -fx-font-family: 'Roboto Light';"/>
+            <TableColumn text="👤 Organiser" prefWidth="80" fx:id="organiserColumn" style="-fx-font-size: 14px;-fx-text-fill: black; -fx-font-family: 'Roboto Light';"/>
+            <TableColumn text="🎭 Event Type" prefWidth="80" fx:id="eventTypeColumn" style="-fx-font-size: 14px;-fx-text-fill: black; -fx-font-family: 'Roboto Light';"/>
+            <TableColumn text="👥 Participants" prefWidth="100" fx:id="nbParticipantColumn" style="-fx-font-size: 14px;-fx-text-fill: black; -fx-font-family: 'Roboto Light';"/>
+            <TableColumn text="💰 Ticket Price" prefWidth="100" fx:id="ticketPriceColumn" style="-fx-font-size: 14px;-fx-text-fill: black; -fx-font-family: 'Roboto Light';"/>
+            <TableColumn text="📚 Formation" prefWidth="80" fx:id="formationColumn" style="-fx-font-size: 14px;-fx-text-fill: black; -fx-font-family: 'Roboto Light';"/>
+            <TableColumn text="⚡ Actions" prefWidth="500" fx:id="actionsColumn" style="-fx-text-fill: black; -fx-font-family: 'Roboto Light';"/>
         </columns>
     </TableView>
 
-    <!-- Buttons Container -->
     <VBox spacing="15" alignment="CENTER">
-        <!-- Search Button -->
         <Button text="🔍 Search by ID" onAction="#openSearchEventWindow"
-                style="-fx-background-color: linear-gradient(to right, #3498db, #2980b9);
+                style="-fx-background-color: red;
                        -fx-text-fill: white;
                        -fx-font-weight: bold;
                        -fx-font-size: 16px;
@@ -90,10 +79,9 @@
             </effect>
         </Button>
 
-        <!-- Refresh Table Button -->
         <Button text="🔄 Refresh Events" onAction="#loadEvents"
-                style="-fx-background-color: linear-gradient(to right, #2ecc71, #27ae60);
-                       -fx-text-fill: white;
+                style="-fx-background-color: black;
+                       -fx-text-fill: red;
                        -fx-font-weight: bold;
                        -fx-font-size: 16px;
                        -fx-background-radius: 25;

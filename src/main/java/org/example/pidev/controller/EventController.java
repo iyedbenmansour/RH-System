@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.util.StringConverter;
 import org.example.pidev.model.Event;
 import org.example.pidev.model.Formation;
 import org.example.pidev.service.EventService;
@@ -47,13 +48,20 @@ public class EventController {
     private TextField ticketPriceField;
 
     @FXML
-    private CheckBox hasFormationCheckBox; // Checkbox to enable/disable Formation selection
+    private CheckBox hasFormationCheckBox;
 
     @FXML
-    private ComboBox<Formation> formationComboBox; // Dropdown for selecting Formation
+    private ComboBox<Formation> formationComboBox;
+
+    // New fields for longitude and latitude
+    @FXML
+    private TextField longitudeField;
+
+    @FXML
+    private TextField latitudeField;
 
     private EventService eventService = new EventService();
-    private FormationService formationService = new FormationService(); // Fetch Formations
+    private FormationService formationService = new FormationService();
 
     @FXML
     public void toggleFormationSelection() {
@@ -61,28 +69,42 @@ public class EventController {
             formationComboBox.setDisable(!hasFormationCheckBox.isSelected());
         }
     }
+
     @FXML
     public void initialize() {
-        loadFormations(); // Load Formation options
-        formationComboBox.setDisable(true); // Initially disabled
+        loadFormations();
+        formationComboBox.setDisable(true);
 
-        // Enable ComboBox only if checkbox is selected
         hasFormationCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             formationComboBox.setDisable(!newValue);
         });
+
+        // Customizing the ComboBox items display
+        formationComboBox.setCellFactory(param -> new ListCell<Formation>() {
+            @Override
+            protected void updateItem(Formation item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    // Display the formation name, description, formateur, and price
+                    setText(item.getTitre() + " - " + item.getDescription() + " - " + item.getFormateur() + " - $" + item.getPrix());
+                }
+            }
+        });
     }
 
-    // Load all Formations into the ComboBox
     private void loadFormations() {
         List<Formation> formations = formationService.getAllFormations();
         ObservableList<Formation> formationList = FXCollections.observableArrayList(formations);
         formationComboBox.setItems(formationList);
     }
 
+
     @FXML
     public void submitEvent() {
         try {
-            // Retrieve values from the form
             String name = nameField.getText();
             String description = descriptionField.getText();
             LocalDate date = datePicker.getValue();
@@ -92,17 +114,18 @@ public class EventController {
             int nbParticipant = Integer.parseInt(nbParticipantField.getText());
             float ticketPrice = Float.parseFloat(ticketPriceField.getText());
 
-            // Check if Formation is selected
+            // Get longitude and latitude
+            float longitude = Float.parseFloat(longitudeField.getText());
+            float latitude = Float.parseFloat(latitudeField.getText());
+
             boolean hasFormation = hasFormationCheckBox.isSelected();
             Formation selectedFormation = hasFormation ? formationComboBox.getValue() : null;
 
-            // Validate if a Formation is required but not selected
             if (hasFormation && selectedFormation == null) {
                 showAlert("Error", "Please select a Formation if 'Has Formation' is checked.");
                 return;
             }
 
-            // Scale animation for submit button
             ScaleTransition scale = new ScaleTransition(Duration.millis(100), submitButton);
             scale.setToX(0.95);
             scale.setToY(0.95);
@@ -110,22 +133,17 @@ public class EventController {
             scale.setCycleCount(2);
             scale.play();
 
-            // Create a new Event object
             int formationId = (selectedFormation != null) ? selectedFormation.getId() : 0;
-            Event event = new Event(0, name, description, date, location, organiser, eventType, nbParticipant, ticketPrice, hasFormation, formationId, selectedFormation);
+            Event event = new Event(0, name, description, date, location, organiser, eventType, nbParticipant, ticketPrice, hasFormation, formationId, selectedFormation, longitude, latitude);
 
-
-            // Add the event using the service
             eventService.addEvent(event);
 
-            // Clear the form fields after submission
             clearForm();
 
-            // Show success message
             showAlert("Success", "Event added successfully!");
 
         } catch (NumberFormatException e) {
-            showAlert("Input Error", "Please enter valid numeric values for participants and ticket price.");
+            showAlert("Input Error", "Please enter valid numeric values for participants, ticket price, longitude, and latitude.");
         } catch (Exception e) {
             e.printStackTrace();
             showAlert("Error", "An error occurred while adding the event.");
@@ -135,16 +153,13 @@ public class EventController {
     @FXML
     public void viewAllEvents() {
         try {
-            // Load the view_events.fxml file
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/pidev/view_events.fxml"));
             Parent root = loader.load();
 
-            // Get the controller for the view_events.fxml
             ViewEventsController controller = loader.getController();
             controller.setEventService(eventService); // Pass the EventService to the controller
             controller.loadEvents(); // Load all events into the TableView
 
-            // Create a new stage for the "View All Events" window
             Stage stage = new Stage();
             stage.setTitle("View All Events");
             stage.setScene(new Scene(root));
@@ -165,6 +180,8 @@ public class EventController {
         ticketPriceField.clear();
         hasFormationCheckBox.setSelected(false);
         formationComboBox.getSelectionModel().clearSelection();
+        longitudeField.clear();
+        latitudeField.clear();
     }
 
     private void showAlert(String title, String message) {
@@ -174,6 +191,4 @@ public class EventController {
         alert.setContentText(message);
         alert.showAndWait();
     }
-
-
 }

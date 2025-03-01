@@ -8,16 +8,14 @@ import java.util.List;
 
 public class FormationService {
 
-    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/carrerbridge"; // Replace with your database URL
-    private static final String USERNAME = "root"; // Replace with your database username
-    private static final String PASSWORD = ""; // Replace with your database password
+    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/carrerbridge";
+    private static final String USERNAME = "root";
+    private static final String PASSWORD = "";
 
-    // Method to establish a database connection
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
     }
 
-    // Method to retrieve all formations
     public List<Formation> getAllFormations() {
         List<Formation> formations = new ArrayList<>();
         String sql = "SELECT * FROM formation";
@@ -48,7 +46,6 @@ public class FormationService {
         return formations;
     }
 
-    // Method to add a new formation (returns generated ID)
     public int addFormation(Formation formation) {
         String sql = "INSERT INTO formation (titre, description, duree, prix, type, formateur, nbparticipant, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         int generatedId = -1;
@@ -67,7 +64,6 @@ public class FormationService {
 
             statement.executeUpdate();
 
-            // Get the generated ID for the new formation
             ResultSet generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 generatedId = generatedKeys.getInt(1);
@@ -79,7 +75,7 @@ public class FormationService {
             System.err.println("Error adding formation: " + e.getMessage());
         }
 
-        return generatedId;  // Return the generated formation ID
+        return generatedId;
     }
     public void deleteFormation(int formationId) {
         String sql = "DELETE FROM formation WHERE id = ?";
@@ -96,7 +92,6 @@ public class FormationService {
             System.err.println("Error deleting formation: " + e.getMessage());
         }
     }
-    // Method to update an existing formation in the database
     public void updateFormation(Formation formation) {
         String sql = "UPDATE formation SET titre = ?, description = ?, duree = ?, prix = ?, type = ?, formateur = ?, nbparticipant = ?, status = ? WHERE id = ?";
 

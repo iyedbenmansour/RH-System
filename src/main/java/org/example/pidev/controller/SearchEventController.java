@@ -20,7 +20,7 @@ public class SearchEventController {
     private TextField nameField;
 
     @FXML
-    private VBox eventDetailsContainer; // Container for event cards
+    private VBox eventDetailsContainer;
 
     private EventService eventService;
     private Stage stage;
@@ -39,12 +39,11 @@ public class SearchEventController {
         String name = nameField.getText();
 
         if (!idText.isEmpty()) {
-            // Search by ID
             try {
                 int id = Integer.parseInt(idText);
                 Event event = eventService.getEventById(id);
                 if (event != null) {
-                    displayEventCards(List.of(event)); // Display single event
+                    displayEventCards(List.of(event));
                     eventDetailsContainer.setVisible(true);
                 } else {
                     eventDetailsContainer.setVisible(false);
@@ -55,7 +54,6 @@ public class SearchEventController {
                 System.err.println("Invalid ID format. Please enter a valid number.");
             }
         } else if (!name.isEmpty()) {
-            // Search by Name
             List<Event> events = eventService.getEventsByName(name);
             if (!events.isEmpty()) {
                 displayEventCards(events); // Display all matching events
@@ -65,45 +63,82 @@ public class SearchEventController {
                 System.out.println("No events found with name: " + name);
             }
         } else {
-            // No search criteria provided
             eventDetailsContainer.setVisible(false);
             System.err.println("Please enter an ID or Name to search.");
         }
     }
 
     private void displayEventCards(List<Event> events) {
-        eventDetailsContainer.getChildren().clear(); // Clear previous results
+        eventDetailsContainer.getChildren().clear();
 
         for (Event event : events) {
-            // Create a card-like layout for each event
-            VBox eventCard = new VBox(5);
-            eventCard.setStyle("-fx-border-color: #ccc; -fx-border-radius: 5; -fx-padding: 10;");
+            VBox eventCard = new VBox(10); // Increased spacing between elements
+            eventCard.setStyle("-fx-background-color: rgb(0,0,0);"
+                    + "-fx-border-color: rgb(0,0,0);"
+                    + "-fx-border-radius: 15;"
+                    + "-fx-padding: 15;"
+                    + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 10, 5);");
 
             // Add event details to the card
-            eventCard.getChildren().add(new Label("Name: " + event.getName()));
-            eventCard.getChildren().add(new Label("Description: " + event.getDescription()));
-            eventCard.getChildren().add(new Label("Date: " + event.getDate()));
-            eventCard.getChildren().add(new Label("Location: " + event.getLocation()));
-            eventCard.getChildren().add(new Label("Organiser: " + event.getOrganiser()));
-            eventCard.getChildren().add(new Label("Event Type: " + event.getEventType()));
-            eventCard.getChildren().add(new Label("Participants: " + event.getNbParticipant()));
-            eventCard.getChildren().add(new Label("Ticket Price: " + event.getTicketPrice()));
+            Label eventName = new Label("📅 Name: " + event.getName());
+            eventName.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;");
 
-            // If the event has a formation, display formation details
+            Label eventDescription = new Label("📝 Description: " + event.getDescription());
+            eventDescription.setStyle("-fx-font-size: 14px; -fx-text-fill: #f1f1f1;");
+
+            Label eventDate = new Label("📅 Date: " + event.getDate());
+            eventDate.setStyle("-fx-font-size: 14px; -fx-text-fill: #f1f1f1;");
+
+            Label eventLocation = new Label("📍 Location: " + event.getLocation());
+            eventLocation.setStyle("-fx-font-size: 14px; -fx-text-fill: #f1f1f1;");
+
+            Label eventOrganiser = new Label("👤 Organiser: " + event.getOrganiser());
+            eventOrganiser.setStyle("-fx-font-size: 14px; -fx-text-fill: #f1f1f1;");
+
+            Label eventType = new Label("🎭 Event Type: " + event.getEventType());
+            eventType.setStyle("-fx-font-size: 14px; -fx-text-fill: #f1f1f1;");
+
+            Label eventParticipants = new Label("👥 Participants: " + event.getNbParticipant());
+            eventParticipants.setStyle("-fx-font-size: 14px; -fx-text-fill: #f1f1f1;");
+
+            Label eventTicketPrice = new Label("💰 Ticket Price: " + event.getTicketPrice());
+            eventTicketPrice.setStyle("-fx-font-size: 14px; -fx-text-fill: #f1f1f1;");
+
+            // Add labels to the card
+            eventCard.getChildren().addAll(eventName, eventDescription, eventDate, eventLocation, eventOrganiser, eventType, eventParticipants, eventTicketPrice);
+
+            // If the event has a formation, add those details as well
             if (event.isHasFormation() && event.getFormation() != null) {
                 Formation formation = event.getFormation();
-                eventCard.getChildren().add(new Label("💡 Formation Attached:"));
-                eventCard.getChildren().add(new Label(" - Title: " + formation.getTitre()));
-                eventCard.getChildren().add(new Label(" - Description: " + formation.getDescription()));
-                eventCard.getChildren().add(new Label(" - Duration: " + formation.getDuree()));
-                eventCard.getChildren().add(new Label(" - Price: " + formation.getPrix()));
-                eventCard.getChildren().add(new Label(" - Trainer: " + formation.getFormateur()));
+                Label formationTitle = new Label("💡 Formation Attached:");
+                formationTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #ffeb3b;");
+
+                Label formationDetails = new Label(" - Title: " + formation.getTitre());
+                formationDetails.setStyle("-fx-font-size: 13px; -fx-text-fill: #f1f1f1;");
+
+                Label formationDescription = new Label(" - Description: " + formation.getDescription());
+                formationDescription.setStyle("-fx-font-size: 13px; -fx-text-fill: #f1f1f1;");
+
+                Label formationDuration = new Label(" - Duration: " + formation.getDuree());
+                formationDuration.setStyle("-fx-font-size: 13px; -fx-text-fill: #f1f1f1;");
+
+                Label formationPrice = new Label(" - Price: " + formation.getPrix());
+                formationPrice.setStyle("-fx-font-size: 13px; -fx-text-fill: #f1f1f1;");
+
+                Label formationTrainer = new Label(" - Trainer: " + formation.getFormateur());
+                formationTrainer.setStyle("-fx-font-size: 13px; -fx-text-fill: #f1f1f1;");
+
+                // Add formation details to the event card
+                eventCard.getChildren().addAll(formationTitle, formationDetails, formationDescription, formationDuration, formationPrice, formationTrainer);
             } else {
-                eventCard.getChildren().add(new Label("📌 No Formation Linked"));
+                Label noFormation = new Label("📌 No Formation Linked");
+                noFormation.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;");
+                eventCard.getChildren().add(noFormation);
             }
 
-            // Add the card to the container
+            // Add the event card to the main container
             eventDetailsContainer.getChildren().add(eventCard);
         }
     }
+
 }

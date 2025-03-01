@@ -10,9 +10,8 @@ public class Formation {
     private String formateur;
     private int nbparticipant;
     private String status;
-    private Event event; // ✅ Link to Event
+    private Event event;
 
-    // 🔹 Constructors
     public Formation() {}
 
     public Formation(int id, String titre, String description, String duree, float prix, String type,
@@ -26,10 +25,9 @@ public class Formation {
         this.formateur = formateur;
         this.nbparticipant = nbparticipant;
         this.status = status;
-        this.event = null; // Default to null if no event is provided
+        this.event = null;
     }
 
-    // ✅ Constructor With Event (If Needed)
     public Formation(int id, String titre, String description, String duree, float prix, String type,
                      String formateur, int nbparticipant, String status, Event event) {
         this.id = id;
@@ -44,7 +42,6 @@ public class Formation {
         this.event = event;
     }
 
-    // 🔹 Getters and Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -72,11 +69,9 @@ public class Formation {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    // ✅ Getter & Setter for Event
     public Event getEvent() { return event; }
     public void setEvent(Event event) { this.event = event; }
 
-// toString method for debugging
     @Override
     public String toString() {
         return "Formation{" +

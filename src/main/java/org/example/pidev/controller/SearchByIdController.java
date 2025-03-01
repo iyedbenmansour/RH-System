@@ -41,13 +41,12 @@ public class SearchByIdController {
     private Label ticketPriceLabel;
 
     private EventService eventService;
-    private Stage stage; // Add a Stage field
+    private Stage stage;
 
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
     }
 
-    // Add the setStage method
     public void setStage(Stage stage) {
         this.stage = stage;
     }
@@ -55,11 +54,10 @@ public class SearchByIdController {
     @FXML
     public void searchEventById() {
         try {
-            int id = Integer.parseInt(idField.getText()); // Get the ID from the text field
-            Event event = eventService.getEventById(id); // Fetch the event by ID
+            int id = Integer.parseInt(idField.getText());
+            Event event = eventService.getEventById(id);
 
             if (event != null) {
-                // Populate the event details section
                 nameLabel.setText(event.getName());
                 descriptionLabel.setText(event.getDescription());
                 dateLabel.setText(event.getDate().toString());
@@ -69,15 +67,12 @@ public class SearchByIdController {
                 nbParticipantLabel.setText(String.valueOf(event.getNbParticipant()));
                 ticketPriceLabel.setText(String.valueOf(event.getTicketPrice()));
 
-                // Make the event details section visible
                 eventDetailsBox.setVisible(true);
             } else {
-                // Clear the event details section and show a message
                 clearEventDetails();
                 System.out.println("Event not found with ID: " + id);
             }
         } catch (NumberFormatException e) {
-            // Clear the event details section and show an error message
             clearEventDetails();
             System.err.println("Invalid ID format. Please enter a valid number.");
         }

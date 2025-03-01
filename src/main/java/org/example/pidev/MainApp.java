@@ -15,7 +15,7 @@ public class MainApp extends Application {
             Parent root = loader.load();
 
             primaryStage.setTitle("Event Management System");
-            primaryStage.setScene(new Scene(root, 1200, 700));
+            primaryStage.setScene(new Scene(root, 1500, 800));
             primaryStage.show();
         } catch (Exception e) {
             System.err.println("Error loading event_form.fxml: " + e.getMessage());

@@ -11,6 +11,7 @@ module org.example.pidev {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
+    requires java.desktop;
 
     opens org.example.pidev.controller to javafx.fxml;
     exports org.example.pidev.controller;

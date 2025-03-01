@@ -32,15 +32,12 @@ public class DisplayFormationController {
     @FXML
     private Label statusLabel;
 
-    private Formation formation; // Formation being displayed
+    private Formation formation;
     private final FormationService formationService = new FormationService();
     private Stage stage;
 
-    // Setter for formation object
     public void setFormation(Formation formation) {
         this.formation = formation;
-
-        // Set the labels with formation data
         if (formation != null) {
             titleLabel.setText(formation.getTitre());
             descriptionLabel.setText(formation.getDescription());
@@ -53,15 +50,12 @@ public class DisplayFormationController {
         }
     }
 
-    // Setter for stage
     public void setStage(Stage stage) {
         this.stage = stage;
     }
 
-    // Handle Update Formation action
     @FXML
     private void handleUpdateFormation() {
-        // Open the update formation window
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/pidev/update_formation.fxml"));
             Parent root = loader.load();
@@ -80,23 +74,19 @@ public class DisplayFormationController {
         }
     }
 
-    // Handle Delete Formation action
     @FXML
     private void handleDeleteFormation() {
         try {
-            // Show confirmation alert before deletion
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Delete Formation");
             alert.setHeaderText("Are you sure you want to delete this formation?");
             alert.setContentText("This action cannot be undone.");
 
             if (alert.showAndWait().get() == ButtonType.OK) {
-                // Call delete method from service
                 formationService.deleteFormation(formation.getId());
 
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Formation deleted successfully!");
 
-                // Close the current window after successful deletion
                 if (stage != null) {
                     stage.close();
                 }
@@ -107,7 +97,6 @@ public class DisplayFormationController {
         }
     }
 
-    // Helper method to show alerts
     private void showAlert(Alert.AlertType alertType, String title, String message) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);

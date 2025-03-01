@@ -13,14 +13,33 @@ public class Event {
     private int nbParticipant;
     private float ticketPrice;
     private boolean hasFormation;
-    private int formationId; // Stores the formation ID
-    private Formation formation; // Reference to Formation object
+    private int formationId;
+    private Formation formation;
+    private float longitude;
+    private float latitude;
 
     // Default constructor
-    public Event() {
+    public Event() {}
+
+    // Constructor including longitude and latitude
+    public Event(int id, String name, String description, LocalDate date, String location, String organiser, String eventType, int nbParticipant, float ticketPrice, boolean hasFormation, int formationId, Formation formation, float longitude, float latitude) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.date = date;
+        this.location = location;
+        this.organiser = organiser;
+        this.eventType = eventType;
+        this.nbParticipant = nbParticipant;
+        this.ticketPrice = ticketPrice;
+        this.hasFormation = hasFormation;
+        this.formationId = formationId;
+        this.formation = formation;
+        this.longitude = longitude;
+        this.latitude = latitude;
     }
 
-    // Constructor without Formation
+    // Constructor without formation
     public Event(int id, String name, String description, LocalDate date, String location, String organiser, String eventType, int nbParticipant, float ticketPrice, boolean hasFormation) {
         this.id = id;
         this.name = name;
@@ -34,25 +53,28 @@ public class Event {
         this.hasFormation = hasFormation;
         this.formationId = 0; // Default to no formation
         this.formation = null; // No formation by default
+        this.longitude = 0.0f;  // Default longitude
+        this.latitude = 0.0f;   // Default latitude
     }
 
-    // Constructor with Formation
-    public Event(int id, String name, String description, LocalDate date, String location, String organiser, String eventType, int nbParticipant, float ticketPrice, boolean hasFormation, int formationId, Formation formation) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.date = date;
-        this.location = location;
-        this.organiser = organiser;
-        this.eventType = eventType;
-        this.nbParticipant = nbParticipant;
-        this.ticketPrice = ticketPrice;
-        this.hasFormation = hasFormation;
-        this.formationId = formationId;
-        this.formation = formation;
+    // Getters and setters for longitude and latitude
+    public float getLongitude() {
+        return longitude;
     }
 
-    // Getters and Setters
+    public void setLongitude(float longitude) {
+        this.longitude = longitude;
+    }
+
+    public float getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(float latitude) {
+        this.latitude = latitude;
+    }
+
+    // Getters and setters for other fields...
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -92,7 +114,7 @@ public class Event {
     public int getFormationId() { return formationId; }
     public void setFormationId(int formationId) {
         this.formationId = formationId;
-        this.hasFormation = (formationId > 0); // Automatically set hasFormation to true if ID is valid
+        this.hasFormation = (formationId > 0);
     }
 
     public Formation getFormation() { return formation; }
@@ -104,7 +126,6 @@ public class Event {
         }
     }
 
-    // toString method for debugging
     @Override
     public String toString() {
         return "Event{" +
@@ -118,8 +139,10 @@ public class Event {
                 ", nbParticipant=" + nbParticipant +
                 ", ticketPrice=" + ticketPrice +
                 ", hasFormation=" + hasFormation +
-                ", formationId=" + (formationId > 0 ? formationId : "No Formation") +
+                ", formationId=" + formationId +
                 ", formation=" + (formation != null ? formation.getTitre() : "No Formation") +
+                ", longitude=" + longitude +
+                ", latitude=" + latitude +
                 '}';
     }
 }

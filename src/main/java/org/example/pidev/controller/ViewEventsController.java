@@ -1,15 +1,15 @@
 package org.example.pidev.controller;
 
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Stage;
-import javafx.util.Callback;
-import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.scene.layout.HBox;
+import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 import org.example.pidev.model.Event;
 import org.example.pidev.service.EventService;
 
@@ -50,11 +50,11 @@ public class ViewEventsController {
     @FXML
     private TableColumn<Event, Void> actionsColumn;
 
-    private EventService eventService = new EventService(); // Ensure eventService is initialized
+    private EventService eventService = new EventService();
 
     @FXML
     public void initialize() {
-        // Bind TableView columns to Event properties
+        // Set up table columns
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
         dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
@@ -63,8 +63,6 @@ public class ViewEventsController {
         eventTypeColumn.setCellValueFactory(new PropertyValueFactory<>("eventType"));
         nbParticipantColumn.setCellValueFactory(new PropertyValueFactory<>("nbParticipant"));
         ticketPriceColumn.setCellValueFactory(new PropertyValueFactory<>("ticketPrice"));
-
-        // Bind Formation column
         formationColumn.setCellValueFactory(cellData -> {
             Event event = cellData.getValue();
             return event.isHasFormation() && event.getFormation() != null ?
@@ -72,38 +70,47 @@ public class ViewEventsController {
                     new ReadOnlyStringWrapper("No Formation");
         });
 
-        // Add "Modify" and "Display/Add Formation" buttons
+        // Set up actions column with buttons
         actionsColumn.setCellFactory(param -> new TableCell<>() {
             private final Button modifyButton = new Button("Modify");
             private final Button displayFormationButton = new Button("Display Formation");
             private final Button addFormationButton = new Button("Add Formation");
-            private final HBox buttonContainer = new HBox(5); // Set spacing between buttons
+            private final Button seeMapButton = new Button("See Map Location");
+            private final HBox buttonContainer = new HBox(5);
 
             {
-                // Style buttons
-                modifyButton.setStyle("-fx-background-color: #2c3e50; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 12;");
-                displayFormationButton.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 12;");
-                addFormationButton.setStyle("-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 12;");
+                modifyButton.setStyle("-fx-background-color: #e61c1c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 12;");
+                displayFormationButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ff0000; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 12;");
+                addFormationButton.setStyle("-fx-background-color: #ff0000; -fx-text-fill: #000000; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 12;");
+                seeMapButton.setStyle("-fx-background-color: #000000; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 12;");
 
-                // Set button actions
+                // Modify button action
                 modifyButton.setOnAction(event -> {
                     Event eventData = getTableView().getItems().get(getIndex());
                     openModifyEventWindow(eventData);
                 });
 
+                // Display formation button action
                 displayFormationButton.setOnAction(event -> {
                     Event eventData = getTableView().getItems().get(getIndex());
                     openDisplayFormationWindow(eventData);
                 });
 
+                // Add formation button action
                 addFormationButton.setOnAction(event -> {
                     Event eventData = getTableView().getItems().get(getIndex());
                     openAddFormationWindow(eventData);
                 });
 
-                // Add buttons to HBox
-                buttonContainer.getChildren().addAll(modifyButton, displayFormationButton, addFormationButton);
-                buttonContainer.setSpacing(10); // Adjust spacing
+                // See map location button action
+                seeMapButton.setOnAction(event -> {
+                    Event eventData = getTableView().getItems().get(getIndex());
+                    openMapLocationInNewWindow(eventData);
+                });
+
+                // Add all buttons to button container
+                buttonContainer.getChildren().addAll(modifyButton, displayFormationButton, addFormationButton, seeMapButton);
+                buttonContainer.setSpacing(10);
             }
 
             @Override
@@ -114,11 +121,13 @@ public class ViewEventsController {
                 } else {
                     Event eventData = getTableView().getItems().get(getIndex());
 
-                    // Enable/Disable buttons dynamically
+                    // Enable or disable buttons based on the presence of a formation
                     if (eventData.getFormation() == null) {
+                        // If the event has no formation, enable "Add Formation" and disable "Display Formation"
                         addFormationButton.setDisable(false);
                         displayFormationButton.setDisable(true);
                     } else {
+                        // If the event has a formation, disable "Add Formation" and enable "Display Formation"
                         addFormationButton.setDisable(true);
                         displayFormationButton.setDisable(false);
                     }
@@ -128,18 +137,19 @@ public class ViewEventsController {
             }
         });
 
-        // Load events into the table
         loadEvents();
     }
 
+    // Load events into the TableView
     public void loadEvents() {
         if (eventService == null) {
-            eventService = new EventService(); // Ensure eventService is initialized
+            eventService = new EventService();
         }
         List<Event> events = eventService.getAllEvents();
         eventsTable.getItems().setAll(events);
     }
 
+    // Open Modify Event window
     private void openModifyEventWindow(Event event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/pidev/modify_event.fxml"));
@@ -159,6 +169,7 @@ public class ViewEventsController {
         }
     }
 
+    // Open Display Formation window
     private void openDisplayFormationWindow(Event event) {
         if (event.getFormation() == null) {
             showAlert("No Formation", "This event has no formation linked.");
@@ -181,6 +192,62 @@ public class ViewEventsController {
         }
     }
 
+    // Open Add Formation window
+    private void openAddFormationWindow(Event event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/pidev/add_formation.fxml"));
+            Parent root = loader.load();
+
+            AddFormationController controller = loader.getController();
+            controller.setEvent(event);
+
+            controller.setOnFormationAddedListener(this::refreshEventTable);
+
+            Stage stage = new Stage();
+            stage.setTitle("Add Formation");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Refresh event table after formation is added
+    private void refreshEventTable() {
+        loadEvents();
+        eventsTable.refresh();
+    }
+
+    // Open the map location for the selected event in a new window (using Google Maps)
+    private void openMapLocationInNewWindow(Event event) {
+        // Get the latitude and longitude of the selected event
+        float latitude = event.getLatitude();
+        float longitude = event.getLongitude();
+
+        // Construct the URL for Google Maps with the latitude and longitude
+        String mapUrl = "https://www.google.com/maps?q=" + latitude + "," + longitude;
+
+        // Create a new stage (window) for the map
+        Stage mapStage = new Stage();
+        WebView mapWebView = new WebView(); // Create a new WebView for the map
+        mapWebView.getEngine().load(mapUrl); // Load the Google Maps URL
+
+        // Set the new stage and show the map
+        mapStage.setTitle("Event Location");
+        mapStage.setScene(new Scene(mapWebView, 800, 600)); // Set the size of the window
+        mapStage.show();
+    }
+
+    // Show a simple alert
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.show();
+    }
+
+    // Open the Search Event window
     @FXML
     public void openSearchEventWindow() {
         try {
@@ -200,40 +267,7 @@ public class ViewEventsController {
         }
     }
 
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.show();
-    }
-
-    private void openAddFormationWindow(Event event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/pidev/add_formation.fxml"));
-            Parent root = loader.load();
-
-            AddFormationController controller = loader.getController();
-            controller.setEvent(event); // Pass event data to the form
-
-            // ✅ Set listener to update event table after adding a formation
-            controller.setOnFormationAddedListener(this::refreshEventTable);
-
-            Stage stage = new Stage();
-            stage.setTitle("Add Formation");
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // ✅ Refreshes the Table after adding a formation
-    private void refreshEventTable() {
-        loadEvents();
-        eventsTable.refresh();
-    }
-
+    // Set the EventService instance
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
     }

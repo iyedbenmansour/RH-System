@@ -38,6 +38,11 @@ public class ModifyEventController {
     @FXML
     private ComboBox<Formation> formationComboBox;
 
+    @FXML
+    private TextField longitudeField;
+    @FXML
+    private TextField latitudeField;
+
     private EventService eventService;
     private FormationService formationService = new FormationService();
     private Event event;
@@ -66,17 +71,19 @@ public class ModifyEventController {
         nbParticipantField.setText(String.valueOf(event.getNbParticipant()));
         ticketPriceField.setText(String.valueOf(event.getTicketPrice()));
 
-        hasFormationCheckBox.setSelected(event.isHasFormation());
-        loadFormations(); // Load formations into ComboBox
+        // Populate longitude and latitude fields
+        longitudeField.setText(String.valueOf(event.getLongitude()));
+        latitudeField.setText(String.valueOf(event.getLatitude()));
 
-        // Enable ComboBox if event has Formation
+        hasFormationCheckBox.setSelected(event.isHasFormation());
+        loadFormations();
+
         formationComboBox.setDisable(!event.isHasFormation());
 
         if (event.getFormation() != null) {
             formationComboBox.setValue(event.getFormation());
         }
 
-        // Toggle ComboBox when CheckBox is clicked
         hasFormationCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             formationComboBox.setDisable(!newValue);
         });
@@ -90,7 +97,6 @@ public class ModifyEventController {
     @FXML
     private void saveChanges() {
         try {
-            // Load the confirmation dialog
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/pidev/confirmation_dialog.fxml"));
             Parent root = loader.load();
 
@@ -160,6 +166,15 @@ public class ModifyEventController {
         event.setEventType(eventTypeField.getText());
         event.setNbParticipant(Integer.parseInt(nbParticipantField.getText()));
         event.setTicketPrice(Float.parseFloat(ticketPriceField.getText()));
+
+        // Get longitude and latitude from the fields
+        try {
+            event.setLongitude(Float.parseFloat(longitudeField.getText()));
+            event.setLatitude(Float.parseFloat(latitudeField.getText()));
+        } catch (NumberFormatException e) {
+            showErrorAlert("Please enter valid numeric values for longitude and latitude.");
+            return;
+        }
 
         boolean hasFormation = hasFormationCheckBox.isSelected();
         Formation selectedFormation = hasFormation ? formationComboBox.getValue() : null;
