@@ -11,10 +11,10 @@
 <VBox spacing="20" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/8"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.pidev.controller.ViewEventsController"
-      style="-fx-background-color: linear-gradient(to bottom, #000000, #FF0000);
+      style="-fx-background-color: linear-gradient(to bottom, #000000, #14257c);
              -fx-padding: 30;
-             -fx-pref-width: 1430;
-             -fx-pref-height: 700;">
+             -fx-pref-width: 1500;
+             -fx-pref-height: 800;">
 
     <Label text="📋 View All Events"
            style="-fx-font-size: 28px;
@@ -59,13 +59,13 @@
             <TableColumn text="👥 Participants" prefWidth="100" fx:id="nbParticipantColumn" style="-fx-font-size: 14px;-fx-text-fill: black; -fx-font-family: 'Roboto Light';"/>
             <TableColumn text="💰 Ticket Price" prefWidth="100" fx:id="ticketPriceColumn" style="-fx-font-size: 14px;-fx-text-fill: black; -fx-font-family: 'Roboto Light';"/>
             <TableColumn text="📚 Formation" prefWidth="80" fx:id="formationColumn" style="-fx-font-size: 14px;-fx-text-fill: black; -fx-font-family: 'Roboto Light';"/>
-            <TableColumn text="⚡ Actions" prefWidth="500" fx:id="actionsColumn" style="-fx-text-fill: black; -fx-font-family: 'Roboto Light';"/>
+            <TableColumn text="⚡ Actions" prefWidth="600" fx:id="actionsColumn" style="-fx-text-fill: black; -fx-font-family: 'Roboto Light';"/>
         </columns>
     </TableView>
 
     <VBox spacing="15" alignment="CENTER">
         <Button text="🔍 Search by ID" onAction="#openSearchEventWindow"
-                style="-fx-background-color: red;
+                style="-fx-background-color: #14257c;
                        -fx-text-fill: white;
                        -fx-font-weight: bold;
                        -fx-font-size: 16px;
@@ -81,7 +81,7 @@
 
         <Button text="🔄 Refresh Events" onAction="#loadEvents"
                 style="-fx-background-color: black;
-                       -fx-text-fill: red;
+                       -fx-text-fill: #d1d1d3;
                        -fx-font-weight: bold;
                        -fx-font-size: 16px;
                        -fx-background-radius: 25;

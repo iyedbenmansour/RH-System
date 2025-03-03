@@ -13,6 +13,7 @@ import org.example.pidev.service.EventService;
 import org.example.pidev.service.FormationService;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 public class ModifyEventController {
@@ -87,16 +88,59 @@ public class ModifyEventController {
         hasFormationCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             formationComboBox.setDisable(!newValue);
         });
+        // Make sure the DatePicker doesn't allow selecting past dates
+        datePicker.setDayCellFactory(cell -> new javafx.scene.control.DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                if (date.isBefore(LocalDate.now())) {
+                    setDisable(true);
+                }
+            }
+        });
     }
 
     private void loadFormations() {
         List<Formation> formations = formationService.getAllFormations();
         formationComboBox.getItems().setAll(formations);
+
+        // Set the custom converter to display specific fields in ComboBox
+        formationComboBox.setCellFactory(param -> new ListCell<Formation>() {
+            @Override
+            protected void updateItem(Formation formation, boolean empty) {
+                super.updateItem(formation, empty);
+                if (empty || formation == null) {
+                    setText(null);
+                } else {
+                    setText("Title : "+ formation.getTitre() + " | " + "Description : "+formation.getDescription() + " | " + "Formateur : "+
+                            formation.getFormateur() + " | " + "Price : " + formation.getPrix());
+                }
+            }
+        });
+
+        formationComboBox.setButtonCell(new ListCell<Formation>() {
+            @Override
+            protected void updateItem(Formation formation, boolean empty) {
+                super.updateItem(formation, empty);
+                if (empty || formation == null) {
+                    setText(null);
+                } else {
+                    setText(formation.getTitre() + " | " + formation.getDescription() + " | " +
+                            formation.getFormateur() + " | " + formation.getPrix());
+                }
+            }
+        });
     }
 
     @FXML
     private void saveChanges() {
         try {
+            // Check if the selected date is in the past
+            if (datePicker.getValue() != null && datePicker.getValue().isBefore(LocalDate.now())) {
+                showErrorAlert("Please select a valid date that is not in the past.");
+                return;
+            }
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/pidev/confirmation_dialog.fxml"));
             Parent root = loader.load();
 
@@ -108,8 +152,8 @@ public class ModifyEventController {
 
             ConfirmationDialogController controller = loader.getController();
             controller.setMessage("Are you sure you want to save these changes?");
-            controller.setButtonStyles("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;");
-            controller.setCancelButtonStyles("-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-size: 14px;");
+            controller.setButtonStyles("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px; -fx-cursor: hand;");
+            controller.setCancelButtonStyles("-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-size: 14px; -fx-cursor: hand;");
 
             dialogStage.showAndWait();
 
@@ -140,8 +184,8 @@ public class ModifyEventController {
 
             ConfirmationDialogController controller = loader.getController();
             controller.setMessage("Are you sure you want to delete this event?");
-            controller.setButtonStyles("-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-size: 14px;");
-            controller.setCancelButtonStyles("-fx-background-color: #cccccc; -fx-text-fill: #333; -fx-font-size: 14px;");
+            controller.setButtonStyles("-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-size: 14px; -fx-cursor: hand;");
+            controller.setCancelButtonStyles("-fx-background-color: #cccccc; -fx-text-fill: #333; -fx-font-size: 14px; -fx-cursor: hand;");
 
             dialogStage.showAndWait();
 

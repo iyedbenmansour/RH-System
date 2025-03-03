@@ -76,13 +76,15 @@ public class ViewEventsController {
             private final Button displayFormationButton = new Button("Display Formation");
             private final Button addFormationButton = new Button("Add Formation");
             private final Button seeMapButton = new Button("See Map Location");
+            private final Button getQRCodeButton = new Button("Get QR Code"); // New QR code button
             private final HBox buttonContainer = new HBox(5);
 
             {
-                modifyButton.setStyle("-fx-background-color: #e61c1c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 12;");
-                displayFormationButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ff0000; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 12;");
-                addFormationButton.setStyle("-fx-background-color: #ff0000; -fx-text-fill: #000000; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 12;");
-                seeMapButton.setStyle("-fx-background-color: #000000; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 12;");
+                modifyButton.setStyle("-fx-cursor: hand;-fx-background-color: #14257c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 12;");
+                displayFormationButton.setStyle("-fx-cursor: hand;-fx-background-color: #000000; -fx-text-fill: #2d53ff; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 12;");
+                addFormationButton.setStyle("-fx-cursor: hand;-fx-background-color: #2d53ff; -fx-text-fill: #000000; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 12;");
+                seeMapButton.setStyle("-fx-cursor: hand;-fx-background-color: #000000; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 12;");
+                getQRCodeButton.setStyle("-fx-cursor: hand;-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 8 12;"); // Style for QR Code button
 
                 // Modify button action
                 modifyButton.setOnAction(event -> {
@@ -108,8 +110,14 @@ public class ViewEventsController {
                     openMapLocationInNewWindow(eventData);
                 });
 
+                // Get QR Code button action (open new window)
+                getQRCodeButton.setOnAction(event -> {
+                    Event eventData = getTableView().getItems().get(getIndex());
+                    openQRCodeWindow(eventData);
+                });
+
                 // Add all buttons to button container
-                buttonContainer.getChildren().addAll(modifyButton, displayFormationButton, addFormationButton, seeMapButton);
+                buttonContainer.getChildren().addAll(modifyButton, displayFormationButton, addFormationButton, seeMapButton, getQRCodeButton);
                 buttonContainer.setSpacing(10);
             }
 
@@ -216,6 +224,24 @@ public class ViewEventsController {
     private void refreshEventTable() {
         loadEvents();
         eventsTable.refresh();
+    }
+
+    // Open the QR Code window when button is clicked
+    private void openQRCodeWindow(Event event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/pidev/qr_code_window.fxml"));
+            Parent root = loader.load();
+
+            QRCodeWindowController controller = loader.getController();
+            controller.setEvent(event);  // Pass the selected event to the QR code window
+
+            Stage qrStage = new Stage();
+            qrStage.setTitle("QR Code");
+            qrStage.setScene(new Scene(root, 600, 600));
+            qrStage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // Open the map location for the selected event in a new window (using Google Maps)

@@ -93,6 +93,17 @@ public class EventController {
                 }
             }
         });
+
+        // Make sure the DatePicker doesn't allow selecting past dates
+        datePicker.setDayCellFactory(cell -> new javafx.scene.control.DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                if (date.isBefore(LocalDate.now())) {
+                    setDisable(true);
+                }
+            }
+        });
     }
 
     private void loadFormations() {
@@ -101,13 +112,19 @@ public class EventController {
         formationComboBox.setItems(formationList);
     }
 
-
     @FXML
     public void submitEvent() {
         try {
             String name = nameField.getText();
             String description = descriptionField.getText();
             LocalDate date = datePicker.getValue();
+
+            // Check if the selected date is in the past
+            if (date != null && date.isBefore(LocalDate.now())) {
+                showAlert("Error", "You cannot select a past date. Please select a future date.");
+                return;
+            }
+
             String location = locationField.getText();
             String organiser = organiserField.getText();
             String eventType = eventTypeField.getText();

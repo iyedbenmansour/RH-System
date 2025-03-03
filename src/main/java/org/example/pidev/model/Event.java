@@ -57,6 +57,9 @@ public class Event {
         this.latitude = 0.0f;   // Default latitude
     }
 
+    public Event(int id, String sampleEvent, String description, LocalDate date, String sampleLocation, String sampleOrganiser, String sampleType, int nbParticipant, float ticketPrice, boolean hasFormation, Integer o, Object formation, float longitude, float latitude) {
+    }
+
     // Getters and setters for longitude and latitude
     public float getLongitude() {
         return longitude;

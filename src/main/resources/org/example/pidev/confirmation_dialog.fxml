@@ -11,7 +11,7 @@
       fx:controller="org.example.pidev.controller.ConfirmationDialogController"
       alignment="CENTER"
       spacing="20"
-      style="-fx-background-color: #ffffff;
+      style="-fx-background-color: linear-gradient(to bottom, #000000, #0d1c6a);
              -fx-padding: 30;
              -fx-border-radius: 15px;
              -fx-border-width: 1px;
@@ -21,16 +21,16 @@
     <Label text="⚠ Confirmation Required"
            style="-fx-font-size: 24px;
                   -fx-font-weight: bold;
-                  -fx-text-fill: #2c3e50;
-                  -fx-font-family: 'Arial';
+                  -fx-text-fill: white;
+                  -fx-font-family: 'Roboto Light';
                   -fx-padding: 5 0;"/>
 
     <Label fx:id="messageLabel"
            text="Are you sure you want to proceed?"
            style="-fx-font-size: 16px;
                   -fx-font-weight: normal;
-                  -fx-text-fill: #34495e;
-                  -fx-font-family: 'Arial';
+                  -fx-text-fill: white;
+                  -fx-font-family: 'Roboto Light';
                   -fx-padding: 10 20;
                   -fx-wrap-text: true;
                   -fx-alignment: center;
@@ -39,7 +39,7 @@
     <HBox spacing="25" alignment="CENTER">
 
         <Button fx:id="cancelButton" text="Cancel" onAction="#handleCancel"
-                style="-fx-background-color: #e74c3c;
+                style="-fx-background-color: linear-gradient(to bottom, #000000, red);;
                        -fx-background-radius: 30px;
                        -fx-text-fill: white;
                        -fx-font-family: 'Arial';
@@ -54,7 +54,7 @@
         </Button>
 
         <Button fx:id="confirmButton" text="Confirm" onAction="#handleConfirm"
-                style="-fx-background-color: linear-gradient(to right, #2ecc71, #27ae60);
+                style="-fx-background-color: linear-gradient(to right, #0d1c6a, #1c3e87);
                        -fx-background-radius: 30px;
                        -fx-text-fill: white;
                        -fx-font-family: 'Arial';

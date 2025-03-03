@@ -72,10 +72,10 @@ public class SearchEventController {
         eventDetailsContainer.getChildren().clear();
 
         for (Event event : events) {
-            VBox eventCard = new VBox(10); // Increased spacing between elements
-            eventCard.setStyle("-fx-background-color: rgb(0,0,0);"
-                    + "-fx-border-color: rgb(0,0,0);"
-                    + "-fx-border-radius: 15;"
+            VBox eventCard = new VBox(20);
+            eventCard.setStyle("-fx-background-color: linear-gradient(to bottom, #000000, #0d1c6a);"
+                    + "-fx-border-color: linear-gradient(to bottom, #000000,#0d1c6a);"
+                    + "-fx-border-radius: 30;"
                     + "-fx-padding: 15;"
                     + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 10, 5);");
 
@@ -132,7 +132,7 @@ public class SearchEventController {
                 eventCard.getChildren().addAll(formationTitle, formationDetails, formationDescription, formationDuration, formationPrice, formationTrainer);
             } else {
                 Label noFormation = new Label("📌 No Formation Linked");
-                noFormation.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;");
+                noFormation.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: red;");
                 eventCard.getChildren().add(noFormation);
             }
 

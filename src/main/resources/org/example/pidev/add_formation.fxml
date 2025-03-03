@@ -3,51 +3,53 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.effect.DropShadow?>
-
+<ScrollPane fitToWidth="true" style="-fx-border-width: 0;"  xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controller.AddFormationController">
 <VBox spacing="25" xmlns="http://javafx.com/javafx/8"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="org.example.pidev.controller.AddFormationController"
-      style="-fx-background-color: #f7f9fc; -fx-padding: 40px;">
+      style="-fx-background-color: linear-gradient(to bottom, #000000, #0d1c6a); -fx-padding: 40px;-fx-alignment: center; -fx-pref-width: 1500;
+             -fx-pref-height: 800;">
 
-    <Label text="Add Formation" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;">
+    <Label text="Add Formation" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;-fx-alignment: center; -fx-font-family: 'Roboto Light'">
         <effect>
             <DropShadow color="rgba(0,0,0,0.3)" radius="10" spread="0.1"/>
         </effect>
     </Label>
 
-    <GridPane hgap="20" vgap="20" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: rgba(0,0,0,0.1); -fx-border-width: 1; -fx-padding: 30; -fx-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <GridPane hgap="20" vgap="20" style="-fx-background-color: rgba(184,184,184,0.34); -fx-background-radius: 15px; -fx-border-radius: 15px; -fx-border-color: rgba(0,0,0,0.1); -fx-border-width: 1; -fx-padding: 30; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 0, 6);
+">
         <effect>
             <DropShadow color="rgba(0,0,0,0.1)" radius="20" spread="0.05"/>
         </effect>
 
-        <Label text="Title:" style="-fx-font-size: 16px; -fx-font-weight: bold;" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <TextField fx:id="titreField" style="-fx-border-radius: 5px; -fx-background-color: #f0f0f0; -fx-text-fill: #34495e; -fx-font-size: 14px;" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <Label text="Title:" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-font-family: 'Roboto Light';-fx-text-fill: white;" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="titreField" style="-fx-border-radius: 5px; -fx-background-color: white; -fx-text-fill: #34495e; -fx-font-size: 14px;" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-        <Label text="Description:" style="-fx-font-size: 16px; -fx-font-weight: bold;" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <TextArea fx:id="descriptionField" style="-fx-border-radius: 5px; -fx-background-color: #f0f0f0; -fx-text-fill: #34495e; -fx-font-size: 14px; -fx-min-height: 80px;" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Label text="Description:" style="-fx-font-size: 16px; -fx-font-weight: bold;  -fx-font-family: 'Roboto Light';-fx-text-fill: white;" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextArea fx:id="descriptionField" style="-fx-border-radius: 5px; -fx-background-color: white; -fx-text-fill: #34495e; -fx-font-size: 14px; -fx-min-height: 80px;" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-        <Label text="Duration:" style="-fx-font-size: 16px; -fx-font-weight: bold;" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-        <TextField fx:id="dureeField" style="-fx-border-radius: 5px; -fx-background-color: #f0f0f0; -fx-text-fill: #34495e; -fx-font-size: 14px;" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        <Label text="Duration:" style="-fx-font-size: 16px; -fx-font-weight: bold;  -fx-font-family: 'Roboto Light';-fx-text-fill: white;" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="dureeField" style="-fx-border-radius: 5px; -fx-background-color: white; -fx-text-fill: #34495e; -fx-font-size: 14px;" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-        <Label text="Price:" style="-fx-font-size: 16px; -fx-font-weight: bold;" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-        <TextField fx:id="prixField" style="-fx-border-radius: 5px; -fx-background-color: #f0f0f0; -fx-text-fill: #34495e; -fx-font-size: 14px;" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+        <Label text="Price:" style="-fx-font-size: 16px; -fx-font-weight: bold;  -fx-font-family: 'Roboto Light';-fx-text-fill: white;" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="prixField" style="-fx-border-radius: 5px; -fx-background-color: white; -fx-text-fill: #34495e; -fx-font-size: 14px;" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-        <Label text="Type:" style="-fx-font-size: 16px; -fx-font-weight: bold;" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-        <TextField fx:id="typeField" style="-fx-border-radius: 5px; -fx-background-color: #f0f0f0; -fx-text-fill: #34495e; -fx-font-size: 14px;" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+        <Label text="Type:" style="-fx-font-size: 16px; -fx-font-weight: bold;  -fx-font-family: 'Roboto Light';-fx-text-fill: white;" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <TextField fx:id="typeField" style="-fx-border-radius: 5px; -fx-background-color: white; -fx-text-fill: #34495e; -fx-font-size: 14px;" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
 
-        <Label text="Trainer:" style="-fx-font-size: 16px; -fx-font-weight: bold;" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-        <TextField fx:id="formateurField" style="-fx-border-radius: 5px; -fx-background-color: #f0f0f0; -fx-text-fill: #34495e; -fx-font-size: 14px;" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+        <Label text="Trainer:" style="-fx-font-size: 16px; -fx-font-weight: bold;  -fx-font-family: 'Roboto Light';-fx-text-fill: white;" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+        <TextField fx:id="formateurField" style="-fx-border-radius: 5px; -fx-background-color: white; -fx-text-fill: #34495e; -fx-font-size: 14px;" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
-        <Label text="Participants:" style="-fx-font-size: 16px; -fx-font-weight: bold;" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-        <TextField fx:id="nbParticipantField" style="-fx-border-radius: 5px; -fx-background-color: #f0f0f0; -fx-text-fill: #34495e; -fx-font-size: 14px;" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+        <Label text="Participants:" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-font-family: 'Roboto Light';-fx-text-fill: white;" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <TextField fx:id="nbParticipantField" style="-fx-border-radius: 5px; -fx-background-color: white; -fx-text-fill: #34495e; -fx-font-size: 14px;" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
 
-        <Label text="Status:" style="-fx-font-size: 16px; -fx-font-weight: bold;" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
-        <ComboBox fx:id="statusComboBox" style="-fx-border-radius: 5px; -fx-background-color: #f0f0f0;" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+        <Label text="Status:" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-font-family: 'Roboto Light';-fx-text-fill: white;" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="statusComboBox" style="-fx-border-radius: 5px; -fx-background-color: white; -fx-font-family: 'Roboto Light';" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
     </GridPane>
 
-    <Button text="Save Formation" onAction="#handleSubmitFormation" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 25; -fx-padding: 12 30;">
+    <Button text="Save Formation" onAction="#handleSubmitFormation" style="-fx-background-color: white; -fx-text-fill: #0d1c6a; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 25; -fx-padding: 12 30;">
         <effect>
             <DropShadow color="rgba(52,152,219,0.3)" radius="8"/>
         </effect>
     </Button>
 </VBox>
+</ScrollPane>

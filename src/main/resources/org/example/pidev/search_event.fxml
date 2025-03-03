@@ -4,12 +4,11 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.effect.Glow?>
-
+<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.pidev.controller.SearchEventController">
 <VBox spacing="20" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/8"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="org.example.pidev.controller.SearchEventController"
-      style="-fx-background-color: linear-gradient(to bottom, #000000, #FF0000);
-             -fx-padding: 30; -fx-pref-width: 1200; -fx-pref-height: 700;">
+      style="-fx-background-color: linear-gradient(to bottom, #000000, #14257c);
+             -fx-padding: 30;-fx-pref-width: 1500;-fx-pref-height: 800;">
 
     <Label text="🔍 Search Event"
            style="-fx-font-size: 26px;
@@ -25,8 +24,7 @@
 
     <GridPane hgap="15" vgap="15"
               style="-fx-background-color: rgba(184,184,184,0.34);
-                     -fx-background-radius: 15;
-                     -fx-border-radius: 15;
+                     -fx-background-radius: 15px;
                      -fx-border-color: rgba(0,0,0,0.1);
                      -fx-border-width: 1;
                      -fx-padding: 25;
@@ -110,3 +108,4 @@
     </VBox>
 
 </VBox>
+</ScrollPane>

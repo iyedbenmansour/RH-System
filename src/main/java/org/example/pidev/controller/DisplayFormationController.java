@@ -61,9 +61,8 @@ public class DisplayFormationController {
             Parent root = loader.load();
 
             UpdateFormationController controller = loader.getController();
-            controller.setFormation(formation);  // Pass the current formation
-            controller.setStage(stage);  // Set the stage to close the current window when done
-
+            controller.setFormation(formation);
+            controller.setStage(stage);
             Stage updateStage = new Stage();
             updateStage.setScene(new Scene(root));
             updateStage.setTitle("Update Formation");
