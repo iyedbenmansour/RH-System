@@ -1,0 +1,211 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier mon profil | JobConnect{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .edit-profile-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .edit-profile-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .edit-profile-header h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-weight: 700;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        .form-control:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+        }
+        
+        .current-image {
+            margin-top: 1rem;
+        }
+        
+        .current-image img {
+            max-width: 200px;
+            border-radius: 0.375rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid #dee2e6;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.5;
+            text-align: center;
+            text-decoration: none;
+            white-space: nowrap;
+            vertical-align: middle;
+            cursor: pointer;
+            user-select: none;
+            border: 1px solid transparent;
+            border-radius: 0.375rem;
+            transition: all 0.15s ease-in-out;
+        }
+        
+        .btn-primary {
+            color: #fff;
+            background-color: #3498db;
+            border-color: #3498db;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+            transform: translateY(-1px);
+        }
+        
+        .btn-outline-secondary {
+            color: #6c757d;
+            background-color: transparent;
+            border-color: #6c757d;
+        }
+        
+        .btn-outline-secondary:hover {
+            color: #fff;
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+        
+        .btn-danger {
+            color: #fff;
+            background-color: #e74c3c;
+            border-color: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+            border-color: #c0392b;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .file-upload {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: #f8f9fa;
+            border: 1px dashed #ced4da;
+            border-radius: 0.375rem;
+            cursor: pointer;
+        }
+        
+        .file-upload-label:hover {
+            border-color: #3498db;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="edit-profile-container">
+        <div class="edit-profile-header">
+            <h1><i class="fas fa-user-edit"></i> Modifier mon profil</h1>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name" class="form-label">Nom complet</label>
+                <input type="text" id="name" name="name" class="form-control" value="{{ candidat.name }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email" class="form-label">Adresse email</label>
+                <input type="email" id="email" name="email" class="form-control" value="{{ candidat.email }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Photo de profil</label>
+                <div class="file-upload">
+                    <label for="image" class="file-upload-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Choisir un fichier...</span>
+                    </label>
+                    <input type="file" id="image" name="image" style="display: none;">
+                </div>
+                
+                {% if candidat.image %}
+                    <div class="current-image">
+                        <img src="{{ asset('uploads/candidats/' ~ candidat.image) }}" alt="Photo actuelle" class="img-thumbnail">
+                        <div style="margin-top: 0.5rem;">
+                            <a href="{{ path('candidat_profile_delete_image') }}" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette photo ?')">
+                                <i class="fas fa-trash"></i> Supprimer la photo
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="action-buttons">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer les modifications
+                </button>
+                <a href="{{ path('candidat_profile') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour au profil
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Affiche le nom du fichier sélectionné
+        document.getElementById('image').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name || 'Aucun fichier sélectionné';
+            const label = document.querySelector('.file-upload-label span');
+            label.textContent = fileName;
+        });
+    </script>
+{% endblock %}
