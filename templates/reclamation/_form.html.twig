@@ -1,0 +1,79 @@
+{{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'novalidate': 'novalidate', 'class': 'needs-validation', 'id': 'reclamation-form'}}) }}
+    <div class="mb-3">
+        {{ form_label(form.user_id, 'User ID', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.user_id, {'attr': {'class': 'form-control' ~ (form.user_id.vars.errors|length ? ' is-invalid' : '')}}) }}
+        <div class="invalid-feedback">
+            {{ form_errors(form.user_id) }}
+        </div>
+    </div>
+
+    <div class="mb-3">
+        {{ form_label(form.title, 'Title', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.title, {'attr': {'class': 'form-control' ~ (form.title.vars.errors|length ? ' is-invalid' : '')}}) }}
+        <div class="invalid-feedback">
+            {{ form_errors(form.title) }}
+        </div>
+    </div>
+
+    <div class="mb-3">
+        {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.description, {'attr': {'class': 'form-control' ~ (form.description.vars.errors|length ? ' is-invalid' : ''), 'rows': 5}}) }}
+        <div class="invalid-feedback">
+            {{ form_errors(form.description) }}
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        {{ form_label(form.imageFile, 'Image', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.imageFile, {'attr': {'class': 'form-control' ~ (form.imageFile.vars.errors|length ? ' is-invalid' : ''), 'accept': 'image/jpeg,image/png'}}) }}
+        <div class="form-text">Select an image file (JPG, PNG) - Max size 2MB.</div>
+        <div class="invalid-feedback">
+            {{ form_errors(form.imageFile) }}
+        </div>
+        {% if form.vars.value.imagePath and form.vars.value.imagePath != 'no-image.jpg' %}
+            <div class="mt-2">
+                <small>Current image:</small>
+                <img src="{{ asset('uploads/images/' ~ form.vars.value.imagePath) }}" alt="Current image" class="img-thumbnail mt-1" style="max-height: 100px;">
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="mb-3">
+        {{ form_label(form.pdfFile, 'PDF Document', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.pdfFile, {'attr': {'class': 'form-control' ~ (form.pdfFile.vars.errors|length ? ' is-invalid' : ''), 'accept': 'application/pdf'}}) }}
+        <div class="form-text">Select a PDF document - Max size 5MB.</div>
+        <div class="invalid-feedback">
+            {{ form_errors(form.pdfFile) }}
+        </div>
+        {% if form.vars.value.pdfPath and form.vars.value.pdfPath != 'no-pdf.pdf' %}
+            <div class="mt-2">
+                <small>Current PDF: <a href="{{ asset('uploads/pdfs/' ~ form.vars.value.pdfPath) }}" target="_blank">View PDF</a></small>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="mb-3">
+        {{ form_label(form.statue_of_reclamation, 'Status', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.statue_of_reclamation, {'attr': {'class': 'form-control' ~ (form.statue_of_reclamation.vars.errors|length ? ' is-invalid' : '')}}) }}
+        <div class="invalid-feedback">
+            {{ form_errors(form.statue_of_reclamation) }}
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        {{ form_label(form.company_id, 'Company ID', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.company_id, {'attr': {'class': 'form-control' ~ (form.company_id.vars.errors|length ? ' is-invalid' : '')}}) }}
+        <div class="invalid-feedback">
+            {{ form_errors(form.company_id) }}
+        </div>
+    </div>
+    
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <a href="{{ path('app_reclamation_index') }}" class="btn btn-secondary me-md-2">
+            <i class="bi bi-arrow-left"></i> Back to list
+        </a>
+        <button class="btn btn-primary">
+            <i class="bi bi-save"></i> {{ button_label|default('Save') }}
+        </button>
+    </div>
+{{ form_end(form) }}

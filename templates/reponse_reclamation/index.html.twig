@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}ReponseReclamation index{% endblock %}
+
+{% block body %}
+    <h1>ReponseReclamation index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Id_rec</th>
+                <th>Id_user</th>
+                <th>Id_receiver</th>
+                <th>Reponse</th>
+                <th>Pdf_path</th>
+                <th>Date</th>
+                <th>Statue_of_reponse_reclamation</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for reponse_reclamation in reponse_reclamations %}
+            <tr>
+                <td>{{ reponse_reclamation.id }}</td>
+                <td>{{ reponse_reclamation.idRec }}</td>
+                <td>{{ reponse_reclamation.idUser }}</td>
+                <td>{{ reponse_reclamation.idReceiver }}</td>
+                <td>{{ reponse_reclamation.reponse }}</td>
+                <td>{{ reponse_reclamation.pdfPath }}</td>
+                <td>{{ reponse_reclamation.date ? reponse_reclamation.date|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ reponse_reclamation.statueOfReponseReclamation }}</td>
+                <td>
+                    <a href="{{ path('app_reponse_reclamation_show', {'id': reponse_reclamation.id}) }}">show</a>
+                    <a href="{{ path('app_reponse_reclamation_edit', {'id': reponse_reclamation.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="9">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_reponse_reclamation_new') }}">Create new</a>
+{% endblock %}

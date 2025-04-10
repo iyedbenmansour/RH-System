@@ -1,0 +1,423 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Toutes les Réclamations - Career Bridge{% endblock %}
+
+{% block body %}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }}">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    <section class="page_title ls s-py-50 corner-title ls invise-10">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <h1>Liste Complète des Réclamations</h1>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ path('app_home_front') }}">Accueil</a>
+                        </li>
+                        <li class="breadcrumb-item active">
+                            Réclamations
+                        </li>
+                    </ol>
+                    <div class="divider-15 d-none d-xl-block"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="s-pt-75 s-pb-100">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card mb-4 border-0 shadow-sm">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h3 class="mb-0">Toutes les Réclamations</h3>
+                            <div>
+                                <a href="{{ path('app_reclamation_new') }}" class="btn btn-primary">
+                                    <i class="fa fa-plus mr-2"></i>Nouvelle Réclamation
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="card-body">
+                            {% if reclamations|length > 0 %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0" id="reclamationsTable">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Utilisateur</th>
+                                                <th>Entreprise</th>
+                                                <th>Titre</th>
+                                                <th>Description</th>
+                                                <th>Image</th>
+                                                <th>Document PDF</th>
+                                                <th>Date</th>
+                                                <th>Statut</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for reclamation in reclamations %}
+                                            <tr>
+                                                <td>#{{ reclamation.id }}</td>
+                                                <td>{{ reclamation.userId }}</td>
+                                                <td>{{ reclamation.companyId }}</td>
+                                                <td>{{ reclamation.title }}</td>
+                                                <td>
+                                                    <div class="description-cell">
+                                                        <span class="short-desc">{{ reclamation.description|length > 50 ? reclamation.description|slice(0, 50) ~ '...' : reclamation.description }}</span>
+                                                        <span class="full-desc d-none">{{ reclamation.description }}</span>
+                                                        {% if reclamation.description|length > 50 %}
+                                                            <a href="#" class="toggle-desc text-primary">Plus</a>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    {% if reclamation.imagePath and reclamation.imagePath != 'no-image.jpg' %}
+                                                        <a href="{{ asset('uploads/reclamation/images/' ~ reclamation.imagePath) }}" data-lightbox="reclamation-{{ reclamation.id }}" data-title="{{ reclamation.title }}">
+                                                            <img src="{{ asset('uploads/reclamation/images/' ~ reclamation.imagePath) }}" alt="Image" class="img-thumbnail reclamation-thumbnail" />
+                                                        </a>
+                                                    {% else %}
+                                                        <span class="badge badge-secondary">Pas d'image</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if reclamation.pdfPath and reclamation.pdfPath != 'no-pdf.pdf' %}
+                                                        <a href="{{ asset('uploads/reclamation/pdfs/' ~ reclamation.pdfPath) }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                                            <i class="fa fa-file-pdf-o mr-1"></i> Voir PDF
+                                                        </a>
+                                                    {% else %}
+                                                        <span class="badge badge-secondary">Pas de PDF</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ reclamation.date ? reclamation.date|date('d/m/Y H:i') : '' }}</td>
+                                                <td>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-{{ reclamation.statueOfReclamation == 'pending' ? 'warning' : (reclamation.statueOfReclamation == 'resolved' ? 'success' : (reclamation.statueOfReclamation == 'in_progress' ? 'info' : (reclamation.statueOfReclamation == 'rejected' ? 'danger' : 'secondary'))) }} dropdown-toggle status-toggle" 
+                                                                type="button" id="statusDropdown{{ reclamation.id }}" 
+                                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                                                data-reclamation-id="{{ reclamation.id }}">
+                                                            {{ reclamation.statueOfReclamation|replace({'_': ' '})|title }}
+                                                        </button>
+                                                        <div class="dropdown-menu" aria-labelledby="statusDropdown{{ reclamation.id }}">
+                                                            <a class="dropdown-item status-option" href="#" data-status="pending">Pending</a>
+                                                            <a class="dropdown-item status-option" href="#" data-status="in_progress">In Progress</a>
+                                                            <a class="dropdown-item status-option" href="#" data-status="resolved">Resolved</a>
+                                                            <a class="dropdown-item status-option" href="#" data-status="rejected">Rejected</a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group" role="group">
+                                                        <a href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}" 
+                                                           class="btn btn-sm btn-outline-primary" 
+                                                           data-toggle="tooltip" 
+                                                           title="Voir détails">
+                                                            <i class="fa fa-eye"></i>
+                                                        </a>
+                                                        <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}" 
+                                                           class="btn btn-sm btn-outline-secondary" 
+                                                           data-toggle="tooltip" 
+                                                           title="Modifier">
+                                                            <i class="fa fa-edit"></i>
+                                                        </a>
+                                                        <form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.id}) }}" class="d-inline delete-form">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger" data-toggle="tooltip" title="Supprimer" data-title="{{ reclamation.title }}">
+                                                                <i class="fa fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info mb-0 text-center">
+                                    <i class="fa fa-info-circle mr-2"></i> 
+                                    Aucune réclamation trouvée. 
+                                    <a href="{{ path('app_reclamation_new') }}" class="alert-link">Créer une réclamation maintenant</a>.
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if reclamations|length > 10 %}
+                        <div class="card-footer bg-white">
+                            <nav aria-label="Pagination des réclamations">
+                                <ul class="pagination justify-content-center mb-0">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" tabindex="-1">Précédent</a>
+                                    </li>
+                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">Suivant</a></li>
+                                </ul>
+                            </nav>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/lightbox2@2.11.3/dist/js/lightbox.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTables for pagination and search
+            $('#reclamationsTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json"
+                },
+                "pageLength": 10,
+                "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Tous"]],
+                "responsive": true
+            });
+            
+            // Lightbox configuration for displaying images in large format
+            lightbox.option({
+                'resizeDuration': 200,
+                'wrapAround': true,
+                'albumLabel': "Image %1 sur %2"
+            });
+            
+            // Enable Bootstrap tooltips
+            $('[data-toggle="tooltip"]').tooltip();
+            
+            // Handle full description display
+            $('.toggle-desc').on('click', function(e) {
+                e.preventDefault();
+                var cell = $(this).closest('.description-cell');
+                var shortDesc = cell.find('.short-desc');
+                var fullDesc = cell.find('.full-desc');
+                
+                if (shortDesc.is(':visible')) {
+                    shortDesc.hide();
+                    fullDesc.removeClass('d-none');
+                    $(this).text('Moins');
+                } else {
+                    fullDesc.addClass('d-none');
+                    shortDesc.show();
+                    $(this).text('Plus');
+                }
+            });
+            
+            // Handle delete confirmation with SweetAlert2
+            $('.delete-form').on('submit', function(e) {
+                e.preventDefault();
+                
+                var form = $(this);
+                var title = form.find('button').data('title');
+                
+                Swal.fire({
+                    title: 'Êtes-vous sûr?',
+                    text: "Voulez-vous vraiment supprimer la réclamation: " + title + " ?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Oui, supprimer!',
+                    cancelButtonText: 'Annuler'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form[0].submit();
+                    }
+                });
+            });
+            
+            // Initialize Toast notifications
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+            
+            // Store original button text on hover
+            $('.status-toggle').hover(function() {
+                $(this).data('original-text', $(this).text());
+            });
+        });
+        
+        // Handle status change with event delegation
+        $(document).on('click', '.status-option', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var newStatus = $(this).data('status');
+            var dropdown = $(this).closest('.dropdown');
+            var button = dropdown.find('.status-toggle');
+            var reclamationId = button.data('reclamation-id');
+            
+            // Show loading state
+            button.html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+            
+            $.ajax({
+                url: '/reclamation/update-status/' + reclamationId,
+                method: 'POST',
+                data: { status: newStatus },
+                success: function(response) {
+                    if (response.success) {
+                        // Update the button text and class
+                        button.text(response.statusLabel);
+                        
+                        // Remove all status classes and add the new one
+                        button.removeClass('btn-warning btn-success btn-info btn-danger btn-secondary');
+                        
+                        var statusClass = 'btn-' + response.statusClass;
+                        button.addClass(statusClass);
+                        
+                        // Close the dropdown
+                        dropdown.removeClass('show');
+                        dropdown.find('.dropdown-menu').removeClass('show');
+                        
+                        // Show success notification
+                        Toast.fire({
+                            icon: 'success',
+                            title: 'Status updated successfully'
+                        });
+                    }
+                },
+                error: function() {
+                    // Reset button state
+                    button.text(button.data('original-text'));
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to update status. Please try again.'
+                    });
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightbox2@2.11.3/dist/css/lightbox.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
+    
+    <style>
+        .card {
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        
+        .badge {
+            padding: 5px 10px;
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+        
+        .btn-outline-primary, .btn-outline-secondary, .btn-outline-danger, .btn-outline-info {
+            border-width: 2px;
+        }
+        
+        .reclamation-thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 2px solid #f1f1f1;
+        }
+        
+        .reclamation-thumbnail:hover {
+            transform: scale(1.1);
+            border-color: #007bff;
+        }
+        
+        .icon-box {
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            height: 100%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .icon-box:hover {
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+        }
+        
+        .description-cell {
+            max-width: 250px;
+        }
+        
+        /* Status dropdown styles */
+        .dropdown-toggle.status-toggle {
+            min-width: 120px;
+            text-align: left;
+            position: relative;
+            padding-right: 25px;
+        }
+        
+        .dropdown-toggle.status-toggle:after {
+            content: "▼";
+            font-size: 10px;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .dropdown-menu {
+            min-width: 120px;
+        }
+        
+        .status-option {
+            cursor: pointer;
+            padding: 5px 15px;
+        }
+        
+        .status-option:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .table-responsive {
+                border: none;
+            }
+            
+            #reclamationsTable {
+                width: 100% !important;
+            }
+        }
+    </style>
+{% endblock %}

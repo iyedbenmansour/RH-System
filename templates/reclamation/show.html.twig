@@ -1,0 +1,724 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Réclamation #{{ reclamation.id }} | CareerBridge{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    /* Variables de couleurs */
+    :root {
+        --primary-color: #4361ee;
+        --primary-gradient: linear-gradient(135deg, #4361ee 0%, #3a7bd5 100%);
+        --secondary-color: #2b2d42;
+        --light-color: #f8f9fa;
+        --muted-color: #6c757d;
+        --border-radius: 16px;
+        --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    /* Base */
+    body {
+        font-family: 'Poppins', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        color: #333;
+        background-color: #f5f7fa;
+    }
+    
+    /* Header */
+    .page_header {
+        background: var(--primary-gradient);
+        position: relative;
+        overflow: hidden;
+        padding: 70px 0;
+    }
+    
+    .page_header::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        opacity: 0.6;
+    }
+    
+    .page_header h1 {
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Breadcrumb */
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .breadcrumb-item a {
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+    
+    .breadcrumb-item a:hover {
+        color: #ffffff !important;
+        text-decoration: none;
+    }
+    
+    .breadcrumb-item.active {
+        color: #ffffff !important;
+        font-weight: 600;
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Cards */
+    .card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        transition: var(--transition);
+        height: 100%;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
+        background-color: #ffffff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    /* Status badges */
+    .status-badge {
+        font-size: 0.85rem;
+        padding: 0.5rem 1.2rem;
+        border-radius: 30px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .status-badge::before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+    
+    .status-urgent {
+        background-color: #fff0f0;
+        color: #ff4757;
+    }
+    
+    .status-urgent::before {
+        background-color: #ff4757;
+        box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2);
+    }
+    
+    .status-high {
+        background-color: #fff4f6;
+        color: #ff6b81;
+    }
+    
+    .status-high::before {
+        background-color: #ff6b81;
+        box-shadow: 0 0 0 2px rgba(255, 107, 129, 0.2);
+    }
+    
+    .status-medium {
+        background-color: #fff8e8;
+        color: #ffa502;
+    }
+    
+    .status-medium::before {
+        background-color: #ffa502;
+        box-shadow: 0 0 0 2px rgba(255, 165, 2, 0.2);
+    }
+    
+    .status-low {
+        background-color: #e8fff0;
+        color: #2ed573;
+    }
+    
+    .status-low::before {
+        background-color: #2ed573;
+        box-shadow: 0 0 0 2px rgba(46, 213, 115, 0.2);
+    }
+    
+    .status-resolved {
+        background-color: #f0f5ff;
+        color: #3742fa;
+    }
+    
+    .status-resolved::before {
+        background-color: #3742fa;
+        box-shadow: 0 0 0 2px rgba(55, 66, 250, 0.2);
+    }
+    
+    /* Labels and values */
+    .detail-label {
+        font-size: 0.75rem;
+        color: var(--muted-color) !important;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.3rem;
+        display: block;
+    }
+    
+    .detail-value {
+        font-size: 1rem;
+        color: var(--secondary-color) !important;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Description */
+    .description-box {
+        background-color: #f8f9ff;
+        border-radius: 12px;
+        padding: 1.5rem;
+        border-left: 4px solid var(--primary-color);
+        position: relative;
+    }
+    
+    .description-box::before {
+        content: '"';
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 4rem;
+        font-family: Georgia, serif;
+        color: rgba(67, 97, 238, 0.1);
+        line-height: 1;
+    }
+    
+    /* Files */
+    .file-preview {
+        border: 2px dashed rgba(67, 97, 238, 0.2);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        background-color: #f9faff;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        transition: var(--transition);
+    }
+    
+    .file-preview:hover {
+        border-color: var(--primary-color);
+        background-color: #f0f4ff;
+    }
+    
+    .file-preview img {
+        max-height: 300px;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Buttons */
+    .action-btn {
+        border-radius: 12px;
+        padding: 12px 20px;
+        font-weight: 600;
+        transition: var(--transition);
+        border-width: 2px;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .action-btn::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 0;
+        z-index: -1;
+        transition: height 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    
+    .action-btn:hover::after {
+        height: 100%;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .btn-primary::after {
+        background-color: darken(#4361ee, 10%);
+    }
+    
+    .btn-outline-primary {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .btn-outline-primary::after {
+        background-color: var(--primary-color);
+    }
+    
+    .btn-outline-primary:hover {
+        color: white;
+        background-color: transparent;
+    }
+    
+    .btn-outline-secondary {
+        color: var(--secondary-color);
+        border-color: #dae0e5;
+    }
+    
+    .btn-outline-secondary::after {
+        background-color: #e9ecef;
+    }
+    
+    .btn-danger {
+        background-color: #ff4757;
+        border-color: #ff4757;
+    }
+    
+    .btn-outline-danger {
+        color: #ff4757;
+        border-color: #ff4757;
+    }
+    
+    .btn-outline-danger::after {
+        background-color: #ff4757;
+    }
+    
+    .btn-outline-danger:hover {
+        color: white;
+        background-color: transparent;
+    }
+    
+    /* Icon Buttons */
+    .btn i {
+        margin-right: 8px;
+        transition: transform 0.3s ease;
+    }
+    
+    .btn:hover i {
+        transform: translateX(-2px);
+    }
+    
+    .btn.btn-primary:hover i, 
+    .btn.btn-outline-primary:hover i,
+    .btn.btn-danger:hover i,
+    .btn.btn-outline-danger:hover i {
+        transform: translateX(2px);
+    }
+    
+    /* Timeline */
+    .timeline {
+        position: relative;
+        padding-left: 40px;
+        list-style: none;
+        margin: 0;
+    }
+    
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 5px;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(to bottom, 
+            var(--primary-color) 0%, 
+            rgba(67, 97, 238, 0.2) 100%);
+    }
+    
+    .timeline-item {
+        position: relative;
+        padding-bottom: 25px;
+        opacity: 0;
+        transform: translateX(-10px);
+        animation: slideIn 0.6s forwards;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -40px;
+        top: 5px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background-color: #ffffff;
+        border: 3px solid var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        z-index: 1;
+    }
+    
+    .timeline-item:last-child {
+        padding-bottom: 0;
+    }
+    
+    .timeline-item h6 {
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+    
+    .timeline-item .text-muted {
+        color: var(--muted-color) !important;
+        font-size: 0.8rem;
+    }
+    
+    /* Animations */
+    @keyframes slideIn {
+        to { 
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    /* Adjust spacing */
+    .s-py-90 {
+        padding-top: 5rem;
+        padding-bottom: 5rem;
+    }
+    
+    /* Delete Form Button */
+    .delete-form button {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+    
+    /* Additional components */
+    .reclamation-meta {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        background-color: #f8f9ff;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+    
+    .reclamation-meta i {
+        font-size: 24px;
+        color: var(--primary-color);
+        margin-right: 15px;
+    }
+    
+    .reclamation-meta-info h6 {
+        margin-bottom: 3px;
+        font-weight: 600;
+    }
+    
+    .reclamation-meta-info span {
+        font-size: 0.8rem;
+        color: var(--muted-color);
+    }
+    
+    /* File icons */
+    .file-icon {
+        font-size: 4rem;
+        margin-bottom: 15px;
+        color: #ff6b81;
+        filter: drop-shadow(0 5px 10px rgba(255, 107, 129, 0.2));
+    }
+    
+    /* Image hover effect */
+    .img-hover-zoom {
+        overflow: hidden;
+        border-radius: 8px;
+    }
+    
+    .img-hover-zoom img {
+        transition: transform 0.5s ease;
+    }
+    
+    .img-hover-zoom:hover img {
+        transform: scale(1.05);
+    }
+    
+    /* Media Queries */
+    @media (max-width: 767.98px) {
+        .page_header {
+            padding: 40px 0;
+        }
+        
+        .page_header h1 {
+            font-size: 1.75rem;
+        }
+        
+        .s-py-90 {
+            padding-top: 3rem;
+            padding-bottom: 3rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="page_header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="text-white mb-3">Réclamation #{{ reclamation.id }}</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ path('app_home_front') }}"><i class="fas fa-home me-1"></i>Accueil</a></li>
+                        <li class="breadcrumb-item"><a href="{{ path('app_reclamation_index') }}"><i class="fas fa-clipboard-list me-1"></i>Mes Réclamations</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Détails</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <span class="status-badge status-{{ reclamation.statueOfReclamation|lower|replace({' ': '-'}) }}">
+                    {{ reclamation.statueOfReclamation }}
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="s-py-90">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Main Card -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">{{ reclamation.title }}</h3>
+                        <span class="badge bg-light text-dark">
+                            <i class="far fa-calendar-alt me-1"></i> 
+                            {{ reclamation.date|date('d/m/Y à H:i') }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <!-- Meta Info -->
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <div class="reclamation-meta">
+                                    <i class="fas fa-user-circle"></i>
+                                    <div class="reclamation-meta-info">
+                                        <h6>Client</h6>
+                                        <span>ID: {{ reclamation.userId }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="reclamation-meta">
+                                    <i class="fas fa-building"></i>
+                                    <div class="reclamation-meta-info">
+                                        <h6>Entreprise</h6>
+                                        <span>ID: {{ reclamation.companyId }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Description -->
+                        <h5 class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-quote-left me-2" style="color: var(--primary-color);"></i>
+                            Description
+                        </h5>
+                        <div class="description-box mb-4">
+                            <p class="mb-0">{{ reclamation.description }}</p>
+                        </div>
+                        
+                        <!-- Attachments -->
+                        {% if reclamation.imagePath or reclamation.pdfPath %}
+                        <h5 class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-paperclip me-2" style="color: var(--primary-color);"></i>
+                            Pièces jointes
+                        </h5>
+                        {% endif %}
+                        
+                        {% if reclamation.imagePath %}
+                        <div class="file-preview mb-4">
+                            <h6 class="text-primary mb-3">Image</h6>
+                            <div class="img-hover-zoom mb-3">
+                                <img src="{{ asset('uploads/images/reclamations/' ~ reclamation.imagePath) }}" 
+                                     class="img-fluid rounded-3" 
+                                     style="max-height: 300px;"
+                                     alt="Image jointe">
+                            </div>
+                            <div class="mt-3">
+                                <a href="{{ asset('uploads/images/reclamations/' ~ reclamation.imagePath) }}" 
+                                   class="btn btn-outline-primary action-btn me-2"
+                                   target="_blank">
+                                    <i class="fas fa-eye"></i>Visualiser
+                                </a>
+                                <a href="{{ asset('uploads/images/reclamations/' ~ reclamation.imagePath) }}" 
+                                   download 
+                                   class="btn btn-outline-primary action-btn">
+                                    <i class="fas fa-download"></i>Télécharger
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if reclamation.pdfPath %}
+                        <div class="file-preview">
+                            <h6 class="text-primary mb-3">Document PDF</h6>
+                            <i class="fas fa-file-pdf file-icon"></i>
+                            <p class="mb-3">{{ reclamation.pdfPath }}</p>
+                            <div>
+                                <a href="{{ asset('uploads/pdf/reclamations/' ~ reclamation.pdfPath) }}" 
+                                   target="_blank" 
+                                   class="btn btn-outline-danger action-btn me-2">
+                                    <i class="fas fa-eye"></i>Visualiser
+                                </a>
+                                <a href="{{ asset('uploads/pdf/reclamations/' ~ reclamation.pdfPath) }}" 
+                                   download 
+                                   class="btn btn-outline-primary action-btn">
+                                    <i class="fas fa-download"></i>Télécharger
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Actions Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0 d-flex align-items-center">
+                            <i class="fas fa-cogs me-2" style="color: var(--primary-color);"></i>
+                            Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-3">
+                            <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}" 
+                               class="btn btn-primary action-btn">
+                                <i class="fas fa-edit"></i>Modifier la réclamation
+                            </a>
+                            <a href="{{ path('app_reclamation_index') }}" 
+                               class="btn btn-outline-secondary action-btn">
+                                <i class="fas fa-arrow-left"></i>Retour à la liste
+                            </a>
+                            
+                            <form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette réclamation ?');" class="delete-form">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
+                                <button class="btn btn-outline-danger action-btn">
+                                    <i class="fas fa-trash-alt"></i>Supprimer
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- History Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0 d-flex align-items-center">
+                            <i class="fas fa-history me-2" style="color: var(--primary-color);"></i>
+                            Historique
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="timeline">
+                            <li class="timeline-item" style="animation-delay: 0.1s">
+                                <h6>Réclamation créée</h6>
+                                <p class="text-muted small mb-0">
+                                    <i class="far fa-clock me-1"></i>
+                                    {{ reclamation.date|date('d/m/Y à H:i') }}
+                                </p>
+                            </li>
+                            <li class="timeline-item" style="animation-delay: 0.3s">
+                                <h6>Statut modifié</h6>
+                                <p class="text-muted small mb-0">
+                                    <i class="far fa-clock me-1"></i>
+                                    {{ reclamation.date|date_modify("+1 day")|date('d/m/Y à H:i') }}
+                                </p>
+                                <p class="text-muted small mb-0">
+                                    <span class="status-badge status-{{ reclamation.statueOfReclamation|lower|replace({' ': '-'}) }}" style="font-size: 0.7rem; padding: 3px 8px;">
+                                        {{ reclamation.statueOfReclamation }}
+                                    </span>
+                                </p>
+                            </li>
+                            <li class="timeline-item" style="animation-delay: 0.5s">
+                                <h6>Commentaire ajouté</h6>
+                                <p class="text-muted small mb-0">
+                                    <i class="far fa-clock me-1"></i>
+                                    {{ reclamation.date|date_modify("+2 days")|date('d/m/Y à H:i') }}
+                                </p>
+                                <p class="text-muted small fst-italic">
+                                    "Nous avons bien reçu votre réclamation et nous allons la traiter dans les plus brefs délais."
+                                </p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation d'entrée pour les cartes
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        card.style.transitionDelay = (index * 0.1) + 's';
+        
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 100);
+    });
+    
+    // Confirmation avant suppression
+    const deleteForms = document.querySelectorAll('.delete-form');
+    deleteForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cette réclamation ? Cette action est irréversible.')) {
+                e.preventDefault();
+            }
+        });
+    });
+    
+    // Animation pour les badges de statut
+    const statusBadge = document.querySelector('.status-badge');
+    if (statusBadge) {
+        statusBadge.style.opacity = '0';
+        statusBadge.style.transform = 'scale(0.8)';
+        statusBadge.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        
+        setTimeout(() => {
+            statusBadge.style.opacity = '1';
+            statusBadge.style.transform = 'scale(1)';
+        }, 300);
+    }
+    
+    // Animation pour les images au survol
+    const fileImages = document.querySelectorAll('.file-preview img');
+    fileImages.forEach(img => {
+        img.addEventListener('load', function() {
+            this.parentElement.classList.add('loaded');
+        });
+    });
+});
+</script>
+{% endblock %}
