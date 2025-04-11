@@ -1,0 +1,26 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Edit Job{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4">Edit Job</h1>
+        
+        <div class="card">
+            <div class="card-body">
+                {{ form_start(form) }}
+                    {{ form_row(form.title) }}
+                    {{ form_row(form.description) }}
+                    {{ form_row(form.companyId) }}
+                    {{ form_row(form.position) }}
+                    {{ form_row(form.location) }}
+                    {{ form_row(form.postedDate) }}
+                    
+                    <button type="submit" class="btn btn-primary">Update Job</button>
+                    <a href="{{ path('app_job_list', {'company_id': job.companyId}) }}" 
+                       class="btn btn-secondary">Cancel</a>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

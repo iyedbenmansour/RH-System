@@ -1,0 +1,49 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Company Applications{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="mb-4">Job Applications for Company</h1>
+        
+        {% if applications|length == 0 %}
+            <div class="alert alert-info">No applications found for this company.</div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Applicant ID</th>
+                            <th>Job ID</th>
+                            <th>Applied Date</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in applications %}
+                            <tr>
+                                <td>{{ application.userId }}</td>
+                                <td>{{ application.jobId }}</td>
+                                <td>{{ application.appliedDate|date('Y-m-d') }}</td>
+                                <td>
+                                    <form method="post" action="{{ path('app_update_application', {'id': application.id}) }}">
+                                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                            <option value="Pending" {{ application.status == 'Pending' ? 'selected' : '' }}>Pending</option>
+                                            <option value="Accepted" {{ application.status == 'Accepted' ? 'selected' : '' }}>Accepted</option>
+                                            <option value="Rejected" {{ application.status == 'Rejected' ? 'selected' : '' }}>Rejected</option>
+                                        </select>
+                                    </form>
+                                </td>
+                                <td>
+                                    <a href="{{ path('app_job_show', {'id': application.jobId}) }}" 
+                                       class="btn btn-sm btn-outline-info">View Job</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Post New Job{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4">Post New Job</h1>
+        
+        <div class="card">
+            <div class="card-body">
+                {{ form_start(form) }}
+                    {{ form_row(form.title) }}
+                    {{ form_row(form.description) }}
+                    {{ form_row(form.companyId) }}
+                    {{ form_row(form.position) }}
+                    {{ form_row(form.location) }}
+                    {{ form_row(form.postedDate) }}
+                    
+                    <button type="submit" class="btn btn-primary">Submit Job</button>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

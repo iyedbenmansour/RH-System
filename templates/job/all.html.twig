@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}All Jobs{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4">All Job Listings</h1>
+        
+        <div class="row">
+            {% for job in jobs %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ job.title }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">
+                                {{ job.position }} | {{ job.location }}
+                            </h6>
+                            <p class="card-text">
+                                {% if job.description|length > 100 %}
+                                    {{ job.description|slice(0, 100) }}...
+                                {% else %}
+                                    {{ job.description }}
+                                {% endif %}
+                            </p>
+                            <a href="{{ path('app_job_show', {'id': job.id}) }}" class="btn btn-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info">No job listings found.</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .card {
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+{% endblock %}
