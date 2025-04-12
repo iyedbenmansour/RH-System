@@ -1,51 +1,67 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}All Jobs{% endblock %}
+{% block title %}Browse Job Opportunities{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="mb-4">All Job Listings</h1>
-        
-        <div class="row">
+<div class="container mt-5">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold text-primary mb-1">Job Opportunities</h1>
+            <p class="text-muted">Find your next career move from our curated listings</p>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <form action="{{ path('app_jobs_all') }}" method="get" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <input type="text" 
+                   name="q" 
+                   class="form-control" 
+                   placeholder="Search by job title..." 
+                   value="{{ app.request.query.get('q') }}">
+        </div>
+        <div class="col-md-4">
+            <input type="text" 
+                   name="location" 
+                   class="form-control" 
+                   placeholder="Location (e.g. city, country)" 
+                   value="{{ app.request.query.get('location') }}">
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary me-2">
+                <i class="fas fa-search"></i> Search
+            </button>
+            <a href="{{ path('app_jobs_all') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-sync"></i> Reset
+            </a>
+        </div>
+    </form>
+
+    <!-- Job Listings -->
+    <div class="row">
+        {% if jobs|length > 0 %}
             {% for job in jobs %}
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
+                <div class="col-12 mb-3">
+                    <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">{{ job.title }}</h5>
                             <h6 class="card-subtitle mb-2 text-muted">
-                                {{ job.position }} | {{ job.location }}
+                                <i class="fas fa-map-marker-alt"></i> {{ job.location }}
                             </h6>
                             <p class="card-text">
-                                {% if job.description|length > 100 %}
-                                    {{ job.description|slice(0, 100) }}...
-                                {% else %}
-                                    {{ job.description }}
-                                {% endif %}
+                                {{ job.description|length > 150 ? job.description|slice(0, 150) ~ '...' : job.description }}
                             </p>
-                            <a href="{{ path('app_job_show', {'id': job.id}) }}" class="btn btn-primary">
-                                View Details
-                            </a>
+                            <a href="{{ path('app_job_show', { id: job.id }) }}" class="btn btn-primary">View Details</a>
                         </div>
                     </div>
                 </div>
-            {% else %}
-                <div class="col-12">
-                    <div class="alert alert-info">No job listings found.</div>
-                </div>
             {% endfor %}
-        </div>
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">No job listings found. Try adjusting your search criteria.</div>
+            </div>
+        {% endif %}
     </div>
-{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-    <style>
-        .card {
-            transition: transform 0.2s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-    </style>
+</div>
 {% endblock %}

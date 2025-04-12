@@ -38,18 +38,72 @@ class JobController extends AbstractController
     public function list(Request $request, EntityManagerInterface $entityManager): Response
     {
         $companyId = $request->query->get('company_id');
-        $jobs = [];
+        $searchTerm = $request->query->get('q', '');
         
+        $queryBuilder = $entityManager->getRepository(Job::class)->createQueryBuilder('j')
+            ->orderBy('j.postedDate', 'DESC');
+
         if ($companyId) {
-            $jobs = $entityManager->getRepository(Job::class)->findBy(
-                ['companyId' => $companyId],
-                ['postedDate' => 'DESC']
-            );
+            $queryBuilder->where('j.companyId = :companyId')
+                ->setParameter('companyId', $companyId);
         }
+
+        if ($searchTerm) {
+            $queryBuilder
+                ->andWhere('j.title LIKE :searchTerm OR j.description LIKE :searchTerm OR j.company LIKE :searchTerm')
+                ->setParameter('searchTerm', '%'.$searchTerm.'%');
+        }
+
+        $jobs = $queryBuilder->getQuery()->getResult();
 
         return $this->render('job/list.html.twig', [
             'jobs' => $jobs,
-            'company_id' => $companyId
+            'company_id' => $companyId,
+            'searchTerm' => $searchTerm
+        ]);
+    }
+
+    #[Route('/jobs', name: 'app_jobs_all')]
+    public function allJobs(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $searchTerm = $request->query->get('q', '');
+        $location = $request->query->get('location', '');
+        $typeFilter = $request->query->get('type', '');
+    
+        // Build query to fetch jobs
+        $queryBuilder = $entityManager->getRepository(Job::class)->createQueryBuilder('j')
+            ->orderBy('j.postedDate', 'DESC');
+    
+        if (!empty($searchTerm)) {
+            $queryBuilder->andWhere('j.title LIKE :searchTerm')
+                ->setParameter('searchTerm', '%' . $searchTerm . '%');
+        }
+    
+        if (!empty($location)) {
+            $queryBuilder->andWhere('j.location LIKE :location')
+                ->setParameter('location', '%' . $location . '%');
+        }
+    
+        if (!empty($typeFilter)) {
+            $queryBuilder->andWhere('j.type = :type')
+                ->setParameter('type', $typeFilter);
+        }
+    
+        $jobs = $queryBuilder->getQuery()->getResult();
+    
+        return $this->render('job/all.html.twig', [
+            'jobs' => $jobs,
+            'searchTerm' => $searchTerm,
+            'location' => $location,
+            'typeFilter' => $typeFilter,
+        ]);
+    }
+
+    #[Route('/job/{id}', name: 'app_job_show')]
+    public function show(Job $job): Response
+    {
+        return $this->render('job/show.html.twig', [
+            'job' => $job,
         ]);
     }
 
@@ -60,7 +114,6 @@ class JobController extends AbstractController
         $form->handleRequest($request);
     
         if ($form->isSubmitted() && $form->isValid()) {
-            // Add explicit persist call to ensure entity is tracked
             $entityManager->persist($job);
             $entityManager->flush();
     
@@ -91,26 +144,4 @@ class JobController extends AbstractController
             'company_id' => $companyId
         ]);
     }
-
-
-    #[Route('/jobs', name: 'app_jobs_all')]
-public function allJobs(EntityManagerInterface $entityManager): Response
-{
-    $jobs = $entityManager->getRepository(Job::class)->findBy(
-        [],
-        ['postedDate' => 'DESC']
-    );
-
-    return $this->render('job/all.html.twig', [
-        'jobs' => $jobs,
-    ]);
-}
-
-#[Route('/job/{id}', name: 'app_job_show')]
-public function show(Job $job): Response
-{
-    return $this->render('job/show.html.twig', [
-        'job' => $job,
-    ]);
-}
 }
