@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Online Job{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('employee_leave_requests', {'employeeId': leaveRequest.employeeId}) }}">Leave Requests</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('online_job_view', {'id': onlineJob.id}) }}">Online Job Details</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <h1 class="h3 mb-0">Edit Online Job</h1>
+        </div>
+        <div class="card-body">
+            {{ form_start(form) }}
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        {{ form_row(form.title, {
+                            'attr': {'class': 'form-control'},
+                            'label_attr': {'class': 'form-label'}
+                        }) }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        {{ form_row(form.post, {
+                            'attr': {'class': 'form-control', 'rows': 5},
+                            'label_attr': {'class': 'form-label'}
+                        }) }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form_row(form.startDate, {
+                            'attr': {'class': 'form-control'},
+                            'label_attr': {'class': 'form-label'}
+                        }) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.endDate, {
+                            'attr': {'class': 'form-control'},
+                            'label_attr': {'class': 'form-label'}
+                        }) }}
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-end mt-4">
+                    <a href="{{ path('online_job_view', {'id': onlineJob.id}) }}" class="btn btn-outline-secondary me-2">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i> Save Changes
+                    </button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
