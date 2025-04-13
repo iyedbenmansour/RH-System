@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Reclamation;
 use App\Form\ReclamationType;
 use App\Repository\ReclamationRepository;
+use App\Service\ReclamationService;
+use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -17,6 +19,15 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[Route('/reclamation')]
 class ReclamationController extends AbstractController
 {
+    private $reclamationService;
+    private $emailService;
+
+    public function __construct(ReclamationService $reclamationService, EmailService $emailService) 
+    {
+        $this->reclamationService = $reclamationService;
+        $this->emailService = $emailService;
+    }
+
     #[Route('/', name: 'app_reclamation_index', methods: ['GET'])]
     public function index(ReclamationRepository $reclamationRepository): Response
     {
@@ -28,13 +39,13 @@ class ReclamationController extends AbstractController
     #[Route('/status-management', name: 'app_reclamation_status_management', methods: ['GET'])]
     public function statusManagement(ReclamationRepository $reclamationRepository): Response
     {
-        $pending = $reclamationRepository->findBy(['statueOfReclamation' => 'pending']);
-        $inProgress = $reclamationRepository->findBy(['statueOfReclamation' => 'in_progress']);
-        $resolved = $reclamationRepository->findBy(['statueOfReclamation' => 'resolved']);
-        $rejected = $reclamationRepository->findBy(['statueOfReclamation' => 'rejected']);
+        $notTreated = $reclamationRepository->findBy(['statueOfReclamation' => 'Not Treated']);
+        $inProgress = $reclamationRepository->findBy(['statueOfReclamation' => 'In Progress']);
+        $resolved = $reclamationRepository->findBy(['statueOfReclamation' => 'Resolved']);
+        $rejected = $reclamationRepository->findBy(['statueOfReclamation' => 'Rejected']);
         
         return $this->render('reclamation/status_management.html.twig', [
-            'pending' => $pending,
+            'notTreated' => $notTreated,
             'inProgress' => $inProgress,
             'resolved' => $resolved,
             'rejected' => $rejected,
@@ -42,35 +53,65 @@ class ReclamationController extends AbstractController
     }
 
     #[Route('/update-status/{id}', name: 'app_reclamation_update_status', methods: ['POST'])]
-    public function updateStatus(Request $request, Reclamation $reclamation, EntityManagerInterface $entityManager): JsonResponse
+    public function updateStatus(Request $request, EntityManagerInterface $entityManager, int $id): JsonResponse
     {
+        // Récupérer la réclamation
+        $reclamation = $entityManager->getRepository(Reclamation::class)->find($id);
+        
+        if (!$reclamation) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Réclamation non trouvée'
+            ], 404);
+        }
+        
+        // Vérifier le statut
         $newStatus = $request->request->get('status');
-        $validStatuses = ['pending', 'in_progress', 'resolved', 'rejected'];
+        $validStatuses = ['Not Treated', 'In Progress', 'Resolved', 'Rejected'];
         
         if (!in_array($newStatus, $validStatuses)) {
-            return $this->json(['success' => false, 'message' => 'Invalid status'], 400);
+            return $this->json([
+                'success' => false, 
+                'message' => 'Statut invalide'
+            ], 400);
         }
-    
-        $reclamation->setStatueOfReclamation($newStatus);
-        $entityManager->flush();
-    
-        return $this->json([
-            'success' => true,
-            'newStatus' => $newStatus,
-            'statusLabel' => ucfirst(str_replace('_', ' ', $newStatus)),
-            'statusClass' => $this->getStatusBadgeClass($newStatus)
-        ]);
-    }
-
-    private function getStatusBadgeClass(string $status): string
-    {
-        return match ($status) {
-            'pending' => 'warning',
-            'resolved' => 'success',
-            'in_progress' => 'info',
-            'rejected' => 'danger',
-            default => 'secondary',
-        };
+        
+        try {
+            // Mise à jour directe du statut
+            $reclamation->setStatueOfReclamation($newStatus);
+            $entityManager->persist($reclamation);
+            $entityManager->flush();
+            
+            // Préparer les labels et classes pour l'interface
+            $statusLabel = match($newStatus) {
+                'Not Treated' => 'Non traité',
+                'In Progress' => 'En cours',
+                'Resolved' => 'Résolu',
+                'Rejected' => 'Rejeté',
+                default => $newStatus
+            };
+            
+            $statusClass = match($newStatus) {
+                'Not Treated' => 'not-treated',
+                'In Progress' => 'in-progress',
+                'Resolved' => 'resolved',
+                'Rejected' => 'rejected',
+                default => 'secondary'
+            };
+            
+            return $this->json([
+                'success' => true,
+                'message' => 'Statut mis à jour avec succès',
+                'status' => $newStatus,
+                'statusLabel' => $statusLabel,
+                'statusClass' => $statusClass
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Erreur lors de la mise à jour: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     #[Route('/new', name: 'app_reclamation_new', methods: ['GET', 'POST'])]
@@ -78,12 +119,15 @@ class ReclamationController extends AbstractController
     {
         $reclamation = new Reclamation();
         $reclamation->setDate(new \DateTime());
-        $reclamation->setStatueOfReclamation('pending');
+        $reclamation->setStatueOfReclamation('Not Treated');
         
         $form = $this->createForm(ReclamationType::class, $reclamation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Ensure the default status is set
+            $reclamation->setStatueOfReclamation('Not Treated');
+            
             // Handle image upload
             $imageFile = $form->get('imageFile')->getData();
             if ($imageFile) {
@@ -126,10 +170,10 @@ class ReclamationController extends AbstractController
                 $reclamation->setPdfPath('no-pdf.pdf');
             }
 
-            $entityManager->persist($reclamation);
-            $entityManager->flush();
+            // Utilisation du service pour ajouter la réclamation (avec nettoyage du texte)
+            $this->reclamationService->addReclamation($reclamation);
             
-            $this->addFlash('success', 'Reclamation created successfully.');
+            $this->addFlash('success', 'Complaint created successfully.');
             return $this->redirectToRoute('app_reclamation_index');
         }
 
@@ -206,10 +250,10 @@ class ReclamationController extends AbstractController
                 }
             }
 
-            $reclamation->setDate(new \DateTime());
-            $entityManager->flush();
+            // Utilisation du service pour mettre à jour la réclamation
+            $this->reclamationService->updateReclamation($reclamation);
             
-            $this->addFlash('success', 'Reclamation updated successfully.');
+            $this->addFlash('success', 'Complaint updated successfully.');
             return $this->redirectToRoute('app_reclamation_index');
         }
 
@@ -219,30 +263,37 @@ class ReclamationController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_reclamation_delete', methods: ['POST'])]
-    public function delete(Request $request, Reclamation $reclamation, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/delete', name: 'app_reclamation_delete', methods: ['POST', 'DELETE'])]
+    public function delete(Request $request, int $id, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$reclamation->getId(), $request->request->get('_token'))) {
-            // Delete associated files
-            if ($reclamation->getImagePath() !== 'no-image.jpg') {
-                $imagePath = $this->getParameter('reclamation_images_directory').'/'.$reclamation->getImagePath();
-                if (file_exists($imagePath)) {
-                    unlink($imagePath);
+        // Vérifier si la réclamation existe avant de tenter de la supprimer
+        $reclamation = $entityManager->getRepository(Reclamation::class)->find($id);
+        if (!$reclamation) {
+            $this->addFlash('error', 'Réclamation non trouvée.');
+            return $this->redirectToRoute('app_reclamation_index');
+        }
+
+        $token = $request->request->get('_token');
+        // Débogage: vérifier si le token est présent
+        if (!$token) {
+            $this->addFlash('error', 'Token CSRF manquant dans la requête.');
+            return $this->redirectToRoute('app_reclamation_index');
+        }
+        
+        if ($this->isCsrfTokenValid('delete'.$id, $token)) {
+            try {
+                $success = $this->reclamationService->deleteReclamation($id);
+                
+                if ($success) {
+                    $this->addFlash('success', 'Réclamation supprimée avec succès.');
+                } else {
+                    $this->addFlash('error', 'Erreur lors de la suppression de la réclamation.');
                 }
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Erreur: ' . $e->getMessage());
             }
-            
-            if ($reclamation->getPdfPath() !== 'no-pdf.pdf') {
-                $pdfPath = $this->getParameter('reclamation_pdfs_directory').'/'.$reclamation->getPdfPath();
-                if (file_exists($pdfPath)) {
-                    unlink($pdfPath);
-                }
-            }
-            
-            $entityManager->remove($reclamation);
-            $entityManager->flush();
-            $this->addFlash('success', 'Reclamation deleted successfully.');
         } else {
-            $this->addFlash('error', 'Invalid CSRF token. Deletion failed.');
+            $this->addFlash('error', 'Token CSRF invalide. Reçu: ' . substr($token, 0, 10) . '...');
         }
 
         return $this->redirectToRoute('app_reclamation_index');

@@ -2,38 +2,64 @@
 
 namespace App\Entity;
 
-use App\Repository\ReponseReclamationRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity(repositoryClass: ReponseReclamationRepository::class)]
+#[ORM\Entity(repositoryClass: "App\Repository\ReponseReclamationRepository")]
+#[ORM\Table(name: "reponse_reclamations")]
 class ReponseReclamation
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $id_rec = null;
+    #[ORM\Column(type: Types::INTEGER)]
+    #[Assert\NotBlank(message: "Complaint ID cannot be empty")]
+    #[Assert\Positive(message: "Complaint ID must be a positive number")]
+    private ?int $idRec = null;
 
-    #[ORM\Column]
-    private ?int $id_user = null;
+    #[ORM\Column(type: Types::INTEGER)]
+    #[Assert\NotBlank(message: "User ID cannot be empty")]
+    #[Assert\Positive(message: "User ID must be a positive number")]
+    private ?int $idUser = null;
 
-    #[ORM\Column]
-    private ?int $id_receiver = null;
+    #[ORM\Column(type: Types::INTEGER)]
+    #[Assert\NotBlank(message: "Recipient ID cannot be empty")]
+    #[Assert\Positive(message: "Recipient ID must be a positive number")]
+    private ?int $idReceiver = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: "Response cannot be empty")]
+    #[Assert\Length(
+        min: 10,
+        minMessage: "Response must contain at least {{ limit }} characters"
+    )]
     private ?string $reponse = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $pdf_path = null;
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $pdfPath = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Assert\NotNull(message: "Date is required")]
+    #[Assert\Type("\DateTimeInterface", message: "Date is not valid")]
     private ?\DateTimeInterface $date = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $statue_of_reponse_reclamation = null;
+    #[ORM\Column(type: Types::STRING, length: 50)]
+    #[Assert\NotBlank(message: "Status cannot be empty")]
+    #[Assert\Choice(
+        choices: ["Pending", "Processed", "Closed", "Rejected"],
+        message: "Status {{ value }} is not valid. Valid values are: {{ choices }}"
+    )]
+    private ?string $statueOfReponseReclamation = null;
+
+    // Constructor to initialize default values
+    public function __construct()
+    {
+        $this->date = new \DateTime();
+        $this->statueOfReponseReclamation = "Pending";
+    }
 
     public function getId(): ?int
     {
@@ -42,36 +68,36 @@ class ReponseReclamation
 
     public function getIdRec(): ?int
     {
-        return $this->id_rec;
+        return $this->idRec;
     }
 
-    public function setIdRec(int $id_rec): static
+    public function setIdRec(int $idRec): self
     {
-        $this->id_rec = $id_rec;
+        $this->idRec = $idRec;
 
         return $this;
     }
 
     public function getIdUser(): ?int
     {
-        return $this->id_user;
+        return $this->idUser;
     }
 
-    public function setIdUser(int $id_user): static
+    public function setIdUser(int $idUser): self
     {
-        $this->id_user = $id_user;
+        $this->idUser = $idUser;
 
         return $this;
     }
 
     public function getIdReceiver(): ?int
     {
-        return $this->id_receiver;
+        return $this->idReceiver;
     }
 
-    public function setIdReceiver(int $id_receiver): static
+    public function setIdReceiver(int $idReceiver): self
     {
-        $this->id_receiver = $id_receiver;
+        $this->idReceiver = $idReceiver;
 
         return $this;
     }
@@ -81,7 +107,7 @@ class ReponseReclamation
         return $this->reponse;
     }
 
-    public function setReponse(string $reponse): static
+    public function setReponse(string $reponse): self
     {
         $this->reponse = $reponse;
 
@@ -90,12 +116,12 @@ class ReponseReclamation
 
     public function getPdfPath(): ?string
     {
-        return $this->pdf_path;
+        return $this->pdfPath;
     }
 
-    public function setPdfPath(string $pdf_path): static
+    public function setPdfPath(?string $pdfPath): self
     {
-        $this->pdf_path = $pdf_path;
+        $this->pdfPath = $pdfPath;
 
         return $this;
     }
@@ -105,7 +131,7 @@ class ReponseReclamation
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): static
+    public function setDate(\DateTimeInterface $date): self
     {
         $this->date = $date;
 
@@ -114,12 +140,12 @@ class ReponseReclamation
 
     public function getStatueOfReponseReclamation(): ?string
     {
-        return $this->statue_of_reponse_reclamation;
+        return $this->statueOfReponseReclamation;
     }
 
-    public function setStatueOfReponseReclamation(string $statue_of_reponse_reclamation): static
+    public function setStatueOfReponseReclamation(string $statueOfReponseReclamation): self
     {
-        $this->statue_of_reponse_reclamation = $statue_of_reponse_reclamation;
+        $this->statueOfReponseReclamation = $statueOfReponseReclamation;
 
         return $this;
     }

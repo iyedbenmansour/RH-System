@@ -8,60 +8,71 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ReclamationRepository::class)]
+#[ORM\Table(name: "reclamations")]
 class Reclamation
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\Column]
-    #[Assert\NotBlank(message: "L'ID utilisateur est obligatoire")]
-    #[Assert\Positive(message: "L'ID utilisateur doit être un nombre positif")]
-    private ?int $user_id = null;
+    #[ORM\Column(type: Types::INTEGER)]
+    #[Assert\NotBlank(message: "User ID cannot be empty")]
+    #[Assert\Positive(message: "User ID must be a positive number")]
+    private ?int $userId = null;
 
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "Le titre est obligatoire")]
+    #[ORM\Column(type: Types::INTEGER)]
+    #[Assert\NotBlank(message: "Company ID cannot be empty")]
+    #[Assert\Positive(message: "Company ID must be a positive number")]
+    private ?int $companyId = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    #[Assert\NotBlank(message: "Title cannot be empty")]
     #[Assert\Length(
         min: 5,
         max: 255,
-        minMessage: "Le titre doit faire au moins {{ limit }} caractères",
-        maxMessage: "Le titre ne peut pas dépasser {{ limit }} caractères"
+        minMessage: "Title must contain at least {{ limit }} characters",
+        maxMessage: "Title must not exceed {{ limit }} characters"
     )]
     private ?string $title = null;
 
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "La description est obligatoire")]
+    #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: "Description cannot be empty")]
     #[Assert\Length(
         min: 10,
-        max: 255,
-        minMessage: "La description doit faire au moins {{ limit }} caractères",
-        maxMessage: "La description ne peut pas dépasser {{ limit }} caractères"
+        minMessage: "Description must contain at least {{ limit }} characters"
     )]
     private ?string $description = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $image_path = null;
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $imagePath = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $pdf_path = null;
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $pdfPath = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Assert\NotNull(message: "La date est obligatoire")]
+    #[Assert\NotNull(message: "Date is required")]
+    #[Assert\Type("\DateTimeInterface", message: "Date is not valid")]
     private ?\DateTimeInterface $date = null;
 
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "Le statut est obligatoire")]
+    #[ORM\Column(type: Types::STRING, length: 50, options: ["default" => "Not Treated"])]
+    #[Assert\NotBlank(message: "Status cannot be empty")]
     #[Assert\Choice(
-        choices: ['pending', 'in_progress', 'resolved', 'rejected'],
-        message: "Le statut doit être parmi: pending, in_progress, resolved, rejected"
+        choices: ["Not Treated", "In Progress", "Resolved", "Rejected"],
+        message: "Status {{ value }} is not valid. Valid values are: {{ choices }}"
     )]
-    private ?string $statue_of_reclamation = null;
+    private ?string $statueOfReclamation = 'Not Treated';
 
-    #[ORM\Column]
-    #[Assert\NotBlank(message: "L'ID entreprise est obligatoire")]
-    #[Assert\Positive(message: "L'ID entreprise doit être un nombre positif")]
-    private ?int $company_id = null;
+    public function __construct()
+    {
+        $this->date = new \DateTime();
+        $this->statueOfReclamation = 'Not Treated';
+    }
+
+    public function __toString(): string
+    {
+        return $this->title ?? 'New Complaint';
+    }
 
     public function getId(): ?int
     {
@@ -70,12 +81,24 @@ class Reclamation
 
     public function getUserId(): ?int
     {
-        return $this->user_id;
+        return $this->userId;
     }
 
-    public function setUserId(int $user_id): static
+    public function setUserId(int $userId): self
     {
-        $this->user_id = $user_id;
+        $this->userId = $userId;
+
+        return $this;
+    }
+
+    public function getCompanyId(): ?int
+    {
+        return $this->companyId;
+    }
+
+    public function setCompanyId(int $companyId): self
+    {
+        $this->companyId = $companyId;
 
         return $this;
     }
@@ -85,7 +108,7 @@ class Reclamation
         return $this->title;
     }
 
-    public function setTitle(string $title): static
+    public function setTitle(string $title): self
     {
         $this->title = $title;
 
@@ -97,7 +120,7 @@ class Reclamation
         return $this->description;
     }
 
-    public function setDescription(string $description): static
+    public function setDescription(string $description): self
     {
         $this->description = $description;
 
@@ -106,24 +129,24 @@ class Reclamation
 
     public function getImagePath(): ?string
     {
-        return $this->image_path;
+        return $this->imagePath;
     }
 
-    public function setImagePath(string $image_path): static
+    public function setImagePath(?string $imagePath): self
     {
-        $this->image_path = $image_path;
+        $this->imagePath = $imagePath;
 
         return $this;
     }
 
     public function getPdfPath(): ?string
     {
-        return $this->pdf_path;
+        return $this->pdfPath;
     }
 
-    public function setPdfPath(string $pdf_path): static
+    public function setPdfPath(?string $pdfPath): self
     {
-        $this->pdf_path = $pdf_path;
+        $this->pdfPath = $pdfPath;
 
         return $this;
     }
@@ -133,7 +156,7 @@ class Reclamation
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): static
+    public function setDate(\DateTimeInterface $date): self
     {
         $this->date = $date;
 
@@ -142,24 +165,12 @@ class Reclamation
 
     public function getStatueOfReclamation(): ?string
     {
-        return $this->statue_of_reclamation;
+        return $this->statueOfReclamation;
     }
 
-    public function setStatueOfReclamation(string $statue_of_reclamation): static
+    public function setStatueOfReclamation(string $statueOfReclamation): self
     {
-        $this->statue_of_reclamation = $statue_of_reclamation;
-
-        return $this;
-    }
-
-    public function getCompanyId(): ?int
-    {
-        return $this->company_id;
-    }
-
-    public function setCompanyId(int $company_id): static
-    {
-        $this->company_id = $company_id;
+        $this->statueOfReclamation = $statueOfReclamation;
 
         return $this;
     }

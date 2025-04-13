@@ -16,6 +16,24 @@ class ReponseReclamationRepository extends ServiceEntityRepository
         parent::__construct($registry, ReponseReclamation::class);
     }
 
+    public function save(ReponseReclamation $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(ReponseReclamation $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
     //    /**
     //     * @return ReponseReclamation[] Returns an array of ReponseReclamation objects
     //     */

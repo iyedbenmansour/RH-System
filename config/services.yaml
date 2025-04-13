@@ -6,6 +6,10 @@
 parameters:
     reclamation_images_directory: '%kernel.project_dir%/public/uploads/reclamation/images'
     reclamation_pdfs_directory: '%kernel.project_dir%/public/uploads/reclamation/pdfs'
+    pdf_directory: '%kernel.project_dir%/public/uploads/pdfs'
+    reponse_images_directory: '%kernel.project_dir%/public/uploads/reponse/images'
+    reponse_pdfs_directory: '%kernel.project_dir%/public/uploads/reponse/pdfs'
+    mailer_sender_email: 'alabendawed@gmail.com'
 
 services:
     # default configuration for services in *this* file
@@ -21,6 +25,25 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+
+    # Configuration explicite des services personnalisés
+    App\Service\EmailService:
+        arguments:
+            $senderEmail: '%mailer_sender_email%'
+
+    App\Service\ReclamationService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+            $reclamationRepository: '@App\Repository\ReclamationRepository'
+            $mailer: '@mailer'
+            $emailService: '@App\Service\EmailService'
+            
+    App\Service\ReponseReclamationService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+            $reponseReclamationRepository: '@App\Repository\ReponseReclamationRepository'
+            $mailer: '@mailer'
+            $emailService: '@App\Service\EmailService'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

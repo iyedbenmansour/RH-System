@@ -21,7 +21,7 @@ final class Version20250401100103 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            CREATE TABLE reponse_reclamation (id INT AUTO_INCREMENT NOT NULL, id_rec INT NOT NULL, id_user INT NOT NULL, id_receiver INT NOT NULL, reponse VARCHAR(255) NOT NULL, pdf_path VARCHAR(255) NOT NULL, date DATETIME NOT NULL, statue_of_reponse_reclamation VARCHAR(255) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
+            CREATE TABLE reponse_reclamation (id INT AUTO_INCREMENT NOT NULL, id_rec INT NOT NULL, id_user INT NOT NULL, id_receiver INT NOT NULL, reponse TEXT NOT NULL, pdf_path VARCHAR(255) NULL, date DATETIME NOT NULL, statue_of_reponse_reclamation VARCHAR(50) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
         SQL);
     }
 
