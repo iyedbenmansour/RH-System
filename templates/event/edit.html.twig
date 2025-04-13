@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Event</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .page-title {
+            width:100%;
+            text-align: center;
+            font-size: 2.7rem;
+            color: #231a6f;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .form-container {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            margin: 0 auto;
+        }
+
+        .form-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-size: 1.2rem;
+            color: #231a6f;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border-color: #231a6f;
+            outline: none;
+        }
+
+        .form-group textarea {
+            height: 120px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-actions .btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            text-decoration: none;
+            text-align: center;
+            width: 200px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .form-actions .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .save-btn {
+            background: linear-gradient(45deg, #231a6f, #4b3c9e);
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+
+            .form-group input, .form-group textarea, .form-group select {
+                font-size: 1rem;
+            }
+
+            .form-actions .btn {
+                width: 150px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1 class="page-title">Edit Event</h1>
+
+<div class="form-container">
+    {{ form_start(form) }}
+
+    <div class="form-group">
+        <label for="name">Event Name</label>
+        {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="form-group">
+        <label for="description">Description</label>
+        {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="form-group">
+        <label for="date">Date</label>
+        {{ form_widget(form.date, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="form-group">
+        <label for="location">Location</label>
+        {{ form_widget(form.location, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="form-group">
+        <label for="organiser">Organiser</label>
+        {{ form_widget(form.organiser, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="form-group">
+        <label for="eventType">Event Type</label>
+        {{ form_widget(form.eventType, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="form-group">
+        <label for="nbParticipant">Participants</label>
+        {{ form_widget(form.nbParticipant, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="form-group">
+        <label for="ticketPrice">Ticket Price</label>
+        {{ form_widget(form.ticketPrice, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="form-group">
+        <label for="hasFormation">Has Formation</label>
+        {{ form_widget(form.hasFormation, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="form-group">
+        <label for="formationId">Formation ID</label>
+        {{ form_widget(form.formationId, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="form-group">
+        <label for="coordinates">Coordinates</label>
+        {{ form_widget(form.latitude, {'attr': {'class': 'form-control'}}) }}
+        {{ form_widget(form.longitude, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="form-actions">
+        <button class="btn save-btn" type="submit">{{ button_label|default('Update') }}</button>
+        <a href="{{ path('app_event_index') }}" class="btn back-btn">Back to list</a>
+    </div>
+
+    {{ form_end(form) }}
+</div>
+
+</body>
+</html>
