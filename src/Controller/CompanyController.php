@@ -50,29 +50,37 @@ final class CompanyController extends AbstractController
     }
 
     #[Route('/company/login', name: 'company_login')]
-    public function login(Request $request): Response
-    {
-        if ($this->sessionManager->isLoggedIn() && $this->sessionManager->getUserType() === 'company') {
-            return $this->redirectToRoute('company_dashboard');
-        }
-
-        if ($request->isMethod('POST')) {
-            $email = $request->request->get('email');
-            $password = $request->request->get('password');
-
-            $company = $this->entityManager->getRepository(Company::class)->findOneBy(['email' => $email]);
-
-            if ($company && $this->hashService->verifyPassword($password, $company->getPassword())) {
-                $this->sessionManager->loginCompany($company->getId());
-                return $this->redirectToRoute('company_dashboard');
-            }
-
-            $this->addFlash('error', 'Invalid credentials');
-        }
-
-        return $this->render('company/login.html.twig');
+public function login(Request $request): Response
+{
+    if ($this->sessionManager->isLoggedIn() && $this->sessionManager->getUserType() === 'company') {
+        return $this->redirectToRoute('company_dashboard');
     }
 
+    if ($request->isMethod('POST')) {
+        $email = $request->request->get('email');
+        $password = $request->request->get('password');
+
+        $company = $this->entityManager->getRepository(Company::class)->findOneBy(['email' => $email]);
+
+        if ($company && $this->hashService->verifyPassword($password, $company->getPassword())) {
+            $this->sessionManager->loginCompany($company->getId());
+
+            // Retourne une réponse avec un script qui stocke l'ID avant redirection
+            return new Response(
+                <<<HTML
+                <script>
+                    sessionStorage.setItem('companyId', '{$company->getId()}');
+                    window.location.href = '{$this->generateUrl('company_dashboard')}';
+                </script>
+                HTML
+            );
+        }
+
+        $this->addFlash('error', 'Invalid credentials');
+    }
+
+    return $this->render('company/login.html.twig');
+}
     #[Route('/company/dashboard', name: 'company_dashboard')]
 public function dashboard(): Response
 {

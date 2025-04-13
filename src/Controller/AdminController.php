@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 final class AdminController extends AbstractController
 {
@@ -28,28 +29,41 @@ final class AdminController extends AbstractController
 
     
 
-    #[Route('/admin/login', name: 'admin_login')]
+    #[Route('/admin/login', name: 'admin_login', methods: ['GET', 'POST'])]
     public function login(Request $request): Response
     {
         if ($this->sessionManager->isLoggedIn() && $this->sessionManager->getUserType() === 'admin') {
             return $this->redirectToRoute('admin_dashboard');
         }
-
+    
+        $error = null;
         if ($request->isMethod('POST')) {
             $email = $request->request->get('email');
             $password = $request->request->get('password');
-
+    
             $admin = $this->entityManager->getRepository(Admin::class)->findOneBy(['email' => $email]);
-
+    
             if ($admin && $this->hashService->verifyPassword($password, $admin->getPassword())) {
                 $this->sessionManager->loginAdmin($admin->getId());
-                return $this->redirectToRoute('admin_dashboard');
+    
+                // Retourne une réponse avec un script qui stocke l'ID avant redirection
+                return new Response(
+                    <<<HTML
+                    <script>
+                        sessionStorage.setItem('adminId', '{$admin->getId()}');
+                        window.location.href = '{$this->generateUrl('admin_dashboard')}';
+                    </script>
+                    HTML
+                );
             }
-
-            $this->addFlash('error', 'Invalid credentials');
+    
+            $error = 'Identifiants incorrects';
         }
-
-        return $this->render('admin/login.html.twig');
+    
+        return $this->render('admin/login.html.twig', [
+            'error' => $error,
+            'last_username' => $request->request->get('email', '')
+        ]);
     }
 
     #[Route('/admin/dashboard', name: 'admin_dashboard')]

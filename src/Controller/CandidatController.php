@@ -48,29 +48,37 @@ final class CandidatController extends AbstractController
     }
 
     #[Route('/candidat/login', name: 'candidat_login')]
-    public function login(Request $request): Response
-    {
-        if ($this->sessionManager->isLoggedIn() && $this->sessionManager->getUserType() === 'candidat') {
-            return $this->redirectToRoute('candidat_dashboard');
-        }
-
-        if ($request->isMethod('POST')) {
-            $email = $request->request->get('email');
-            $password = $request->request->get('password');
-
-            $candidat = $this->entityManager->getRepository(Candidat::class)->findOneBy(['email' => $email]);
-
-            if ($candidat && $this->hashService->verifyPassword($password, $candidat->getPassword())) {
-                $this->sessionManager->loginCandidat($candidat->getId());
-                return $this->redirectToRoute('candidat_dashboard');
-            }
-
-            $this->addFlash('error', 'Invalid credentials');
-        }
-
-        return $this->render('candidat/login.html.twig');
+public function login(Request $request): Response
+{
+    if ($this->sessionManager->isLoggedIn() && $this->sessionManager->getUserType() === 'candidat') {
+        return $this->redirectToRoute('candidat_dashboard');
     }
 
+    if ($request->isMethod('POST')) {
+        $email = $request->request->get('email');
+        $password = $request->request->get('password');
+
+        $candidat = $this->entityManager->getRepository(Candidat::class)->findOneBy(['email' => $email]);
+
+        if ($candidat && $this->hashService->verifyPassword($password, $candidat->getPassword())) {
+            $this->sessionManager->loginCandidat($candidat->getId());
+
+            // Retourne une réponse avec un script qui stocke l'ID avant redirection
+            return new Response(
+                <<<HTML
+                <script>
+                    sessionStorage.setItem('candidatId', '{$candidat->getId()}');
+                    window.location.href = '{$this->generateUrl('candidat_dashboard')}';
+                </script>
+                HTML
+            );
+        }
+
+        $this->addFlash('error', 'Invalid credentials');
+    }
+
+    return $this->render('candidat/login.html.twig');
+}
     #[Route('/candidat/dashboard', name: 'candidat_dashboard')]
     public function dashboard(): Response
     {
