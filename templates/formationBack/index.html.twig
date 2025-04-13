@@ -31,9 +31,9 @@
                 <td>{{ formation.nbparticipant }}</td>
                 <td>{{ formation.status }}</td>
                 <td>
-                    <a href="{{ path('app_formation_show', {'id': formation.id}) }}" class="btn btn-sm btn-info">Show</a>
-                    <a href="{{ path('app_formation_edit', {'id': formation.id}) }}" class="btn btn-sm btn-warning">Edit</a>
-                    <form method="post" action="{{ path('app_formation_delete', {'id': formation.id}) }}" style="display: inline-block" onsubmit="return confirm('Are you sure you want to delete this item?');">
+                    <a href="{{ path('app_formation_show_back', {'id': formation.id}) }}" class="btn btn-sm btn-info">Show</a>
+                    <a href="{{ path('app_formation_edit_back', {'id': formation.id}) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <form method="post" action="{{ path('app_formation_delete_back', {'id': formation.id}) }}" style="display: inline-block" onsubmit="return confirm('Are you sure you want to delete this item?');">
                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ formation.id) }}">
                         <button class="btn btn-sm btn-danger">Delete</button>
                     </form>
@@ -47,5 +47,5 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_formation_new') }}" class="btn btn-primary">Create new</a>
+    <a href="{{ path('app_formation_new_back') }}" class="btn btn-primary">Create new</a>
 {% endblock %}

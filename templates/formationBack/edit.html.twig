@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Formation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #6a4cff, #231a6f);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .page-title {
+            width: 100%;
+            text-align: center;
+            font-size: 2.7rem;
+            color: white;
+            margin: 30px 0px;
+            font-weight: 600;
+        }
+
+        .form-container {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            margin: 0 auto;
+        }
+
+        .form-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .form-actions .btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            text-decoration: none;
+            text-align: center;
+            width: 200px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .form-actions .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .save-btn {
+            background: linear-gradient(45deg, #231a6f, #4b3c9e);
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #231a6f;
+            outline: none;
+        }
+
+        label {
+            font-size: 1.2rem;
+            color: #231a6f;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="page-title">Edit Formation</h1>
+
+    <div class="form-container">
+        {{ form_start(form) }}
+
+            <div class="form-group">
+                {{ form_label(form.titre) }}
+                {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.description) }}
+                {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.duree) }}
+                {{ form_widget(form.duree, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.prix) }}
+                {{ form_widget(form.prix, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.type) }}
+                {{ form_widget(form.type, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.formateur) }}
+                {{ form_widget(form.formateur, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.nbparticipant) }}
+                {{ form_widget(form.nbparticipant, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.status) }}
+                {{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            {{ form_widget(form._token) }}
+
+            <div class="form-actions">
+                <button class="btn save-btn" type="submit">{{ button_label|default('Save') }}</button>
+                <a href="{{ path('app_formation_show_back', {'id': formation.id}) }}" class="btn back-btn">Back to formation</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+</body>
+</html>

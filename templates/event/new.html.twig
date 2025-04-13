@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Formation</title>
+    <title>Create New Event</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <style>
@@ -11,16 +11,17 @@
             font-family: 'Poppins', sans-serif;
             background: #f4f6f9;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
             flex-direction: column;
+            padding: 20px;
         }
 
         .page-title {
-            width: 100%;
+            width:100%;
             text-align: center;
             font-size: 2.7rem;
             color: #231a6f;
@@ -103,6 +104,7 @@
             background: linear-gradient(45deg, #27ae60, #2ecc71);
         }
 
+        /* Responsive Design */
         @media (max-width: 768px) {
             .page-title {
                 font-size: 2rem;
@@ -125,14 +127,14 @@
 </head>
 <body>
 
-<h1 class="page-title">Create New Formation</h1>
+<h1 class="page-title">Create New Event</h1>
 
 <div class="form-container">
     {{ form_start(form) }}
 
     <div class="form-group">
-        <label for="title">Title</label>
-        {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+        <label for="name">Event Name</label>
+        {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
     </div>
 
     <div class="form-group">
@@ -141,23 +143,54 @@
     </div>
 
     <div class="form-group">
-        <label for="duration">Duration</label>
-        {{ form_widget(form.duration, {'attr': {'class': 'form-control'}}) }}
+        <label for="date">Date</label>
+        {{ form_widget(form.date, {'attr': {'class': 'form-control'}}) }}
     </div>
 
     <div class="form-group">
-        <label for="level">Level</label>
-        {{ form_widget(form.level, {'attr': {'class': 'form-control'}}) }}
+        <label for="location">Location</label>
+        {{ form_widget(form.location, {'attr': {'class': 'form-control'}}) }}
     </div>
 
     <div class="form-group">
-        <label for="domain">Domain</label>
-        {{ form_widget(form.domain, {'attr': {'class': 'form-control'}}) }}
+        <label for="organiser">Organiser</label>
+        {{ form_widget(form.organiser, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="form-group">
+        <label for="eventType">Event Type</label>
+        {{ form_widget(form.eventType, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="form-group">
+        <label for="nbParticipant">Participants</label>
+        {{ form_widget(form.nbParticipant, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="form-group">
+        <label for="ticketPrice">Ticket Price</label>
+        {{ form_widget(form.ticketPrice, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="form-group">
+        <label for="hasFormation">Has Formation</label>
+        {{ form_widget(form.hasFormation, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="form-group">
+        <label for="formationId">Formation ID</label>
+        {{ form_widget(form.formationId, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+    <div class="form-group">
+        <label for="coordinates">Coordinates</label>
+        {{ form_widget(form.latitude, {'attr': {'class': 'form-control'}}) }}
+        {{ form_widget(form.longitude, {'attr': {'class': 'form-control'}}) }}
     </div>
 
     <div class="form-actions">
         <button class="btn save-btn" type="submit">{{ button_label|default('Save') }}</button>
-        <a href="{{ path('app_formation_index') }}" class="btn back-btn">Back to list</a>
+        <a href="{{ path('app_event_index') }}" class="btn back-btn">Back to list</a>
     </div>
 
     {{ form_end(form) }}

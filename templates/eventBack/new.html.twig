@@ -9,7 +9,7 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: #f4f6f9;
+            background: linear-gradient(to right, #6a4cff, #231a6f);
             margin: 0;
             padding: 0;
             display: flex;
@@ -24,7 +24,7 @@
             width:100%;
             text-align: center;
             font-size: 2.7rem;
-            color: #231a6f;
+            color:rgb(255, 255, 255);
             margin-bottom: 30px;
             font-weight: 600;
         }
@@ -190,7 +190,7 @@
 
     <div class="form-actions">
         <button class="btn save-btn" type="submit">{{ button_label|default('Save') }}</button>
-        <a href="{{ path('app_event_index') }}" class="btn back-btn">Back to list</a>
+        <a href="{{ path('app_event_index_back') }}" class="btn back-btn">Back to list</a>
     </div>
 
     {{ form_end(form) }}

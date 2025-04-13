@@ -174,7 +174,7 @@
 </head>
 <body>
 
-<h1 class="page-title">Event List</h1>
+<h1 class="page-title">Events List</h1>
 
 <div class="cards-container">
     {% for event in events %}
@@ -194,13 +194,9 @@
                     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
                     <button class="btn delete-btn"><i class="fas fa-trash-alt"></i> Delete</button>
                 </form>-->
-                <a 
-  href="{% if event.hasFormation %}{{ path('app_formation_show', {'id': event.formationId}) }}{% else %}#{% endif %}" 
-  class="btn show-btn" 
-  {% if not event.hasFormation %}style="pointer-events: none; opacity: 0.5;"{% endif %}
->
-  <i class="fas fa-chalkboard-teacher"></i> Display Formation
-</a>
+                <a href="{% if event.hasFormation %}{{ path('app_formation_show', {'id': event.formationId}) }}{% else %}#{% endif %}" class="btn display-btn" {% if not event.hasFormation %}style="pointer-events: none; opacity: 0.5;"{% endif %}>
+                    <i class="fas fa-chalkboard-teacher"></i> Display Formation
+                </a>
             </div>
         </div>
     {% else %}
@@ -208,7 +204,7 @@
     {% endfor %}
 </div>
 
-<a href="{{ path('app_event_new') }}" class="btn create-btn"><i class="fas fa-plus-circle"></i> Create New Event</a>
+<!--<a href="{{ path('app_event_new') }}" class="btn create-btn"><i class="fas fa-plus-circle"></i> Create New Event</a>-->
 
 </body>
 </html>

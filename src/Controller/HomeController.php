@@ -16,7 +16,7 @@ class HomeController extends AbstractController
         return $this->render('home/index.html.twig');
     }
 
-    #[Route('/event/', name: 'admin_dashboard')]
+    #[Route('/eventBack/', name: 'admin_dashboard')]
     public function adminDashboard(): Response
     {
         return $this->render('event/index.html.twig');
