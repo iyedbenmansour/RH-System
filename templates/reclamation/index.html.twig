@@ -156,6 +156,14 @@
                                                            title="Edit">
                                                             <i class="fa fa-edit"></i>
                                                         </a>
+
+                                                        <a href="{{ path('app_reclamation_create_response', {'id': reclamation.id}) }}" 
+                                                        class="btn btn-sm btn-outline-info" 
+                                                        data-toggle="tooltip" 
+                                                        title="Create Response">
+                                                         <i class="fa fa-reply"></i>
+                                                     </a>
+                                                 </div>
                                                         <form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.id}) }}" class="d-inline delete-form">
                                                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
                                                             <button type="submit" class="btn btn-sm btn-outline-danger" data-toggle="tooltip" title="Delete" data-title="{{ reclamation.title }}" data-id="{{ reclamation.id }}">

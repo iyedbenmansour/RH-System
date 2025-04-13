@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Reclamation;
+use App\Entity\ReponseReclamation;
 use App\Form\ReclamationType;
+use App\Form\ReponseReclamationType;
 use App\Repository\ReclamationRepository;
 use App\Service\ReclamationService;
 use App\Service\EmailService;
@@ -298,4 +300,67 @@ class ReclamationController extends AbstractController
 
         return $this->redirectToRoute('app_reclamation_index');
     }
+
+    #[Route('/{id}/response', name: 'app_reclamation_response', methods: ['GET'])]
+public function response(Reclamation $reclamation, EntityManagerInterface $entityManager): Response
+{
+    // Find the response associated with this reclamation
+    $response = $entityManager->getRepository(ReponseReclamation::class)->findOneBy([
+        'idRec' => $reclamation->getId()
+    ]);
+
+    return $this->render('reclamation/response.html.twig', [
+        'reclamation' => $reclamation,
+        'response' => $response, // This will be null if no response exists
+    ]);
+}
+#[Route('/{id}/create-response', name: 'app_reclamation_create_response', methods: ['GET', 'POST'])]
+public function createResponse(Request $request, Reclamation $reclamation, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+{
+    $response = new ReponseReclamation();
+    $form = $this->createForm(ReponseReclamationType::class, $response);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        // Set the required fields
+        $response->setIdRec($reclamation->getId());
+        $response->setIdUser($reclamation->getUserId());
+        $response->setDate(new \DateTime());
+        $response->setStatueOfReponseReclamation('Processed');
+
+        // Handle PDF upload if provided
+        $pdfFile = $form->get('pdfFile')->getData();
+        if ($pdfFile) {
+            $originalFilename = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeFilename = $slugger->slug($originalFilename);
+            $newFilename = $safeFilename.'-'.uniqid().'.'.$pdfFile->guessExtension();
+
+            try {
+                $pdfFile->move(
+                    $this->getParameter('reclamation_pdfs_directory'),
+                    $newFilename
+                );
+                $response->setPdfPath($newFilename);
+            } catch (FileException $e) {
+                $this->addFlash('error', 'Error uploading PDF: '.$e->getMessage());
+            }
+        }
+
+        $entityManager->persist($response);
+        $entityManager->flush();
+
+        // Optionally update reclamation status
+        $reclamation->setStatueOfReclamation('Resolved');
+        $entityManager->persist($reclamation);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Response created successfully!');
+        return $this->redirectToRoute('app_reclamation_show', ['id' => $reclamation->getId()]);
+    }
+
+    return $this->render('reclamation/create_response.html.twig', [
+        'reclamation' => $reclamation,
+        'form' => $form->createView(),
+    ]);
+}
 }
