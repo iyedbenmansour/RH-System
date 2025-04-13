@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin Profile | Job Platform{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        .profile-header h1 {
+            color: rgb(51, 151, 214);
+            margin: 0;
+        }
+        .profile-content {
+            display: flex;
+            gap: 3rem;
+        }
+        .profile-image {
+            flex: 0 0 200px;
+        }
+        .profile-image img {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .profile-details {
+            flex: 1;
+        }
+        .detail-item {
+            margin-bottom: 1.5rem;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+        }
+        .detail-value {
+            font-size: 1.1rem;
+            color: #343a40;
+        }
+        .btn-edit {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background-color:rgb(51, 151, 214);
+            color: white;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            margin-top: 1rem;
+        }
+        .btn-edit:hover {
+            background-color: #b02a6f;
+        }
+        .no-image {
+            width: 200px;
+            height: 200px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="profile-container">
+        <div class="profile-header">
+            <h1>Admin Profile</h1>
+            <a href="{{ path('admin_dashboard') }}" class="btn btn-outline">Back to Dashboard</a>
+        </div>
+
+        <div class="profile-content">
+            <div class="profile-image">
+                {% if admin.image %}
+                    <img src="{{ asset('uploads/admins/' ~ admin.image) }}" alt="Profile Image">
+                {% else %}
+                    <div class="no-image">
+                        <span>No Image</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="profile-details">
+                <div class="detail-item">
+                    <div class="detail-label">Full Name</div>
+                    <div class="detail-value">{{ admin.name }}</div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Email Address</div>
+                    <div class="detail-value">{{ admin.email }}</div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Account Type</div>
+                    <div class="detail-value">Administrator</div>
+                </div>
+
+                
+
+                <a href="{{ path('admin_profile_edit') }}" class="btn-edit">
+                    <i class="fas fa-edit"></i> Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Admin Profile{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .profile-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-container h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-img {
+            display: block;
+            margin: 1rem auto;
+            max-width: 150px;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="profile-container">
+        <h1>Edit Admin Profile</h1>
+        <form method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" class="form-control" value="{{ admin.name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" class="form-control" value="{{ admin.email }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="image">Profile Image:</label>
+                <input type="file" id="image" name="image" class="form-control-file">
+                {% if admin.image %}
+                    <div class="text-center">
+                        <img src="{{ asset('uploads/admins/' ~ admin.image) }}" alt="Profile Image" class="profile-img">
+                        <br>
+                        <a href="{{ path('admin_profile_delete_image') }}" class="btn btn-danger btn-sm mt-2" onclick="return confirm('Are you sure you want to delete your profile image?')">
+                            Delete Image
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary">Update Profile</button>
+        </form>
+
+        <div class="text-center mt-3">
+            <a href="{{ path('admin_profile') }}" class="btn btn-secondary">Back to Profile</a>
+        </div>
+    </div>
+{% endblock %}
