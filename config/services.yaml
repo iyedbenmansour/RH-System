@@ -6,7 +6,11 @@
 parameters:
       uploads_directory: '%kernel.project_dir%/public/uploads'
       pdf_directory: '%kernel.project_dir%/public/uploads/pdfs'
-
+      reclamation_images_directory: '%kernel.project_dir%/public/uploads/reclamation/images'
+      reclamation_pdfs_directory: '%kernel.project_dir%/public/uploads/reclamation/pdfs'
+      reponse_images_directory: '%kernel.project_dir%/public/uploads/reponse/images'
+      reponse_pdfs_directory: '%kernel.project_dir%/public/uploads/reponse/pdfs'
+      mailer_sender_email: 'alabendawed@gmail.com'
 
 services:
     # default configuration for services in *this* file
