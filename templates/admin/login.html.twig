@@ -88,6 +88,14 @@
             color: #6c757d;
             font-size: 0.9rem;
         }
+        .remember-me {
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+        }
+        .remember-me input {
+            margin-right: 0.5rem;
+        }
     </style>
 {% endblock %}
 
@@ -98,13 +106,14 @@
             <p>Administrator access only</p>
         </div>
 
-        
+        {% for message in app.flashes('error') %}
+            <div class="error-message">{{ message }}</div>
+        {% endfor %}
 
-        <form method="post">
+        <form method="post" id="loginForm">
             <div class="form-group">
                 <label for="email">Admin Email</label>
-                <input type="email" id="email" name="email" class="form-control" 
-                       value="{{ last_username|default('') }}" required autofocus>
+                <input type="email" id="email" name="email" class="form-control" required autofocus>
             </div>
 
             <div class="form-group">
@@ -115,10 +124,15 @@
                 </div>
             </div>
 
+            <div class="remember-me">
+                <input type="checkbox" id="remember" name="remember">
+                <label for="remember">Remember my credentials</label>
+            </div>
+
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
             <button type="submit" class="btn-login">
-                <i class="fas fa-sign-in-alt"></i> Login
+                Login
             </button>
         </form>
 
@@ -128,17 +142,40 @@
     </div>
 
     <script>
+        // Load saved credentials if they exist
+        document.addEventListener('DOMContentLoaded', function() {
+            const remember = localStorage.getItem('rememberAdminCredentials');
+            if (remember === 'true') {
+                const savedEmail = localStorage.getItem('adminEmail');
+                const savedPassword = localStorage.getItem('adminPassword');
+                
+                if (savedEmail) document.getElementById('email').value = savedEmail;
+                if (savedPassword) document.getElementById('password').value = savedPassword;
+                document.getElementById('remember').checked = true;
+            }
+        });
+
+        // Toggle password visibility
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById('password');
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
         }
 
-        // Auto-focus logic
-        document.addEventListener('DOMContentLoaded', function() {
-            const emailField = document.getElementById('email');
-            if (!emailField.value) {
-                emailField.focus();
+        // Handle form submission
+        document.getElementById('loginForm').addEventListener('submit', function() {
+            const remember = document.getElementById('remember').checked;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (remember) {
+                localStorage.setItem('rememberAdminCredentials', 'true');
+                localStorage.setItem('adminEmail', email);
+                localStorage.setItem('adminPassword', password);
+            } else {
+                localStorage.removeItem('rememberAdminCredentials');
+                localStorage.removeItem('adminEmail');
+                localStorage.removeItem('adminPassword');
             }
         });
     </script>
