@@ -11,6 +11,9 @@ parameters:
       reponse_images_directory: '%kernel.project_dir%/public/uploads/reponse/images'
       reponse_pdfs_directory: '%kernel.project_dir%/public/uploads/reponse/pdfs'
       mailer_sender_email: 'alabendawed@gmail.com'
+      admin_image_directory: '%kernel.project_dir%/public/uploads/admins'
+      company_image_directory: '%kernel.project_dir%/public/uploads/companies'
+      candidat_image_directory: '%kernel.project_dir%/public/uploads/candidats'
 
 services:
     # default configuration for services in *this* file
@@ -27,5 +30,24 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\Service\FileUploader:
+        arguments:
+            $targetDirectory: '%admin_image_directory%'
+
+        tags: ['controller.service_arguments']
+
+   
+
+    App\Service\CandidatFileUploader:
+        arguments:
+            $targetDirectory: '%candidat_image_directory%'
+        tags: ['controller.service_arguments']   
+
+    App\Service\CompanyFileUploader:  
+        arguments:
+            $targetDirectory: '%company_image_directory%'
+        tags: ['controller.service_arguments']
