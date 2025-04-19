@@ -466,6 +466,94 @@
             padding-bottom: 3rem;
         }
     }
+    
+    /* Response section */
+    .response-section {
+        margin-top: 3rem;
+    }
+    
+    .response-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    
+    .response-header {
+        background-color: #f8f9fa;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .response-user {
+        font-weight: 600;
+        color: var(--secondary-color);
+    }
+    
+    .response-date {
+        font-size: 0.85rem;
+        color: var(--muted-color);
+    }
+    
+    .response-body {
+        padding: 1.5rem;
+        background-color: #ffffff;
+    }
+    
+    .response-text {
+        white-space: pre-line;
+        margin-bottom: 1rem;
+    }
+    
+    .response-status {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+    
+    .status-pending {
+        background-color: #fff8e8;
+        color: #ffa502;
+    }
+    
+    .status-processed {
+        background-color: #e8f4ff;
+        color: #2d98da;
+    }
+    
+    .status-closed {
+        background-color: #e8fff0;
+        color: #2ed573;
+    }
+    
+    .status-rejected {
+        background-color: #fff0f0;
+        color: #ff4757;
+    }
+    
+    .new-response-card {
+        border: 2px dashed rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .new-response-card:hover {
+        border-color: var(--primary-color);
+    }
+    
+    .response-form-title {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--secondary-color);
+    }
 </style>
 {% endblock %}
 
@@ -663,6 +751,98 @@
                                 </p>
                             </li>
                         </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Response Section -->
+<section class="response-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">Responses ({{ reclamation.reponses|length }})</h3>
+                        <button class="btn btn-outline-primary" type="button" data-toggle="collapse" data-target="#newResponseForm" aria-expanded="false" aria-controls="newResponseForm">
+                            <i class="fa fa-plus mr-2"></i> Add Response
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <!-- New Response Form -->
+                        <div class="collapse mb-4" id="newResponseForm">
+                            <div class="new-response-card">
+                                <h5 class="response-form-title">
+                                    <i class="fa fa-reply mr-2"></i> Add a new response
+                                </h5>
+                                <form method="post" action="{{ path('app_reponse_reclamation_new_for_reclamation', {'id': reclamation.id}) }}" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label for="reponse">Your Response</label>
+                                        <textarea class="form-control" id="reponse" name="reponse" rows="5" required placeholder="Type your response here..."></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pdfFile">Attach PDF Document (Optional)</label>
+                                        <input type="file" class="form-control-file" id="pdfFile" name="pdfFile" accept=".pdf">
+                                        <small class="form-text text-muted">
+                                            You can attach a supporting document in PDF format (max 5MB)
+                                        </small>
+                                    </div>
+                                    <div class="form-group mb-0 text-right">
+                                        <button type="button" class="btn btn-outline-secondary mr-2" data-toggle="collapse" data-target="#newResponseForm">
+                                            Cancel
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-paper-plane mr-2"></i> Send Response
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <!-- Response List -->
+                        {% if reclamation.reponses|length > 0 %}
+                            {% for reponse in reclamation.reponses %}
+                                <div class="response-card">
+                                    <div class="response-header">
+                                        <div class="response-user">
+                                            <i class="fa fa-user-circle mr-2"></i> User #{{ reponse.idUser }}
+                                        </div>
+                                        <div class="response-date">
+                                            <i class="fa fa-calendar mr-1"></i> {{ reponse.date|date('d M Y H:i') }}
+                                        </div>
+                                    </div>
+                                    <div class="response-body">
+                                        <div class="response-text">{{ reponse.reponse }}</div>
+                                        
+                                        {% if reponse.pdfPath %}
+                                            <div class="mb-3">
+                                                <a href="{{ asset('uploads/reponse_pdfs/' ~ reponse.pdfPath) }}" class="btn btn-sm btn-outline-info" target="_blank">
+                                                    <i class="fa fa-file-pdf-o mr-1"></i> View Attached PDF
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                        
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="response-status status-{{ reponse.statueOfReponseReclamation|lower }}">
+                                                <i class="fa fa-info-circle mr-1"></i> {{ reponse.statueOfReponseReclamation }}
+                                            </div>
+                                            
+                                            <div class="response-actions">
+                                                <a href="{{ path('app_reponse_reclamation_edit', {'id': reponse.id}) }}" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fa fa-pencil"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fa fa-info-circle mr-2"></i> No responses have been added yet. Be the first to respond to this complaint.
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

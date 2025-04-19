@@ -32,17 +32,17 @@ class ReclamationController extends AbstractController
     public function index(ReclamationRepository $reclamationRepository): Response
     {
         return $this->render('reclamation/index.html.twig', [
-            'reclamations' => $reclamationRepository->findAll(),
+            'reclamations' => $reclamationRepository->findAllWithResponses(),
         ]);
     }
 
     #[Route('/status-management', name: 'app_reclamation_status_management', methods: ['GET'])]
     public function statusManagement(ReclamationRepository $reclamationRepository): Response
     {
-        $notTreated = $reclamationRepository->findBy(['statueOfReclamation' => 'Not Treated']);
-        $inProgress = $reclamationRepository->findBy(['statueOfReclamation' => 'In Progress']);
-        $resolved = $reclamationRepository->findBy(['statueOfReclamation' => 'Resolved']);
-        $rejected = $reclamationRepository->findBy(['statueOfReclamation' => 'Rejected']);
+        $notTreated = $reclamationRepository->findByStatus('Not Treated');
+        $inProgress = $reclamationRepository->findByStatus('In Progress');
+        $resolved = $reclamationRepository->findByStatus('Resolved');
+        $rejected = $reclamationRepository->findByStatus('Rejected');
         
         return $this->render('reclamation/status_management.html.twig', [
             'notTreated' => $notTreated,
@@ -184,8 +184,14 @@ class ReclamationController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_reclamation_show', methods: ['GET'])]
-    public function show(Reclamation $reclamation): Response
+    public function show(int $id, ReclamationRepository $reclamationRepository): Response
     {
+        $reclamation = $reclamationRepository->findOneWithResponses($id);
+        
+        if (!$reclamation) {
+            throw $this->createNotFoundException('The complaint does not exist');
+        }
+        
         return $this->render('reclamation/show.html.twig', [
             'reclamation' => $reclamation,
         ]);

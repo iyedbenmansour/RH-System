@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ReclamationRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -63,10 +65,14 @@ class Reclamation
     )]
     private ?string $statueOfReclamation = 'Not Treated';
 
+    #[ORM\OneToMany(mappedBy: "reclamation", targetEntity: ReponseReclamation::class, orphanRemoval: true)]
+    private Collection $reponses;
+
     public function __construct()
     {
         $this->date = new \DateTime();
         $this->statueOfReclamation = 'Not Treated';
+        $this->reponses = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -171,6 +177,36 @@ class Reclamation
     public function setStatueOfReclamation(string $statueOfReclamation): self
     {
         $this->statueOfReclamation = $statueOfReclamation;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ReponseReclamation>
+     */
+    public function getReponses(): Collection
+    {
+        return $this->reponses;
+    }
+
+    public function addReponse(ReponseReclamation $reponse): self
+    {
+        if (!$this->reponses->contains($reponse)) {
+            $this->reponses->add($reponse);
+            $reponse->setReclamation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReponse(ReponseReclamation $reponse): self
+    {
+        if ($this->reponses->removeElement($reponse)) {
+            // set the owning side to null (unless already changed)
+            if ($reponse->getReclamation() === $this) {
+                $reponse->setReclamation(null);
+            }
+        }
 
         return $this;
     }

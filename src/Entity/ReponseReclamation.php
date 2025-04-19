@@ -15,10 +15,9 @@ class ReponseReclamation
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::INTEGER)]
-    #[Assert\NotBlank(message: "Complaint ID cannot be empty")]
-    #[Assert\Positive(message: "Complaint ID must be a positive number")]
-    private ?int $idRec = null;
+    #[ORM\ManyToOne(inversedBy: "reponses")]
+    #[ORM\JoinColumn(name: "id_rec", referencedColumnName: "id", nullable: false)]
+    private ?Reclamation $reclamation = null;
 
     #[ORM\Column(type: Types::INTEGER)]
     #[Assert\NotBlank(message: "User ID cannot be empty")]
@@ -66,14 +65,14 @@ class ReponseReclamation
         return $this->id;
     }
 
-    public function getIdRec(): ?int
+    public function getReclamation(): ?Reclamation
     {
-        return $this->idRec;
+        return $this->reclamation;
     }
 
-    public function setIdRec(int $idRec): self
+    public function setReclamation(?Reclamation $reclamation): self
     {
-        $this->idRec = $idRec;
+        $this->reclamation = $reclamation;
 
         return $this;
     }

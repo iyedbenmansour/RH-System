@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\ReponseReclamation;
+use App\Entity\Reclamation;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -15,25 +16,31 @@ use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Positive;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Doctrine\ORM\EntityRepository;
 
 class ReponseReclamationType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('idRec', IntegerType::class, [
-                'label' => 'Complaint ID',
+            ->add('reclamation', EntityType::class, [
+                'class' => Reclamation::class,
+                'label' => 'Complaint',
+                'choice_label' => function (Reclamation $reclamation) {
+                    return sprintf('#%d - %s', $reclamation->getId(), $reclamation->getTitle());
+                },
+                'placeholder' => 'Select a complaint',
                 'attr' => [
-                    'class' => 'form-control',
-                    'min' => 1,
-                    'placeholder' => 'Enter the complaint ID'
+                    'class' => 'form-control select2'
                 ],
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('r')
+                        ->orderBy('r.id', 'DESC');
+                },
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'Complaint ID cannot be empty'
-                    ]),
-                    new Positive([
-                        'message' => 'Complaint ID must be a positive number'
+                        'message' => 'Please select a complaint'
                     ])
                 ]
             ])

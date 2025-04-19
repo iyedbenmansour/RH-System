@@ -171,4 +171,31 @@ class ReclamationRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+    
+    /**
+     * Find all reclamations with their responses loaded
+     */
+    public function findAllWithResponses(): array
+    {
+        return $this->createQueryBuilder('r')
+            ->leftJoin('r.reponses', 'rep')
+            ->addSelect('rep')
+            ->orderBy('r.date', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+    
+    /**
+     * Find one reclamation with its responses
+     */
+    public function findOneWithResponses(int $id): ?Reclamation
+    {
+        return $this->createQueryBuilder('r')
+            ->leftJoin('r.reponses', 'rep')
+            ->addSelect('rep')
+            ->andWhere('r.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

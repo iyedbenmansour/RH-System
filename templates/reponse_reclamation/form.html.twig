@@ -1,0 +1,86 @@
+{{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'novalidate': 'novalidate', 'class': 'needs-validation', 'id': 'response-form'}}) }}
+    <div class="mb-3">
+        {{ form_label(form.reclamation, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.reclamation, {'attr': {'class': 'form-control select2' ~ (form.reclamation.vars.errors|length ? ' is-invalid' : '')}}) }}
+        {% if form.reclamation.vars.errors|length %}
+            <div class="invalid-feedback d-block">
+                {{ form_errors(form.reclamation) }}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="mb-3">
+        {{ form_label(form.idUser, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.idUser, {'attr': {'class': 'form-control' ~ (form.idUser.vars.errors|length ? ' is-invalid' : '')}}) }}
+        {% if form.idUser.vars.errors|length %}
+            <div class="invalid-feedback d-block">
+                {{ form_errors(form.idUser) }}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="mb-3">
+        {{ form_label(form.idReceiver, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.idReceiver, {'attr': {'class': 'form-control' ~ (form.idReceiver.vars.errors|length ? ' is-invalid' : '')}}) }}
+        {% if form.idReceiver.vars.errors|length %}
+            <div class="invalid-feedback d-block">
+                {{ form_errors(form.idReceiver) }}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="mb-3">
+        {{ form_label(form.reponse, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.reponse, {'attr': {'class': 'form-control' ~ (form.reponse.vars.errors|length ? ' is-invalid' : ''), 'rows': 5}}) }}
+        {% if form.reponse.vars.errors|length %}
+            <div class="invalid-feedback d-block">
+                {{ form_errors(form.reponse) }}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="mb-3">
+        {{ form_label(form.pdfFile, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.pdfFile, {'attr': {'class': 'form-control' ~ (form.pdfFile.vars.errors|length ? ' is-invalid' : '')}}) }}
+        <div class="form-text">{{ form_help(form.pdfFile) }}</div>
+        {% if form.pdfFile.vars.errors|length %}
+            <div class="invalid-feedback d-block">
+                {{ form_errors(form.pdfFile) }}
+            </div>
+        {% endif %}
+        {% if form.vars.value.pdfPath %}
+            <div class="mt-2">
+                <small>Current PDF: <a href="{{ asset('uploads/reponse_reclamation/pdfs/' ~ form.vars.value.pdfPath) }}" target="_blank">View PDF</a></small>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="mb-3">
+        {{ form_label(form.statueOfReponseReclamation, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.statueOfReponseReclamation, {'attr': {'class': 'form-select' ~ (form.statueOfReponseReclamation.vars.errors|length ? ' is-invalid' : '')}}) }}
+        {% if form.statueOfReponseReclamation.vars.errors|length %}
+            <div class="invalid-feedback d-block">
+                {{ form_errors(form.statueOfReponseReclamation) }}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="mb-3">
+        {{ form_label(form.date, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.date, {'attr': {'class': 'form-control' ~ (form.date.vars.errors|length ? ' is-invalid' : '')}}) }}
+        {% if form.date.vars.errors|length %}
+            <div class="invalid-feedback d-block">
+                {{ form_errors(form.date) }}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <a href="{{ path('app_reponse_reclamation_index') }}" class="btn btn-secondary me-md-2">
+            <i class="fa fa-arrow-left me-1"></i> Back to list
+        </a>
+        <button type="submit" class="btn btn-primary">
+            <i class="fa fa-save me-1"></i> {{ button_label|default('Save') }}
+        </button>
+    </div>
+{{ form_end(form) }} 

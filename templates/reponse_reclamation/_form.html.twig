@@ -53,11 +53,11 @@
 
 {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'novalidate': 'novalidate', 'class': 'needs-validation', 'id': 'response-form'}}) }}
     <div class="mb-3">
-        {{ form_label(form.idRec, null, {'label_attr': {'class': 'form-label'}}) }}
-        {{ form_widget(form.idRec, {'attr': {'class': 'form-control' ~ (form.idRec.vars.errors|length ? ' is-invalid' : '')}}) }}
-        {% if form.idRec.vars.errors|length %}
+        {{ form_label(form.reclamation, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.reclamation, {'attr': {'class': 'form-control select2' ~ (form.reclamation.vars.errors|length ? ' is-invalid' : '')}}) }}
+        {% if form.reclamation.vars.errors|length %}
             <div class="invalid-feedback d-block">
-                {{ form_errors(form.idRec) }}
+                {{ form_errors(form.reclamation) }}
             </div>
         {% endif %}
     </div>
@@ -103,7 +103,7 @@
         {% endif %}
         {% if form.vars.value.pdfPath %}
             <div class="mt-2">
-                <small>Current PDF: <a href="{{ asset('uploads/reponse_reclamation/pdfs/' ~ form.vars.value.pdfPath) }}" target="_blank">View PDF</a></small>
+                <small>PDF actuel: <a href="{{ asset('uploads/reponse/pdfs/' ~ form.vars.value.pdfPath) }}" target="_blank">Voir le PDF</a></small>
             </div>
         {% endif %}
     </div>
@@ -132,7 +132,7 @@
         <a href="{{ path('app_reponse_reclamation_index') }}" class="btn btn-secondary me-md-2">
             <i class="fa fa-arrow-left me-1"></i> Back to list
         </a>
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-primary" formnovalidate>
             <i class="fa fa-save me-1"></i> {{ button_label|default('Save') }}
         </button>
     </div>

@@ -159,6 +159,19 @@
             gap: 0.5rem;
         }
 
+        /* PDF button styles */
+        .btn-outline-info {
+            border-color: #0ea5e9;
+            color: #0ea5e9;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-info:hover {
+            background-color: #0ea5e9;
+            color: white;
+            transform: translateY(-2px);
+        }
+
         /* Action Buttons */
         .action-buttons {
             display: flex;
@@ -224,6 +237,34 @@
         </div>
     </div>
 
+    <!-- Modal pour visualiser les PDF -->
+    <div class="modal fade" id="pdfViewerModal" tabindex="-1" aria-labelledby="pdfViewerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pdfViewerModalLabel">
+                        <i class="fas fa-file-pdf text-danger me-2"></i>
+                        <span id="pdfTitle">Visualisation du PDF</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="ratio ratio-16x9" style="height: 80vh;">
+                        <iframe id="pdfFrame" src="" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a id="pdfDownloadLink" href="#" class="btn btn-success" download>
+                        <i class="fas fa-download me-2"></i>Télécharger
+                    </a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Fermer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
         <div class="row">
             <div class="col-12">
@@ -239,53 +280,64 @@
                             <table class="table table-hover" id="reponseReclamationsTable">
                                 <thead>
                                     <tr>
-                                        <th><i class="fas fa-hashtag me-2"></i>ID</th>
-                                        <th><i class="fas fa-file-alt me-2"></i>Réclamation</th>
-                                        <th><i class="fas fa-user me-2"></i>Utilisateur</th>
-                                        <th><i class="fas fa-user-check me-2"></i>Destinataire</th>
-                                        <th><i class="fas fa-comment me-2"></i>Réponse</th>
-                                        <th><i class="fas fa-file-pdf me-2"></i>Document</th>
-                                        <th><i class="fas fa-calendar me-2"></i>Date</th>
-                                        <th><i class="fas fa-info-circle me-2"></i>Statut</th>
-                                        <th><i class="fas fa-cogs me-2"></i>Actions</th>
+                                        <th class="text-center">ID</th>
+                                        <th class="text-center">Complaint</th>
+                                        <th class="text-center">User</th>
+                                        <th class="text-center">Recipient</th>
+                                        <th class="text-center">Response</th>
+                                        <th class="text-center">PDF</th>
+                                        <th class="text-center">Date</th>
+                                        <th class="text-center">Status</th>
+                                        <th class="text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                 {% for reponse_reclamation in reponse_reclamations %}
-                                    <tr class="animate__animated animate__fadeIn" style="animation-delay: {{ loop.index * 0.1 }}s">
-                                        <td class="fw-bold">#{{ reponse_reclamation.id }}</td>
-                                        <td>{{ reponse_reclamation.idRec }}</td>
-                                        <td>{{ reponse_reclamation.idUser }}</td>
-                                        <td>{{ reponse_reclamation.idReceiver }}</td>
+                                    <tr>
+                                        <td class="text-center">#{{ reponse_reclamation.id }}</td>
+                                        <td>
+                                            {% if reponse_reclamation.reclamation %}
+                                                <a href="{{ path('app_reclamation_show', {'id': reponse_reclamation.reclamation.id}) }}" class="badge bg-info text-decoration-none">
+                                                    #{{ reponse_reclamation.reclamation.id }} - {{ reponse_reclamation.reclamation.title|length > 30 ? reponse_reclamation.reclamation.title|slice(0, 30) ~ '...' : reponse_reclamation.reclamation.title }}
+                                                </a>
+                                            {% else %}
+                                                <span class="badge bg-secondary">N/A</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-primary">
+                                                <i class="fas fa-user me-1"></i> {{ reponse_reclamation.idUser }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-secondary">
+                                                <i class="fas fa-user-tag me-1"></i> {{ reponse_reclamation.idReceiver }}
+                                            </span>
+                                        </td>
                                         <td>
                                             <div class="text-truncate" style="max-width: 200px;">
                                                 {{ reponse_reclamation.reponse }}
                                             </div>
                                         </td>
-                                        <td>
+                                        <td class="text-center">
                                             {% if reponse_reclamation.pdfPath %}
-                                                <a href="{{ asset('uploads/pdfs/' ~ reponse_reclamation.pdfPath) }}" 
-                                                   target="_blank" 
-                                                   class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-file-pdf"></i> Voir PDF
+                                                <a href="{{ asset('uploads/reponse/pdfs/' ~ reponse_reclamation.pdfPath) }}" target="_blank" class="btn btn-sm btn-outline-info" rel="noopener" onclick="openPdfViewer(event, '{{ asset('uploads/reponse/pdfs/' ~ reponse_reclamation.pdfPath) }}', '{{ reponse_reclamation.reclamation ? reponse_reclamation.reclamation.title : 'Réponse #' ~ reponse_reclamation.id }}')">
+                                                    <i class="fas fa-file-pdf me-1"></i> Voir PDF
                                                 </a>
                                             {% else %}
-                                                <span class="no-pdf-badge">
-                                                    <i class="fas fa-times-circle"></i>
-                                                    Pas de PDF
-                                                </span>
+                                                <span class="badge bg-secondary">Aucun PDF</span>
                                             {% endif %}
                                         </td>
-                                        <td>{{ reponse_reclamation.date ? reponse_reclamation.date|date('d/m/Y H:i') : '' }}</td>
-                                        <td>
-                                            <span class="badge bg-{{ reponse_reclamation.statueOfReponseReclamation == 'En attente' ? 'warning' : 
-                                                (reponse_reclamation.statueOfReponseReclamation == 'Traitée' ? 'success' : 'danger') }}">
-                                                <i class="fas {{ reponse_reclamation.statueOfReponseReclamation == 'En attente' ? 'fa-clock' : 
-                                                    (reponse_reclamation.statueOfReponseReclamation == 'Traitée' ? 'fa-check' : 'fa-times') }} me-1"></i>
+                                        <td class="text-center">{{ reponse_reclamation.date ? reponse_reclamation.date|date('d/m/Y H:i') : '' }}</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-{{ reponse_reclamation.statueOfReponseReclamation == 'Pending' ? 'warning' : 
+                                                (reponse_reclamation.statueOfReponseReclamation == 'Completed' ? 'success' : 'danger') }}">
+                                                <i class="fas {{ reponse_reclamation.statueOfReponseReclamation == 'Pending' ? 'fa-clock' : 
+                                                    (reponse_reclamation.statueOfReponseReclamation == 'Completed' ? 'fa-check' : 'fa-times') }} me-1"></i>
                                                 {{ reponse_reclamation.statueOfReponseReclamation }}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td class="text-center">
                                             <div class="action-buttons">
                                                 <a href="{{ path('app_reponse_reclamation_show', {'id': reponse_reclamation.id}) }}" 
                                                    class="btn btn-info" 
@@ -293,7 +345,7 @@
                                                    title="Voir les détails">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <a href="{{ path('app_reponse_reclamation_edit', {'id': reponse_reclamation.id}) }}" 
+                                                <a href="{{ path('app_reponse_reclamation_new', {'id': reponse_reclamation.id}) }}" 
                                                    class="btn btn-warning" 
                                                    data-bs-toggle="tooltip" 
                                                    title="Modifier">
@@ -332,6 +384,20 @@
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
     
     <script>
+        // Fonction pour ouvrir le visualiseur de PDF
+        function openPdfViewer(event, pdfUrl, title) {
+            event.preventDefault();
+            
+            // Configurer le modal
+            document.getElementById('pdfTitle').textContent = title;
+            document.getElementById('pdfFrame').src = pdfUrl;
+            document.getElementById('pdfDownloadLink').href = pdfUrl;
+            
+            // Ouvrir le modal
+            var pdfModal = new bootstrap.Modal(document.getElementById('pdfViewerModal'));
+            pdfModal.show();
+        }
+        
         $(document).ready(function() {
             // Configuration de DataTables
             $('#reponseReclamationsTable').DataTable({

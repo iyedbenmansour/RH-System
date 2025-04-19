@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'baseBack.html.twig' %}
 
 {% block title %}New Complaint Response{% endblock %}
 
@@ -282,6 +282,31 @@
                 $(this).closest('.form-group').addClass('focused');
             }).blur(function() {
                 $(this).closest('.form-group').removeClass('focused');
+            });
+        });
+
+        // Désactiver complètement la validation HTML5 native
+        document.addEventListener('DOMContentLoaded', function() {
+            // Récupérer tous les formulaires de la page
+            var forms = document.querySelectorAll('form');
+            
+            // Ajouter l'attribut novalidate à tous les formulaires
+            forms.forEach(function(form) {
+                form.setAttribute('novalidate', 'novalidate');
+                
+                // Empêcher la validation par défaut lors de la soumission
+                form.addEventListener('submit', function(event) {
+                    // Ne pas valider les champs du formulaire
+                    var inputs = form.querySelectorAll('input, select, textarea');
+                    inputs.forEach(function(input) {
+                        input.classList.remove('is-invalid');
+                        // Supprimer les attributs required pour la validation HTML5
+                        if (input.hasAttribute('required')) {
+                            input.setAttribute('data-required', 'true');
+                            input.removeAttribute('required');
+                        }
+                    });
+                });
             });
         });
     </script>

@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\ReponseReclamation;
+use App\Entity\Reclamation;
 use App\Repository\ReponseReclamationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Mailer\MailerInterface;
@@ -60,7 +61,15 @@ class ReponseReclamationService
      */
     public function getReponsesByReclamationId(int $reclamationId): array
     {
-        return $this->reponseReclamationRepository->findBy(['idRec' => $reclamationId]);
+        return $this->reponseReclamationRepository->findByReclamation($reclamationId);
+    }
+
+    /**
+     * Récupère les réponses pour une réclamation
+     */
+    public function getReponsesByReclamation(Reclamation $reclamation): array
+    {
+        return $this->reponseReclamationRepository->findBy(['reclamation' => $reclamation]);
     }
 
     /**
