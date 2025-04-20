@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Best Match Jobs{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4 text-primary fw-bold">Best Match Jobs</h1>
+            
+            <div class="card shadow-sm mb-5">
+                <div class="card-body p-4">
+                    <h5 class="card-title text-primary mb-3">Upload your CV</h5>
+                    <form method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="cv" class="form-label">Select your CV (PDF format):</label>
+                            <input class="form-control border-primary" type="file" id="cv" name="cv" accept="application/pdf" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary px-4">Find Best Matches</button>
+                    </form>
+                </div>
+            </div>
+
+            {% if error %}
+                <div class="alert alert-danger shadow-sm">{{ error }}</div>
+            {% endif %}
+
+            {% if jobs is iterable and jobs|length > 0 %}
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="text-primary mb-0">
+                        Found {{ count }} matching job{{ count > 1 ? 's' : '' }}
+                    </h5>
+                    <div class="text-muted small">Sorted by match percentage</div>
+                </div>
+                
+                <div class="job-list">
+                    {% for job in jobs %}
+                        <div class="card shadow-sm mb-4 border-left border-primary">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="card-title text-primary mb-0">{{ job.title }}</h5>
+                                    <span class="badge bg-primary rounded-pill px-3 py-2">
+                                        {{ job.match_percent }}% Match
+                                    </span>
+                                </div>
+                                <div class="card-text mb-3">
+                                    <div class="mb-1">Position: {{ job.position }}</div>
+                                    <div class="mb-1">Location: {{ job.location }}</div>
+                                    <div class="text-muted">Posted: {{ job.posted_date ? job.posted_date|date('Y-m-d') : '' }}</div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a href="#" class="btn btn-outline-primary">View Details</a>
+                                    <a href="#" class="btn btn-primary">Quick Apply</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% elseif jobs is not null %}
+                <div class="alert alert-info shadow-sm">
+                    <h5 class="mb-0">No matching jobs found for your profile.</h5>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
