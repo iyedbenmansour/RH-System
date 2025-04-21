@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Formation;
 use App\Form\FormationType;
+use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,26 +26,43 @@ class FormationControllerBack extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_formation_new_back', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/new/{eventId}', name: 'app_formation_new_back', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager, EventRepository $eventRepository, int $eventId): Response
     {
+        // Find the event to which the formation will be linked
+        $event = $eventRepository->find($eventId);
+    
+        if (!$event) {
+            throw $this->createNotFoundException('Event not found');
+        }
+    
+        // Create a new Formation object
         $formation = new Formation();
         $form = $this->createForm(FormationType::class, $formation);
         $form->handleRequest($request);
-
+    
         if ($form->isSubmitted() && $form->isValid()) {
+            // Persist the new formation
             $entityManager->persist($formation);
             $entityManager->flush();
-
-            return $this->redirectToRoute('app_formation_index_back', [], Response::HTTP_SEE_OTHER);
+    
+            // Update the related event with the new formation ID
+            $event->setHasFormation(true);
+            $event->setFormationId($formation->getId()); // Link the event to the formation
+    
+            // Persist the updated event
+            $entityManager->flush();
+    
+            // Redirect back to the formation index or event details, passing the eventId
+            return $this->redirectToRoute('app_formation_new_back', ['eventId' => $eventId], Response::HTTP_SEE_OTHER);
         }
-
-        return $this->render('formationBack/new.html.twig', [
+    
+        return $this->render('formationBack/show.html.twig', [
             'formation' => $formation,
             'form' => $form->createView(),
         ]);
     }
-
+    
     #[Route('/{id}', name: 'app_formation_show_back', methods: ['GET'])]
     public function show(Formation $formation): Response
     {

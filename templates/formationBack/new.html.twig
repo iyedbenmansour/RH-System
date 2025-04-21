@@ -1,13 +1,173 @@
-{% extends 'formation/base.html.twig' %}
+{% extends 'baseBack.html.twig' %}
 
-{% block title %}New Formation{% endblock %}
+{% block title %}Create New Formation{% endblock %}
 
 {% block body %}
-    <h1>Create new Formation</h1>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap');
 
-    {{ form_start(form) }}
-        {{ form_widget(form) }}
-        <button class="btn btn-success">{{ button_label|default('Save') }}</button>
-        <a href="{{ path('app_formation_index_back') }}" class="btn btn-secondary">Back to list</a>
-    {{ form_end(form) }}
+        /* Applying the font to the body and form */
+        body, .container, .form-container, .form-label, .form-control, .btn {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        /* Container for the page content */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* Styling for the title */
+        .page-title {
+            font-size: 2.5em;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #4B4B4B;
+        }
+
+        /* Form container styling */
+        .form-container {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Form field group styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        /* Label styling */
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            color: #333;
+        }
+
+        /* Input field styling */
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        /* Button styling */
+        .btn {
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 1rem;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* Actions section button margin */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        /* Back link styling */
+        .back-btn {
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            color: #007BFF;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background-color: #e2e6ea;
+        }
+    </style>
+
+    <div class="container">
+        <h1 class="page-title">Create New Formation</h1>
+
+        <div class="form-container">
+            {{ form_start(form) }}
+
+            <div class="form-group">
+                <label for="titre" class="form-label">Title</label>
+                {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="form-label">Description</label>
+                {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="duree" class="form-label">Duration</label>
+                {{ form_widget(form.duree, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="prix" class="form-label">Price</label>
+                {{ form_widget(form.prix, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="type" class="form-label">Type</label>
+                {{ form_widget(form.type, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="formateur" class="form-label">Instructor</label>
+                {{ form_widget(form.formateur, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="nbparticipant" class="form-label">Number of Participants</label>
+                {{ form_widget(form.nbparticipant, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="status" class="form-label">Status</label>
+                {{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-primary save-btn" type="submit">
+                    <i class="fas fa-save"></i> {{ button_label|default('Save') }}
+                </button>
+                <a href="{{ path('app_formation_index_back') }}" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to list
+                </a>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
 {% endblock %}

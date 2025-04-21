@@ -1,200 +1,210 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Event</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Edit Event{% endblock %}
+
+{% block body %}
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(to right, #6a4cff, #231a6f);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            flex-direction: column;
-            padding: 20px;
+        /* Importing the Be Vietnam Pro font */
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap');
+
+        /* Applying the font to the body and form */
+        body, .wrapper, .form-container, .form-label, .form-control, .btn {
+            font-family: 'Be Vietnam Pro', sans-serif;
         }
 
-        .page-title {
-            width:100%;
-            text-align: center;
-            font-size: 2.7rem;
-            color:rgb(255, 255, 255);
-            margin-bottom: 30px;
-            font-weight: 600;
-        }
-
-        .form-container {
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            width: 100%;
+        /* Main wrapper for the page */
+        .wrapper {
             max-width: 800px;
-            padding: 40px;
             margin: 0 auto;
+            padding: 40px;
         }
 
-        .form-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        /* Styling for the title */
+        .page-title {
+            font-size: 2.5em;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #4B4B4B;
         }
 
+        /* Form container styling */
+        .form-container {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Form field group styling */
         .form-group {
             margin-bottom: 20px;
         }
 
-        .form-group label {
-            font-size: 1.2rem;
-            color: #231a6f;
+        /* Label styling */
+        .form-label {
             font-weight: 600;
-            display: block;
             margin-bottom: 8px;
+            display: block;
+            color: #333;
         }
 
-        .form-group input, .form-group textarea, .form-group select {
+        /* Input field styling */
+        .form-control {
             width: 100%;
             padding: 12px;
-            font-size: 1rem;
+            margin: 8px 0;
             border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-            transition: border-color 0.3s ease;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1rem;
         }
 
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
-            border-color: #231a6f;
-            outline: none;
+        /* Specific input size for small inputs like coordinates */
+        .input-sm {
+            width: 48%;
+            display: inline-block;
+            margin-right: 4%;
         }
 
-        .form-group textarea {
-            height: 120px;
+        /* Button styling */
+        .btn {
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 1rem;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
         }
 
+        .btn-primary {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* Actions section button margin */
         .form-actions {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            margin-top: 20px;
         }
 
-        .form-actions .btn {
-            padding: 12px 20px;
-            border-radius: 8px;
-            color: white;
-            font-size: 16px;
-            text-decoration: none;
-            text-align: center;
-            width: 200px;
-            transition: background-color 0.3s, transform 0.3s;
+        /* Styling for coordinates container */
+        .coordinate-container {
+            display: flex;
+            justify-content: space-between;
         }
 
-        .form-actions .btn:hover {
-            transform: scale(1.05);
-        }
-
-        .save-btn {
-            background: linear-gradient(45deg, #231a6f, #4b3c9e);
-        }
-
+        /* Back link styling */
         .back-btn {
-            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            color: #007BFF;
+            text-align: center;
+            text-decoration: none;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .page-title {
-                font-size: 2rem;
-            }
+        .back-btn:hover {
+            background-color: #e2e6ea;
+        }
 
-            .form-container {
-                padding: 20px;
-            }
-
-            .form-group input, .form-group textarea, .form-group select {
-                font-size: 1rem;
-            }
-
-            .form-actions .btn {
-                width: 150px;
-                font-size: 14px;
-            }
+        /* Icon button styling */
+        .btn i {
+            margin-right: 8px;
         }
     </style>
-</head>
-<body>
 
-<h1 class="page-title">Edit Event</h1>
+    <div class="wrapper">
+        <h1 class="page-title">Edit Event</h1>
 
-<div class="form-container">
-    {{ form_start(form) }}
+        <div class="form-container">
+            {{ form_start(form) }}
 
-    <div class="form-group">
-        <label for="name">Event Name</label>
-        {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+            <div class="form-group">
+                <label for="name" class="form-label">Event Name</label>
+                {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="form-label">Description</label>
+                {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="date" class="form-label">Date</label>
+                {{ form_widget(form.date, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="location" class="form-label">Location</label>
+                {{ form_widget(form.location, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="organiser" class="form-label">Organiser</label>
+                {{ form_widget(form.organiser, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="eventType" class="form-label">Event Type</label>
+                {{ form_widget(form.eventType, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="nbParticipant" class="form-label">Participants</label>
+                {{ form_widget(form.nbParticipant, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="ticketPrice" class="form-label">Ticket Price</label>
+                {{ form_widget(form.ticketPrice, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="hasFormation" class="form-label">Has Formation</label>
+                {{ form_widget(form.hasFormation, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="formationId" class="form-label">Formation ID</label>
+                {{ form_widget(form.formationId, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="coordinates" class="form-label">Coordinates</label>
+                <div class="coordinate-container">
+                    {{ form_widget(form.latitude, {'attr': {'class': 'form-control input-sm', 'placeholder': 'Latitude'}}) }}
+                    {{ form_widget(form.longitude, {'attr': {'class': 'form-control input-sm', 'placeholder': 'Longitude'}}) }}
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-primary save-btn" type="submit">
+                    <i class="fas fa-save"></i> {{ button_label|default('Update') }}
+                </button>
+                <a href="{{ path('app_event_index_back') }}" class="btn btn-secondary back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to list
+                </a>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
     </div>
 
-    <div class="form-group">
-        <label for="description">Description</label>
-        {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
-    </div>
-
-    <div class="form-group">
-        <label for="date">Date</label>
-        {{ form_widget(form.date, {'attr': {'class': 'form-control'}}) }}
-    </div>
-
-    <div class="form-group">
-        <label for="location">Location</label>
-        {{ form_widget(form.location, {'attr': {'class': 'form-control'}}) }}
-    </div>
-
-    <div class="form-group">
-        <label for="organiser">Organiser</label>
-        {{ form_widget(form.organiser, {'attr': {'class': 'form-control'}}) }}
-    </div>
-
-    <div class="form-group">
-        <label for="eventType">Event Type</label>
-        {{ form_widget(form.eventType, {'attr': {'class': 'form-control'}}) }}
-    </div>
-
-    <div class="form-group">
-        <label for="nbParticipant">Participants</label>
-        {{ form_widget(form.nbParticipant, {'attr': {'class': 'form-control'}}) }}
-    </div>
-
-    <div class="form-group">
-        <label for="ticketPrice">Ticket Price</label>
-        {{ form_widget(form.ticketPrice, {'attr': {'class': 'form-control'}}) }}
-    </div>
-
-    <div class="form-group">
-        <label for="hasFormation">Has Formation</label>
-        {{ form_widget(form.hasFormation, {'attr': {'class': 'form-control'}}) }}
-    </div>
-
-    <div class="form-group">
-        <label for="formationId">Formation ID</label>
-        {{ form_widget(form.formationId, {'attr': {'class': 'form-control'}}) }}
-    </div>
-
-    <div class="form-group">
-        <label for="coordinates">Coordinates</label>
-        {{ form_widget(form.latitude, {'attr': {'class': 'form-control'}}) }}
-        {{ form_widget(form.longitude, {'attr': {'class': 'form-control'}}) }}
-    </div>
-
-    <div class="form-actions">
-        <button class="btn save-btn" type="submit">{{ button_label|default('Update') }}</button>
-        <a href="{{ path('app_event_index_back') }}" class="btn back-btn">Back to list</a>
-    </div>
-
-    {{ form_end(form) }}
-</div>
-
-</body>
-</html>
+{% endblock %}
