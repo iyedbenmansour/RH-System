@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Applicant;
 use App\Service\CvKeywordExtractor;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -9,9 +10,18 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class BestMatchController extends AbstractController
 {
+    private HttpClientInterface $httpClient;
+    private string $hfApiKey = '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';
+
+    public function __construct(HttpClientInterface $httpClient)
+    {
+        $this->httpClient = $httpClient;
+    }
+
     #[Route('/best-match', name: 'best_match')]
     public function bestMatch(
         Request $request, 
@@ -21,6 +31,8 @@ class BestMatchController extends AbstractController
         $jobs = null;
         $error = null;
         $count = 0;
+        $cvKeywords = [];
+        $profileLinks = [];
 
         if ($request->isMethod('POST')) {
             $cvFile = $request->files->get('cv');
@@ -39,6 +51,10 @@ class BestMatchController extends AbstractController
                         $error = 'Unable to read CV. Please ensure it\'s a valid PDF.';
                     } else {
                         $cvKeywords = $keywordExtractor->extractKeywordsFromCV($cvContent);
+                        
+                        // Extract profile links from CV content
+                        $profileLinks = $this->extractProfileLinks($cvContent);
+                        $request->getSession()->set('profileLinks', $profileLinks);
 
                         if (empty($cvKeywords)) {
                             $error = 'No relevant keywords found in your CV.';
@@ -110,5 +126,143 @@ class BestMatchController extends AbstractController
             'error' => $error,
             'count' => $count,
         ]);
+    }
+
+    #[Route('/quick-apply/{jobId}', name: 'quick_apply')]
+    public function quickApply(
+        int $jobId,
+        EntityManagerInterface $em,
+        Request $request
+    ): Response {
+        $job = $em->getConnection()->fetchAssociative('SELECT * FROM jobs WHERE id = ?', [$jobId]);
+        
+        if (!$job) {
+            throw $this->createNotFoundException('Job not found');
+        }
+
+        // Check if already applied (using user ID 1)
+        $existingApplication = $em->getRepository(Applicant::class)->findOneBy([
+            'userId' => 1,
+            'jobId' => $jobId
+        ]);
+
+        if ($existingApplication) {
+            $this->addFlash('warning', 'Application already exists for this position.');
+            return $this->redirectToRoute('best_match');
+        }
+
+        // Get profile links from session
+        $profileLinks = $request->getSession()->get('profileLinks', []);
+        $profileLink = $this->selectBestProfileLink($profileLinks);
+
+        // Generate AI-powered application message
+        $aiMessage = $this->generateApplicationMessage($job['title'], $job['description']);
+
+        // Create new application with user ID 1
+        $application = new Applicant();
+        $application->setUserId(1); // Hardcoded user ID
+        $application->setJobId($jobId);
+        $application->setCompanyId($job['company_id']);
+        
+        $comment = $aiMessage ?? "I'm excited to apply for this position. My skills and experience make me a strong candidate for this role.";
+        
+        if ($profileLink) {
+            $comment .= "\n\nYou can find more about me here: " . $profileLink;
+            $application->setAdditionalFile($profileLink);
+        }
+        
+        $application->setComment($comment);
+        $application->setStatus('Pending');
+
+        $em->persist($application);
+        $em->flush();
+
+        $this->addFlash('success', 'Application submitted successfully!');
+        return $this->redirectToRoute('best_match');
+    }
+    private function generateApplicationMessage(string $jobTitle, string $jobDescription): ?string
+    {
+        try {
+            // Prepare the prompt for the AI
+            $prompt = "Generate a professional job application cover letter for a position titled '{$jobTitle}'. ";
+            $prompt .= "The job description is: '{$jobDescription}'. ";
+            $prompt .= "The message should be: 
+            - Concise (about 150 words)
+            - Professional tone
+            - Highlight relevant skills
+            - Show enthusiasm for the role
+            - Avoid generic phrases
+            - Structured in 3 short paragraphs:
+              1. Introduction and interest in position
+              2. Relevant skills/experience
+              3. Closing and call to action";
+    
+            $response = $this->httpClient->request('POST', 'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->hfApiKey,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'inputs' => $prompt,
+                    'parameters' => [
+                        'max_new_tokens' => 300,
+                        'temperature' => 0.7,
+                        'return_full_text' => false,
+                    ]
+                ],
+                'timeout' => 30,
+            ]);
+    
+            $content = $response->toArray();
+            
+            if (isset($content[0]['generated_text'])) {
+                // Clean up the response if needed
+                $message = trim($content[0]['generated_text']);
+                // Remove any incomplete sentences at the end
+                $message = preg_replace('/[^.!?]+$/', '', $message);
+                return $message;
+            }
+    
+            return null;
+        } catch (\Exception $e) {
+            // Log the error
+            // $this->logger->error('HF API Error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    private function extractProfileLinks(string $text): array
+    {
+        $links = [];
+        $pattern = '/\b(?:https?:\/\/)?(?:www\.)?(?:github\.com\/[a-zA-Z0-9-]+|linkedin\.com\/in\/[a-zA-Z0-9-]+)\b/';
+        
+        if (preg_match_all($pattern, $text, $matches)) {
+            foreach ($matches[0] as $match) {
+                // Ensure URLs have https:// prefix
+                if (!preg_match('/^https?:\/\//i', $match)) {
+                    $match = 'https://' . $match;
+                }
+                $links[] = $match;
+            }
+        }
+        
+        return array_unique($links);
+    }
+
+    private function selectBestProfileLink(array $links): ?string
+    {
+        if (empty($links)) {
+            return null;
+        }
+
+        // Prefer LinkedIn if available
+        foreach ($links as $link) {
+            if (stripos($link, 'linkedin.com') !== false) {
+                return $link;
+            }
+        }
+
+        // Otherwise return the first GitHub link or the first available link
+        return $links[0];
     }
 }

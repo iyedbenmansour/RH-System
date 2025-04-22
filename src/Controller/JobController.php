@@ -64,8 +64,11 @@ class JobController extends AbstractController
     }
 
     #[Route('/jobs', name: 'app_jobs_all')]
-    public function allJobs(Request $request, EntityManagerInterface $entityManager): Response
-    {
+    public function allJobs(
+        Request $request, 
+        EntityManagerInterface $entityManager,
+        \Knp\Component\Pager\PaginatorInterface $paginator
+    ): Response {
         $searchTerm = $request->query->get('q', '');
         $location = $request->query->get('location', '');
         $typeFilter = $request->query->get('type', '');
@@ -89,10 +92,14 @@ class JobController extends AbstractController
                 ->setParameter('type', $typeFilter);
         }
     
-        $jobs = $queryBuilder->getQuery()->getResult();
+        $pagination = $paginator->paginate(
+            $queryBuilder, // Query to paginate
+            $request->query->getInt('page', 1), // Current page number, default to 1
+            3 // Items per page
+        );
     
         return $this->render('job/all.html.twig', [
-            'jobs' => $jobs,
+            'pagination' => $pagination,
             'searchTerm' => $searchTerm,
             'location' => $location,
             'typeFilter' => $typeFilter,

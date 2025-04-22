@@ -158,14 +158,15 @@ class PostController extends AbstractController
         }
         
         try {
-            $apiUrl = "https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct";
-            $apiKey = "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";
+            // Updated to use GPT-2 (freely available)
+            $apiUrl = "https://api-inference.huggingface.co/models/gpt2";
+            $apiKey = "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"; // Replace if needed
             
             $requestBody = [
                 'inputs' => $prompt,
                 'parameters' => [
                     'max_new_tokens' => 100,
-                    'temperature' => 0.5,
+                    'temperature' => 0.7, // Slightly higher for creativity
                     'top_p' => 0.9,
                     'stop_sequences' => ["\n"]
                 ]
@@ -181,27 +182,27 @@ class PostController extends AbstractController
             ]);
             
             $content = $response->getContent();
-            
-            // Debugging
             $statusCode = $response->getStatusCode();
+            
+            // Debugging logs
             error_log("API Response Status: $statusCode");
             error_log("API Response: $content");
             
-            // Check for HTML in response which might indicate an error
+            // Handle HTML errors (e.g., 503 Service Unavailable)
             if (strpos($content, '<html') !== false || strpos($content, 'Service Unavailable') !== false) {
                 return new JsonResponse([
                     'success' => false,
-                    'message' => 'Error: AI model is currently unavailable. Please try again later.'
+                    'message' => 'Error: AI model is currently loading. Try again in 20-30 seconds.'
                 ], Response::HTTP_SERVICE_UNAVAILABLE);
             }
             
             $jsonResponse = json_decode($content, true);
             
-            // Process the response similar to the Java code
-            if ($statusCode === 200 && is_array($jsonResponse) && isset($jsonResponse[0]['generated_text'])) {
+            // Process response
+            if ($statusCode === 200 && isset($jsonResponse[0]['generated_text'])) {
                 $fullText = trim($jsonResponse[0]['generated_text']);
                 
-                // Remove the prompt from generated text
+                // Remove prompt if duplicated in response
                 if (strpos($fullText, $prompt) === 0) {
                     $fullText = trim(substr($fullText, strlen($prompt)));
                 }
@@ -215,7 +216,7 @@ class PostController extends AbstractController
             } else {
                 return new JsonResponse([
                     'success' => false,
-                    'message' => 'Failed to generate text. Invalid response structure.'
+                    'message' => 'Failed to generate text. API response: ' . json_encode($jsonResponse)
                 ], Response::HTTP_BAD_REQUEST);
             }
             

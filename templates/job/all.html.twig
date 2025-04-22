@@ -40,8 +40,8 @@
 
     <!-- Job Listings -->
     <div class="row">
-        {% if jobs|length > 0 %}
-            {% for job in jobs %}
+        {% if pagination|length > 0 %}
+            {% for job in pagination %}
                 <div class="col-12 mb-3">
                     <div class="card">
                         <div class="card-body">
@@ -63,5 +63,114 @@
             </div>
         {% endif %}
     </div>
+
+    <!-- Pagination -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Job pagination">
+                <ul class="pagination justify-content-center">
+                    {% if pagination.currentPageNumber > 1 %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ path('app_jobs_all', app.request.query.all|merge({page: 1})) }}" aria-label="First">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="{{ path('app_jobs_all', app.request.query.all|merge({page: pagination.currentPageNumber - 1})) }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;&laquo;</span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                    {% endif %}
+
+                    {% set nearbyPagesLimit = 2 %}
+                    {% set startPage = max(1, pagination.currentPageNumber - nearbyPagesLimit) %}
+                    {% set endPage = min(pagination.pageCount, pagination.currentPageNumber + nearbyPagesLimit) %}
+
+                    {% if startPage > 1 %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ path('app_jobs_all', app.request.query.all|merge({page: 1})) }}">1</a>
+                        </li>
+                        {% if startPage > 2 %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+
+                    {% for i in startPage..endPage %}
+                        <li class="page-item {% if i == pagination.currentPageNumber %}active{% endif %}">
+                            <a class="page-link" href="{{ path('app_jobs_all', app.request.query.all|merge({page: i})) }}">{{ i }}</a>
+                        </li>
+                    {% endfor %}
+
+                    {% if endPage < pagination.pageCount %}
+                        {% if endPage < pagination.pageCount - 1 %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ path('app_jobs_all', app.request.query.all|merge({page: pagination.pageCount})) }}">{{ pagination.pageCount }}</a>
+                        </li>
+                    {% endif %}
+
+                    {% if pagination.currentPageNumber < pagination.pageCount %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ path('app_jobs_all', app.request.query.all|merge({page: pagination.currentPageNumber + 1})) }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="{{ path('app_jobs_all', app.request.query.all|merge({page: pagination.pageCount})) }}" aria-label="Last">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;&raquo;</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            
+            <div class="text-center text-muted mt-2">
+                Showing page {{ pagination.currentPageNumber }} of {{ pagination.pageCount }}
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: white;
+    }
+    
+    .pagination .page-link {
+        color: #0d6efd;
+        margin: 0 4px;
+        border-radius: 4px;
+        min-width: 38px;
+        text-align: center;
+    }
+    
+    .pagination .page-link:hover {
+        background-color: #e9ecef;
+    }
+    
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+    }
+</style>
 {% endblock %}
