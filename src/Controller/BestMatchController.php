@@ -221,7 +221,7 @@ EOT;
 
             $response = $this->httpClient->request('POST', 'https://openrouter.ai/api/v1/chat/completions', [
                 'headers' => [
-                    'Authorization' => 'Bearer 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',
+                    'Authorization' => 'Bearer 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',
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [

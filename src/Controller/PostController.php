@@ -144,88 +144,87 @@ class PostController extends AbstractController
         ]);
     }
     
-    #[Route('/api/generate-text', name: 'api_generate_text', methods: ['POST'])]
-    public function generateText(Request $request): JsonResponse
-    {
-        $data = json_decode($request->getContent(), true);
-        $prompt = $data['prompt'] ?? '';
-        
-        if (empty($prompt)) {
+  #[Route('/api/generate-text', name: 'api_generate_text', methods: ['POST'])]
+public function generateText(Request $request): JsonResponse
+{
+    $data = json_decode($request->getContent(), true);
+    $prompt = $data['prompt'] ?? '';
+
+    if (empty($prompt)) {
+        return new JsonResponse([
+            'success' => false,
+            'message' => 'Prompt cannot be empty'
+        ], Response::HTTP_BAD_REQUEST);
+    }
+
+    try {
+        // Updated endpoint and API key
+        $apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
+        $apiKey = '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';
+
+        $requestBody = [
+            'model' => 'gpt-4', // Specify the model
+            'messages' => [
+                ['role' => 'user', 'content' => $prompt]
+            ],
+            'max_tokens' => 100,
+            'temperature' => 0.7, // Slightly higher for creativity
+            'top_p' => 0.9,
+            'stop' => ["\n"]
+        ];
+
+        $response = $this->httpClient->request('POST', $apiUrl, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type' => 'application/json',
+            ],
+            'json' => $requestBody,
+            'timeout' => 15,
+        ]);
+
+        $content = $response->getContent();
+        $statusCode = $response->getStatusCode();
+
+        // Debugging logs
+        error_log("API Response Status: $statusCode");
+        error_log("API Response: $content");
+
+        // Handle potential HTML errors (e.g., service errors)
+        if (strpos($content, '<html') !== false || strpos($content, 'Service Unavailable') !== false) {
             return new JsonResponse([
                 'success' => false,
-                'message' => 'Prompt cannot be empty'
+                'message' => 'Error: AI model is currently unavailable. Try again later.'
+            ], Response::HTTP_SERVICE_UNAVAILABLE);
+        }
+
+        $jsonResponse = json_decode($content, true);
+
+        // Process response
+        if ($statusCode === 200 && isset($jsonResponse['choices'][0]['message']['content'])) {
+            $generatedText = trim($jsonResponse['choices'][0]['message']['content']);
+
+            // Remove prompt if duplicated in response
+            if (strpos($generatedText, $prompt) === 0) {
+                $generatedText = trim(substr($generatedText, strlen($prompt)));
+            }
+
+            return new JsonResponse([
+                'success' => true,
+                'generated_text' => !empty($generatedText) ? $generatedText : "No meaningful text generated."
+            ]);
+        } else {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Failed to generate text. API response: ' . json_encode($jsonResponse)
             ], Response::HTTP_BAD_REQUEST);
         }
-        
-        try {
-            // Updated to use GPT-2 (freely available)
-            $apiUrl = "https://api-inference.huggingface.co/models/gpt2";
-            $apiKey = "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"; // Replace if needed
-            
-            $requestBody = [
-                'inputs' => $prompt,
-                'parameters' => [
-                    'max_new_tokens' => 100,
-                    'temperature' => 0.7, // Slightly higher for creativity
-                    'top_p' => 0.9,
-                    'stop_sequences' => ["\n"]
-                ]
-            ];
-            
-            $response = $this->httpClient->request('POST', $apiUrl, [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $apiKey,
-                    'Content-Type' => 'application/json',
-                ],
-                'json' => $requestBody,
-                'timeout' => 15,
-            ]);
-            
-            $content = $response->getContent();
-            $statusCode = $response->getStatusCode();
-            
-            // Debugging logs
-            error_log("API Response Status: $statusCode");
-            error_log("API Response: $content");
-            
-            // Handle HTML errors (e.g., 503 Service Unavailable)
-            if (strpos($content, '<html') !== false || strpos($content, 'Service Unavailable') !== false) {
-                return new JsonResponse([
-                    'success' => false,
-                    'message' => 'Error: AI model is currently loading. Try again in 20-30 seconds.'
-                ], Response::HTTP_SERVICE_UNAVAILABLE);
-            }
-            
-            $jsonResponse = json_decode($content, true);
-            
-            // Process response
-            if ($statusCode === 200 && isset($jsonResponse[0]['generated_text'])) {
-                $fullText = trim($jsonResponse[0]['generated_text']);
-                
-                // Remove prompt if duplicated in response
-                if (strpos($fullText, $prompt) === 0) {
-                    $fullText = trim(substr($fullText, strlen($prompt)));
-                }
-                
-                $generatedText = !empty($fullText) ? $fullText : "No meaningful text generated.";
-                
-                return new JsonResponse([
-                    'success' => true, 
-                    'generated_text' => $generatedText
-                ]);
-            } else {
-                return new JsonResponse([
-                    'success' => false,
-                    'message' => 'Failed to generate text. API response: ' . json_encode($jsonResponse)
-                ], Response::HTTP_BAD_REQUEST);
-            }
-            
-        } catch (\Exception $e) {
-            error_log("Text generation error: " . $e->getMessage());
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'Error generating text: ' . $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+
+    } catch (\Exception $e) {
+        error_log("Text generation error: " . $e->getMessage());
+        return new JsonResponse([
+            'success' => false,
+            'message' => 'Error generating text: ' . $e->getMessage()
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
+}
 }
