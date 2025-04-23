@@ -13,9 +13,9 @@
         display: inline-block;
         padding: 10px 20px;
         border-radius: 8px;
-        font-weight: bold;
         text-align: center;
         transition: all 0.3s ease;
+        font-size: 12px;
     }
 
     .show-btn {
@@ -53,6 +53,7 @@
         background-color: #FF5722;
         color: white;
         border: 2px solid #FF5722;
+        padding: 8px 12px;
     }
 
     .maps-btn:hover {
@@ -71,12 +72,6 @@
         background-color: #7b1fa2;
         border-color: #7b1fa2;
         cursor: pointer;
-    }
-
-    .btn-container {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
     }
 
     .swipe-text {
@@ -128,76 +123,134 @@
     .qr-modal img {
         max-width: 200px;
     }
+
+    .btn-container {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        font-size: 15px;
+    }
+
+    .card {
+        width: 450px;
+    }
+
+    .search-container {
+        width: 80%;
+        max-width: 500px;
+        margin: 0 auto 30px;
+    }
+
+    #search-bar {
+        width: 100%;
+        padding: 12px 20px;
+        border: 2px solid #ddd;
+        border-radius: 25px;
+        font-size: 16px;
+        outline: none;
+        transition: all 0.3s;
+    }
+
+    #search-bar:focus {
+        border-color: #007BFF;
+    }
+
+    .no-results {
+        text-align: center;
+        font-size: 18px;
+        color: #666;
+        margin-top: 50px;
+        display: none;
+    }
+
+    .event-card {
+        transition: all 0.3s ease;
+    }
 </style>
 
 <div class="min-h-screen bg-gray-100 p-4 relative">
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input type="text" id="search-bar" placeholder="Search events by name, location, organizer, type..." autocomplete="off">
+    </div>
+
+    <!-- No Results Message -->
+    <div class="no-results" id="no-results">
+        No events found matching your search.
+    </div>
+
+    <!-- Carousel Container -->
     <div class="w-96 mx-auto" style="scroll-snap-type: x mandatory;">
-        {% for event in events %}
-            <div class="">
-                <input class="sr-only peer" type="radio" name="carousel" id="carousel-{{ loop.index }}" {% if loop.first %}checked{% endif %} />
-                <div class="w-96 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg transition-all duration-300 opacity-0 peer-checked:opacity-100 peer-checked:z-10 z-0">
-                    <div class="py-20 px-2">
-                        <h1 class="card-title hover:cursor-pointer mt-2">{{ event.name }}</h1>
-                        <p class="card-text"><strong>Date:</strong> {{ event.date ? event.date|date('Y-m-d') : '' }}</p>
-                        <p class="card-text"><strong>Location:</strong> {{ event.location }}</p>
-                        <p class="card-text"><strong>Organiser:</strong> {{ event.organiser }}</p>
-                        <p class="card-text"><strong>Type:</strong> {{ event.eventType }}</p>
-                        <p class="card-text"><strong>Participants:</strong> {{ event.nbParticipant }}</p>
-                        <p class="card-text"><strong>Price:</strong> {{ event.ticketPrice }} DT</p>
-                    </div>
-                    
-                    <div class="btn-container px-8 pb-4">
-                        <a href="{{ path('app_event_show', {'id': event.id}) }}" class="btn show-btn"><i class="fas fa-eye"></i> Show</a>
-                        <a href="{% if event.hasFormation %}{{ path('app_formation_show', {'id': event.formationId}) }}{% else %}#{% endif %}" class="btn display-btn" {% if not event.hasFormation %}style="pointer-events: none; opacity: 0.5;"{% endif %}>
-                            <i class="fas fa-chalkboard-teacher"></i> Display Formation
-                        </a>
-                        <a href="{% if event.latitude is not empty and event.longitude is not empty and 
-                            event.latitude >= -90 and event.latitude <= 90 and 
-                            event.longitude >= -180 and event.longitude <= 180 %}
-                            https://www.google.com/maps?q={{ event.latitude }},{{ event.longitude }}
-                            {% else %}
-                            https://www.google.com/maps?q={{ event.location }}
-                            {% endif %}" target="_blank" class="btn maps-btn">
-                            <i class="fas fa-map-marker-alt"></i> See Maps
-                        </a>
-                        <button type="button" class="btn qr-btn" onclick="generateTextFile({
-                            name: '{{ event.name }}',
-                            date: '{{ event.date ? event.date|date('Y-m-d') : '' }}',
-                            location: '{{ event.location }}',
-                            organiser: '{{ event.organiser }}',
-                            eventType: '{{ event.eventType }}',
-                            nbParticipant: {{ event.nbParticipant }},
-                            ticketPrice: '{{ event.ticketPrice }}'
-                        })">
-                            <i class="fas fa-download"></i> Download Event Info
-                        </button>
-                        <button type="button" class="btn qr-btn" onclick="showQRCode({
-                            name: '{{ event.name }}',
-                            date: '{{ event.date ? event.date|date('Y-m-d') : '' }}',
-                            location: '{{ event.location }}',
-                            organiser: '{{ event.organiser }}',
-                            eventType: '{{ event.eventType }}',
-                            nbParticipant: {{ event.nbParticipant }},
-                            ticketPrice: '{{ event.ticketPrice }}'
-                        })">
-                            <i class="fas fa-qrcode"></i> See QR Code
-                        </button>
-                    </div>
-                    <div class="absolute top-1/2 w-full flex justify-between z-20">
-                        <label for="carousel-{{ loop.index == 1 ? events|length : loop.index - 1 }}" class="inline-block text-red-600 cursor-pointer -translate-x-5 bg-white rounded-full shadow-md active:translate-y-0.5">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.707-10.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L9.414 11H13a1 1 0 100-2H9.414l1.293-1.293z" clip-rule="evenodd" />
-                            </svg>
-                        </label>
-                        <label for="carousel-{{ loop.index == events|length ? 1 : loop.index + 1 }}" class="inline-block text-red-600 cursor-pointer translate-x-5 bg-white rounded-full shadow-md active:translate-y-0.5">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd" />
-                            </svg>
-                        </label>
+        <div id="carousel-events-container">
+            {% for event in events %}
+                <div class="event-card" data-search="{{ event.name|lower }} {{ event.location|lower }} {{ event.organiser|lower }} {{ event.eventType|lower }}">
+                    <input class="sr-only peer" type="radio" name="carousel" id="carousel-{{ loop.index }}" {% if loop.first %}checked{% endif %} />
+                    <div class="card absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg transition-all duration-300 opacity-0 peer-checked:opacity-100 peer-checked:z-10 z-0">
+                        <div class="py-20 px-2">
+                            <h1 class="card-title hover:cursor-pointer mt-2">{{ event.name }}</h1>
+                            <p class="card-text"><strong>Date:</strong> {{ event.date ? event.date|date('Y-m-d') : '' }}</p>
+                            <p class="card-text"><strong>Location:</strong> {{ event.location }}</p>
+                            <p class="card-text"><strong>Organiser:</strong> {{ event.organiser }}</p>
+                            <p class="card-text"><strong>Type:</strong> {{ event.eventType }}</p>
+                            <p class="card-text"><strong>Participants:</strong> {{ event.nbParticipant }}</p>
+                            <p class="card-text"><strong>Price:</strong> {{ event.ticketPrice }} DT</p>
+                        </div>
+                        
+                        <div class="btn-container px-8 pb-4">
+                            <a href="{{ path('app_event_show', {'id': event.id}) }}" class="btn show-btn">Show</a>
+                            <a href="{% if event.hasFormation %}{{ path('app_formation_show', {'id': event.formationId}) }}{% else %}#{% endif %}" class="btn display-btn" {% if not event.hasFormation %}style="pointer-events: none; opacity: 0.5;"{% endif %}>
+                                Display Formation
+                            </a>
+                        </div>
+                        <div class="btn-container px-8 pb-4">
+                            <a href="{% if event.latitude is not empty and event.longitude is not empty and 
+                                event.latitude >= -90 and event.latitude <= 90 and 
+                                event.longitude >= -180 and event.longitude <= 180 %}
+                                https://www.google.com/maps?q={{ event.latitude }},{{ event.longitude }}
+                                {% else %}
+                                https://www.google.com/maps?q={{ event.location }}
+                                {% endif %}" target="_blank" class="btn maps-btn">
+                                See Maps
+                            </a>
+                            <button type="button" class="btn qr-btn" onclick="generatePDF({
+                                name: '{{ event.name }}',
+                                date: '{{ event.date ? event.date|date('Y-m-d') : '' }}',
+                                location: '{{ event.location }}',
+                                organiser: '{{ event.organiser }}',
+                                eventType: '{{ event.eventType }}',
+                                nbParticipant: {{ event.nbParticipant }},
+                                ticketPrice: '{{ event.ticketPrice }}'
+                            })">
+                                Download Event Info
+                            </button>
+                            <button type="button" class="btn qr-btn" onclick="showQRCode({
+                                name: '{{ event.name }}',
+                                date: '{{ event.date ? event.date|date('Y-m-d') : '' }}',
+                                location: '{{ event.location }}',
+                                organiser: '{{ event.organiser }}',
+                                eventType: '{{ event.eventType }}',
+                                nbParticipant: {{ event.nbParticipant }},
+                                ticketPrice: '{{ event.ticketPrice }}'
+                            })">
+                                See QR Code
+                            </button>
+                        </div>
+                        <div class="absolute top-1/2 w-full flex justify-between z-20">
+                            <label for="carousel-{{ loop.index == 1 ? events|length : loop.index - 1 }}" class="inline-block text-red-600 cursor-pointer -translate-x-5 bg-white rounded-full shadow-md active:translate-y-0.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.707-10.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L9.414 11H13a1 1 0 100-2H9.414l1.293-1.293z" clip-rule="evenodd" />
+                                </svg>
+                            </label>
+                            <label for="carousel-{{ loop.index == events|length ? 1 : loop.index + 1 }}" class="inline-block text-red-600 cursor-pointer translate-x-5 bg-white rounded-full shadow-md active:translate-y-0.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
 
     <div id="qr-modal" class="qr-modal" onclick="closeQRCode()">
@@ -213,8 +266,130 @@
 </div>
 
 <script src="https://unpkg.com/tailwindcss-jit-cdn"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchBar = document.getElementById('search-bar');
+        const eventCards = document.querySelectorAll('.event-card');
+        const noResultsMessage = document.getElementById('no-results');
+        
+        searchBar.addEventListener('input', function() {
+            const searchTerm = this.value.trim().toLowerCase();
+            let visibleCards = 0;
+            
+            // Clear the carousel container and only append the matching events
+            let matchingEvents = [];
+            
+            eventCards.forEach(card => {
+                const searchData = card.getAttribute('data-search');
+                
+                if (searchTerm === '' || searchData.includes(searchTerm)) {
+                    matchingEvents.push(card);
+                    visibleCards++;
+                }
+            });
+
+            // Clear the carousel container and append only the matching events
+            const container = document.getElementById('carousel-events-container');
+            container.innerHTML = ""; // Clear the existing events
+            matchingEvents.forEach(card => container.appendChild(card));
+            
+            // Show/hide no results message
+            if (visibleCards === 0 && searchTerm !== '') {
+                noResultsMessage.style.display = 'block';
+            } else {
+                noResultsMessage.style.display = 'none';
+            }
+            
+            // Reset carousel navigation for visible cards
+            if (visibleCards > 0) {
+                const firstVisibleCard = document.querySelector('.event-card');
+                if (firstVisibleCard) {
+                    const firstRadio = firstVisibleCard.querySelector('input[type="radio"]');
+                    if (firstRadio) {
+                        firstRadio.checked = true;
+                    }
+                }
+            }
+        });
+    });
+    function generatePDF(eventData) {
+        const { jsPDF } = window.jspdf;
+
+        const doc = new jsPDF();
+        const margin = 10;
+        const pageWidth = doc.internal.pageSize.width;
+        const pageHeight = doc.internal.pageSize.height;
+        
+        // Header Section (Event Name with Background)
+        doc.setFillColor(0, 123, 255);  // Blue background for the header
+        doc.rect(margin, margin, pageWidth - 2 * margin, 25, 'F');  // Header box
+
+        doc.setTextColor(255, 255, 255);  // White text color
+        doc.setFontSize(18);
+        doc.setFont("helvetica", "bold");
+        doc.text(`Event: ${eventData.name}`, margin + 10, margin + 18);  // Event title
+
+        // Add a horizontal line below the header
+        doc.setDrawColor(0, 0, 0);  // Black line
+        doc.line(margin, margin + 25, pageWidth - margin, margin + 25);  // Line after header
+
+        // Event Details Section
+        const detailsMarginTop = margin + 30;  // Start below the header
+        const sectionMargin = 10;  // Left margin for each section
+        const sectionHeight = 12;  // Height of each line
+
+        // Background box for Event Details
+        doc.setFillColor(240, 240, 240);  // Light gray background
+        doc.rect(margin, detailsMarginTop, pageWidth - 2 * margin, sectionHeight * 6, 'F');  // Event info box
+
+        // Event Info Title
+        doc.setTextColor(0, 0, 0);  // Black text
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("Event Details", margin + sectionMargin, detailsMarginTop + sectionHeight / 1.5);
+
+        // Event Info Content
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+
+        const eventDetails = [
+            { label: "Date", value: eventData.date },
+            { label: "Location", value: eventData.location },
+            { label: "Organiser", value: eventData.organiser },
+            { label: "Type", value: eventData.eventType },
+            { label: "Participants", value: eventData.nbParticipant.toString() },
+            { label: "Price", value: `${eventData.ticketPrice} DT` }
+        ];
+
+        let detailMargin = detailsMarginTop + sectionHeight * 1.5;  // Start after the title
+
+        eventDetails.forEach(detail => {
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(0, 123, 255);  // Blue for labels
+            doc.text(`${detail.label}: `, margin + sectionMargin, detailMargin);
+
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(0, 0, 0);  // Black for content
+            doc.text(detail.value, margin + sectionMargin + 50, detailMargin);
+
+            detailMargin += sectionHeight;  // Move down for the next detail
+        });
+
+        // Line under the event details
+        doc.setDrawColor(0, 0, 0);
+        doc.line(margin, detailMargin + sectionHeight / 2, pageWidth - margin, detailMargin + sectionHeight / 2);
+
+        // Footer Section with Professional Style
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);  // Gray color for footer text
+        doc.text("Generated by Event System", margin, pageHeight - 10);
+
+        // Save the generated PDF
+        doc.save(`${eventData.name}_Details.pdf`);
+    }
+
     function showQRCode(eventData) {
         var eventText = `
             Event Name: ${eventData.name}
@@ -237,24 +412,6 @@
     function closeQRCode() {
         var qrModal = document.getElementById('qr-modal');
         qrModal.style.display = 'none';
-    }
-
-    function generateTextFile(eventData) {
-        var eventText = `
-            Event Name: ${eventData.name}
-            Date: ${eventData.date}
-            Location: ${eventData.location}
-            Organiser: ${eventData.organiser}
-            Type: ${eventData.eventType}
-            Participants: ${eventData.nbParticipant}
-            Price: ${eventData.ticketPrice} DT
-        `;
-
-        var blob = new Blob([eventText], { type: 'text/plain' });
-        var link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `${eventData.name}_Details.txt`;
-        link.click();
     }
 </script>
 

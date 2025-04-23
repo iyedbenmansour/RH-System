@@ -17,45 +17,56 @@ class Event
 
     #[ORM\Column(type: "string", length: 255)]
     #[Assert\NotBlank]
+    #[Assert\Length(min: 3, max: 255)]
     private string $name;
 
     #[ORM\Column(type: "text", nullable: true)]
+    #[Assert\Length(max: 1000)]
     private ?string $description = null;
 
     #[ORM\Column(type: "date")]
     #[Assert\NotBlank]
+    #[Assert\GreaterThan('today')]
     private \DateTimeInterface $date;
 
     #[ORM\Column(type: "string", length: 255)]
     #[Assert\NotBlank]
+    #[Assert\Length(min: 3, max: 255)]
     private string $location;
 
     #[ORM\Column(type: "string", length: 255)]
     #[Assert\NotBlank]
+    #[Assert\Length(min: 3, max: 255)]
     private string $organiser;
 
     #[ORM\Column(type: "string", length: 255)]
     #[Assert\NotBlank]
+    #[Assert\Choice(choices: ['Conference', 'Workshop', 'Seminar', 'Webinar'], message: 'Choose a valid event type')]
     private string $eventType;
 
     #[ORM\Column(type: "integer")]
     #[Assert\PositiveOrZero]
+    #[Assert\LessThanOrEqual(1000)]
     private int $nbParticipant = 0;
 
     #[ORM\Column(type: "float")]
     #[Assert\PositiveOrZero]
+    #[Assert\LessThanOrEqual(1000)]
     private float $ticketPrice = 0.0;
 
     #[ORM\Column(type: "boolean")]
     private bool $hasFormation = false;
 
     #[ORM\Column(type: "integer", nullable: true)]
+    #[Assert\IsNull(groups: ["has_formation_false"])]
     private ?int $formationId = null;
 
     #[ORM\Column(type: "float")]
+    #[Assert\Range(min: -180, max: 180)]
     private float $longitude = 0.0;
 
     #[ORM\Column(type: "float")]
+    #[Assert\Range(min: -90, max: 90)]
     private float $latitude = 0.0;
 
     public function getId(): ?int
@@ -199,6 +210,14 @@ class Event
         return $this;
     }
 
+    #[Assert\Callback]
+    public function validateHasFormationAndFormationId(ExecutionContextInterface $context)
+    {
+        if (!$this->hasFormation && $this->formationId !== null) {
+            $context->buildViolation('Formation ID should be null if hasFormation is false')
+                ->addViolation();
+        }
+    }
     public function __toString(): string
     {
         return sprintf(
