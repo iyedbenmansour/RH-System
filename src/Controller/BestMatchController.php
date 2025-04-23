@@ -15,7 +15,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class BestMatchController extends AbstractController
 {
     private HttpClientInterface $httpClient;
-    private string $hfApiKey = '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';
 
     public function __construct(HttpClientInterface $httpClient)
     {
@@ -51,10 +50,13 @@ class BestMatchController extends AbstractController
                         $error = 'Unable to read CV. Please ensure it\'s a valid PDF.';
                     } else {
                         $cvKeywords = $keywordExtractor->extractKeywordsFromCV($cvContent);
-                        
+
                         // Extract profile links from CV content
                         $profileLinks = $this->extractProfileLinks($cvContent);
                         $request->getSession()->set('profileLinks', $profileLinks);
+
+                        // Save CV text to session for later use in quick apply
+                        $request->getSession()->set('cvText', $cvContent);
 
                         if (empty($cvKeywords)) {
                             $error = 'No relevant keywords found in your CV.';
@@ -121,10 +123,19 @@ class BestMatchController extends AbstractController
             }
         }
 
+        // Fetch all applied job IDs for the current user (user_id = 1)
+        $appliedJobIds = [];
+        $appRepo = $em->getRepository(Applicant::class);
+        $applications = $appRepo->findBy(['userId' => 1]);
+        foreach ($applications as $application) {
+            $appliedJobIds[] = $application->getJobId();
+        }
+
         return $this->render('best_match/index.html.twig', [
             'jobs' => $jobs,
             'error' => $error,
             'count' => $count,
+            'appliedJobIds' => $appliedJobIds, // <-- Pass to Twig
         ]);
     }
 
@@ -155,8 +166,11 @@ class BestMatchController extends AbstractController
         $profileLinks = $request->getSession()->get('profileLinks', []);
         $profileLink = $this->selectBestProfileLink($profileLinks);
 
-        // Generate AI-powered application message
-        $aiMessage = $this->generateApplicationMessage($job['title'], $job['description']);
+        // Get CV text from session (may be null)
+        $cvText = $request->getSession()->get('cvText');
+
+        // Generate AI-powered application message using CV and job info
+        $aiMessage = $this->generateApplicationMessage($job['title'], $job['description'], $cvText);
 
         // Create new application with user ID 1
         $application = new Applicant();
@@ -167,7 +181,7 @@ class BestMatchController extends AbstractController
         $comment = $aiMessage ?? "I'm excited to apply for this position. My skills and experience make me a strong candidate for this role.";
         
         if ($profileLink) {
-            $comment .= "\n\nYou can find more about me here: " . $profileLink;
+            $comment .= ": " . $profileLink;
             $application->setAdditionalFile($profileLink);
         }
         
@@ -180,53 +194,58 @@ class BestMatchController extends AbstractController
         $this->addFlash('success', 'Application submitted successfully!');
         return $this->redirectToRoute('best_match');
     }
-    private function generateApplicationMessage(string $jobTitle, string $jobDescription): ?string
+
+    private function generateApplicationMessage(string $jobTitle, string $jobDescription, ?string $cvText = null): ?string
     {
         try {
-            // Prepare the prompt for the AI
-            $prompt = "Generate a professional job application cover letter for a position titled '{$jobTitle}'. ";
-            $prompt .= "The job description is: '{$jobDescription}'. ";
-            $prompt .= "The message should be: 
-            - Concise (about 150 words)
-            - Professional tone
-            - Highlight relevant skills
-            - Show enthusiasm for the role
-            - Avoid generic phrases
-            - Structured in 3 short paragraphs:
-              1. Introduction and interest in position
-              2. Relevant skills/experience
-              3. Closing and call to action";
-    
-            $response = $this->httpClient->request('POST', 'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2', [
+            $cvTextForPrompt = $cvText ?? '';
+
+            $prompt = <<<EOT
+You are an expert career assistant.
+Write a professional job application cover letter for the position "{$jobTitle}". 
+The job description is: "{$jobDescription}".
+
+The candidate's full CV is below:
+----
+{$cvTextForPrompt}
+----
+
+Instructions:
+Write 3 concise paragraphs:
+1. Express genuine interest and enthusiasm for the company and role.
+2. Highlight Iyed’s most relevant skills, projects, or experiences for this job (based on the CV above).
+3. End with a confident, positive closing and a call to action.
+
+Maintain a professional, enthusiastic, and personal tone. Avoid generic statements. Reference specific details from the candidate CV and the job description.
+EOT;
+
+            $response = $this->httpClient->request('POST', 'https://openrouter.ai/api/v1/chat/completions', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $this->hfApiKey,
+                    'Authorization' => 'Bearer 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',
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'inputs' => $prompt,
-                    'parameters' => [
-                        'max_new_tokens' => 300,
-                        'temperature' => 0.7,
-                        'return_full_text' => false,
-                    ]
+                    'model' => 'mistralai/mixtral-8x7b-instruct',
+                    'messages' => [
+                        ['role' => 'user', 'content' => $prompt],
+                    ],
+                    'max_tokens' => 400,
+                    'temperature' => 0.7,
                 ],
                 'timeout' => 30,
             ]);
-    
+
             $content = $response->toArray();
-            
-            if (isset($content[0]['generated_text'])) {
-                // Clean up the response if needed
-                $message = trim($content[0]['generated_text']);
-                // Remove any incomplete sentences at the end
+
+            if (isset($content['choices'][0]['message']['content'])) {
+                $message = trim($content['choices'][0]['message']['content']);
+                // Remove incomplete last sentence
                 $message = preg_replace('/[^.!?]+$/', '', $message);
                 return $message;
             }
-    
+
             return null;
         } catch (\Exception $e) {
-            // Log the error
-            // $this->logger->error('HF API Error: ' . $e->getMessage());
             return null;
         }
     }
@@ -238,7 +257,6 @@ class BestMatchController extends AbstractController
         
         if (preg_match_all($pattern, $text, $matches)) {
             foreach ($matches[0] as $match) {
-                // Ensure URLs have https:// prefix
                 if (!preg_match('/^https?:\/\//i', $match)) {
                     $match = 'https://' . $match;
                 }
@@ -255,14 +273,12 @@ class BestMatchController extends AbstractController
             return null;
         }
 
-        // Prefer LinkedIn if available
         foreach ($links as $link) {
             if (stripos($link, 'linkedin.com') !== false) {
                 return $link;
             }
         }
 
-        // Otherwise return the first GitHub link or the first available link
         return $links[0];
     }
 }
