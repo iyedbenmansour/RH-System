@@ -3,3 +3,54 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+home:
+    path: /
+    controller: App\Controller\MainController::index
+
+admin_login:
+    path: /admin/login
+    controller: App\Controller\AdminController::login
+
+admin_dashboard:
+    path: /admin/dashboard
+    controller: App\Controller\AdminController::dashboard
+
+admin_logout:
+    path: /admin/logout
+    controller: App\Controller\AdminController::logout
+
+admin_add:
+    path: /admin/add
+    controller: App\Controller\AdminController::addAdmin
+
+company_register:
+    path: /company/register
+    controller: App\Controller\CompanyController::register
+
+company_login:
+    path: /company/login
+    controller: App\Controller\CompanyController::login
+
+company_dashboard:
+    path: /company/dashboard
+    controller: App\Controller\CompanyController::dashboard
+
+company_logout:
+    path: /company/logout
+    controller: App\Controller\CompanyController::logout
+
+candidat_register:
+    path: /candidat/register
+    controller: App\Controller\CandidatController::register
+
+candidat_login:
+    path: /candidat/login
+    controller: App\Controller\CandidatController::login
+
+candidat_dashboard:
+    path: /candidat/dashboard
+    controller: App\Controller\CandidatController::dashboard
+
+candidat_logout:
+    path: /candidat/logout
+    controller: App\Controller\CandidatController::logout
