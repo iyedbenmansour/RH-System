@@ -265,7 +265,7 @@
                         <li class="menu-title">MENU</li>
 
                         <li class="nav-item">
-                            <a href="{{ path('app_home') }}" class="nav-link {% if app.request.get('_route') == 'app_home_back' %}active{% endif %}">
+                            <a href="{{ path('company_dashboard') }}" class="nav-link {% if app.request.get('_route') == 'app_home_back' %}active{% endif %}">
                                 <i class="bx bx-home-circle"></i>
                                 <span>Dashboard</span>
                             </a>
@@ -313,10 +313,10 @@
                             <div class="collapse" id="applicationSubmenu">
                                 <ul class="nav flex-column sub-menu">
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link">All Applications</a>
+                                        <a href="{{ path('company_applications') }}" class="nav-link">All Applications</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link">Pending Applications</a>
+                                        <a href="{{ path('company_pending') }}" class="nav-link">Pending Applications</a>
                                     </li>
                                 </ul>
                             </div>

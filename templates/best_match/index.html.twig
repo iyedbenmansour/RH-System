@@ -8,18 +8,7 @@
         <div class="col-lg-8 mx-auto">
             <h1 class="mb-4 text-primary fw-bold">Best Match Jobs</h1>
             
-            <div class="card shadow-sm mb-5">
-                <div class="card-body p-4">
-                    <h5 class="card-title text-primary mb-3">Upload your CV</h5>
-                    <form method="post" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label for="cv" class="form-label">Select your CV (PDF format):</label>
-                            <input class="form-control border-primary" type="file" id="cv" name="cv" accept="application/pdf" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary px-4">Find Best Matches</button>
-                    </form>
-                </div>
-            </div>
+          
 
             {% if error %}
                 <div class="alert alert-danger shadow-sm">{{ error }}</div>

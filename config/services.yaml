@@ -6,6 +6,8 @@
 parameters:
       uploads_directory: '%kernel.project_dir%/public/uploads'
 
+      cv_directory: '%kernel.project_dir%/public/uploads/cv'
+      env(BREVO_API_KEY): '%env(BREVO_API_KEY)%'
 
 services:
     # default configuration for services in *this* file
@@ -24,3 +26,16 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    Symfony\Component\HttpFoundation\Session\SessionInterface:
+        factory: ['@session.factory', 'createSession']
+    
+    session.factory:
+        class: Symfony\Component\HttpFoundation\Session\SessionFactory
+        arguments:
+            - '@request_stack'
+            - '@?session.storage.factory.native'
+            - null # Le troisième argument doit être null ou un callable
+    App\Service\FileUploader:
+        arguments:
+            $targetDirectory: '%kernel.project_dir%/public/uploads/cv'
+            $slugger: '@Symfony\Component\String\Slugger\SluggerInterface'

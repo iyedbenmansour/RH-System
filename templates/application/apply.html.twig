@@ -11,15 +11,10 @@
                         <h2>Apply for: {{ job.title }}</h2>
                     </div>
                     <div class="card-body">
-                        <form method="post">
+                        <form method="post" id="apply-form">
                             <input type="hidden" name="job_id" value="{{ job.id }}">
                             <input type="hidden" name="company_id" value="{{ job.companyId }}">
-                            
-                            <div class="mb-3">
-                                <label for="user_id" class="form-label">Your User ID</label>
-                                <input type="number" class="form-control" id="user_id" name="user_id" required>
-                                <div class="form-text">Please enter your numeric user ID</div>
-                            </div>
+                            <input type="hidden" id="user_id" name="user_id" required>
                             
                             <div class="mb-3">
                                 <label for="comment" class="form-label">Cover Letter/Message</label>
@@ -41,9 +36,34 @@
                                 </button>
                             </div>
                         </form>
+                        <div id="userid-error" class="alert alert-danger mt-3 d-none">
+                            Error: User ID not found in your session. Please log in again.
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const candidatId = localStorage.getItem('candidat_id');
+            const userIdInput = document.getElementById('user_id');
+            const form = document.getElementById('apply-form');
+            const errorDiv = document.getElementById('userid-error');
+
+            if (candidatId && userIdInput) {
+                userIdInput.value = candidatId;
+            } else {
+                if (errorDiv) {
+                    errorDiv.classList.remove('d-none');
+                }
+                if (form) {
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        alert('User ID not found. Please log in again.');
+                    });
+                }
+            }
+        });
+    </script>
 {% endblock %}

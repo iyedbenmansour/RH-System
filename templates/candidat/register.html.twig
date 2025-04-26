@@ -1,0 +1,310 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription Candidat | {{ parent() }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --danger-color: #f72585;
+            --light-gray: #f8f9fa;
+        }
+        
+        .registration-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .registration-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .card-body {
+            padding: 2rem;
+        }
+        
+        .alert-danger {
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+        
+        .required-field::after {
+            content: " *";
+            color: var(--danger-color);
+        }
+        
+        .form-control {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.15);
+        }
+        
+        .form-control:invalid {
+            border-color: var(--danger-color);
+        }
+        
+        .form-control:invalid:focus {
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+        
+        .invalid-feedback {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+        
+        .was-validated .form-control:invalid ~ .invalid-feedback {
+            display: block;
+        }
+        
+        .btn-register {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #6c757d;
+        }
+        
+        .login-link a {
+            color: var(--primary-color);
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .login-link a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6c757d;
+        }
+        
+        .password-container {
+            position: relative;
+        }
+        
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .file-upload-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            border: 1px dashed #e0e0e0;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            cursor: pointer;
+        }
+        
+        .file-upload-label:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .file-name {
+            margin-left: 10px;
+            color: #6c757d;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 70%;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 col-xl-5">
+            <div class="registration-card">
+                <div class="card-header">
+                    <h1 class="h3 mb-0">Inscription Candidat</h1>
+                    <p class="mb-0">Créez votre compte pour postuler aux offres</p>
+                </div>
+                <div class="card-body">
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                    
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+
+                    <form method="post" enctype="multipart/form-data" novalidate class="needs-validation">
+                        <div class="mb-4">
+                            <label for="name" class="form-label required-field">Nom complet</label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   required
+                                   minlength="2"
+                                   value="{{ app.request.request.get('name') }}"
+                                   placeholder="Votre nom et prénom">
+                            <div class="invalid-feedback">Veuillez saisir votre nom complet (minimum 2 caractères)</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="email" class="form-label required-field">Email</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                   required
+                                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+                                   value="{{ app.request.request.get('email') }}"
+                                   placeholder="exemple@email.com">
+                            <div class="invalid-feedback">Veuillez saisir une adresse email valide</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="password" class="form-label required-field">Mot de passe</label>
+                            <div class="password-container">
+                                <input type="password" class="form-control" id="password" name="password"
+                                       required
+                                       minlength="6"
+                                       placeholder="Minimum 6 caractères">
+                                <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                            </div>
+                            <div class="invalid-feedback">Le mot de passe doit contenir au moins 6 caractères</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="cv" class="form-label">CV (PDF)</label>
+                            <div class="file-upload">
+                                <label class="file-upload-label">
+                                    <span>
+                                        <i class="fas fa-cloud-upload-alt me-2"></i>
+                                        <span id="file-name">Téléverser votre CV</span>
+                                    </span>
+                                    <span class="badge bg-primary">Parcourir</span>
+                                    <input type="file" class="file-upload-input" id="cv" name="cv" 
+                                           accept=".pdf,application/pdf">
+                                </label>
+                            </div>
+                            <div class="form-text text-muted">Format PDF uniquement, max 2MB</div>
+                        </div>
+
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-register btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>S'inscrire
+                            </button>
+                        </div>
+
+                        <div class="login-link">
+                            Vous avez déjà un compte? <a href="{{ path('candidat_login') }}">Connectez-vous</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Activation de la validation Bootstrap
+    const form = document.querySelector('.needs-validation');
+    
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    }, false);
+    
+    // Toggle password visibility
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+    
+    togglePassword.addEventListener('click', function() {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        this.classList.toggle('fa-eye-slash');
+    });
+    
+    // Gestion de l'affichage du nom du fichier CV
+    const fileInput = document.querySelector('#cv');
+    const fileName = document.querySelector('#file-name');
+    
+    fileInput.addEventListener('change', function(e) {
+        if (this.files && this.files.length > 0) {
+            fileName.textContent = this.files[0].name;
+        } else {
+            fileName.textContent = 'Téléverser votre CV';
+        }
+    });
+    
+    // Animation des champs
+    const inputs = document.querySelectorAll('.form-control, .file-upload');
+    inputs.forEach((input, index) => {
+        input.style.opacity = '0';
+        input.style.transform = 'translateY(20px)';
+        input.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        
+        setTimeout(() => {
+            input.style.opacity = '1';
+            input.style.transform = 'translateY(0)';
+        }, 100 * index);
+    });
+});
+</script>
+{% endblock %}

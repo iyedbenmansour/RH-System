@@ -1,0 +1,199 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion | Career Bridge{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="login-section" style="max-width:420px;margin:40px auto;background:#fff;border-radius:16px;box-shadow:0 2px 14px #0001;padding:2rem 1.5rem;">
+        <!-- Alerts (optional) -->
+        <div class="alert-container">
+            {# Example error message #}
+            {# 
+            <div class="alert alert-danger alert-dismissible fade show">
+                <i class="fas fa-exclamation-circle me-2"></i> Email ou mot de passe incorrect
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            #}
+        </div>
+        <!-- Tabs -->
+        <div class="login-tabs" role="tablist" style="display:flex;justify-content:space-between;margin-bottom:2rem;">
+            <button class="login-tab active" type="button" data-tab="candidat" aria-selected="true" aria-controls="candidat-login" id="tab-candidat" style="flex:1;padding:0.75rem 0.5rem;border:none;background:none;font-weight:600;color:#555;cursor:pointer;border-bottom:2px solid #0d6efd;transition:color 0.2s,border-color 0.2s;">
+                <i class="fa fa-user me-2"></i>Candidat
+            </button>
+            <button class="login-tab" type="button" data-tab="entreprise" aria-selected="false" aria-controls="entreprise-login" id="tab-entreprise" style="flex:1;padding:0.75rem 0.5rem;border:none;background:none;font-weight:600;color:#555;cursor:pointer;border-bottom:2px solid transparent;transition:color 0.2s,border-color 0.2s;">
+                <i class="fa fa-building me-2"></i>Entreprise
+            </button>
+            <button class="login-tab" type="button" data-tab="admin" aria-selected="false" aria-controls="admin-login" id="tab-admin" style="flex:1;padding:0.75rem 0.5rem;border:none;background:none;font-weight:600;color:#555;cursor:pointer;border-bottom:2px solid transparent;transition:color 0.2s,border-color 0.2s;">
+                <i class="fa fa-user-shield me-2"></i>Administrateur
+            </button>
+        </div>
+        <!-- Candidat Form -->
+        <div id="candidat-login" class="login-container active" role="tabpanel" aria-labelledby="tab-candidat">
+            <div class="login-header" style="text-align:center;margin-bottom:1.5rem;">
+                <i class="fa fa-user" style="font-size:2rem;color:#0d6efd;"></i>
+                <h2>Espace Candidat</h2>
+                <p class="text-muted">Connectez-vous pour postuler à des offres</p>
+            </div>
+            <form method="post" action="{{ path('candidat_login') }}" class="needs-validation" novalidate>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token_candidat|default('...') }}">
+                <div class="form-group mb-3">
+                    <label for="candidat-email" class="form-label">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                        <input type="email" class="form-control" id="candidat-email" name="email" required placeholder="exemple@domaine.com">
+                        <div class="invalid-feedback">
+                            Veuillez entrer une adresse email valide.
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="candidat-password" class="form-label">Mot de passe</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                        <input type="password" class="form-control" id="candidat-password" name="password" required placeholder="••••••••">
+                        <div class="invalid-feedback">
+                            Veuillez entrer votre mot de passe.
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="candidat-remember" name="_remember_me">
+                    <label class="form-check-label" for="candidat-remember">Se souvenir de moi</label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-login mb-3" style="width:100%;">
+                    <i class="fa fa-sign-in me-2"></i> Se connecter
+                </button>
+                <div class="register-link" style="text-align:center;font-size:0.95rem;">
+                    <p>Pas encore de compte ? <a href="{{ path('candidat_register') }}">Créer un compte candidat</a></p>
+                </div>
+            </form>
+        </div>
+        <!-- Entreprise Form -->
+        <div id="entreprise-login" class="login-container" role="tabpanel" aria-labelledby="tab-entreprise" style="display:none;">
+            <div class="login-header" style="text-align:center;margin-bottom:1.5rem;">
+                <i class="fa fa-building" style="font-size:2rem;color:#0d6efd;"></i>
+                <h2>Espace Entreprise</h2>
+                <p class="text-muted">Connectez-vous pour gérer vos offres et candidats</p>
+            </div>
+            <form method="post" action="{{ path('company_login') }}" class="needs-validation" novalidate>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token_entreprise|default('...') }}">
+                <div class="form-group mb-3">
+                    <label for="entreprise-email" class="form-label">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                        <input type="email" class="form-control" id="entreprise-email" name="email" required placeholder="contact@votreentreprise.com">
+                        <div class="invalid-feedback">
+                            Veuillez entrer une adresse email valide.
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="entreprise-password" class="form-label">Mot de passe</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                        <input type="password" class="form-control" id="entreprise-password" name="password" required placeholder="••••••••">
+                        <div class="invalid-feedback">
+                            Veuillez entrer votre mot de passe.
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="entreprise-remember" name="_remember_me">
+                    <label class="form-check-label" for="entreprise-remember">Se souvenir de moi</label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-login mb-3" style="width:100%;">
+                    <i class="fa fa-sign-in me-2"></i> Se connecter
+                </button>
+                <div class="register-link" style="text-align:center;font-size:0.95rem;">
+                    <p>Pas encore de compte ? <a href="{{ path('company_register') }}">Créer un compte entreprise</a></p>
+                </div>
+            </form>
+        </div>
+        <!-- Admin Form -->
+        <div id="admin-login" class="login-container" role="tabpanel" aria-labelledby="tab-admin" style="display:none;">
+            <div class="login-header" style="text-align:center;margin-bottom:1.5rem;">
+                <i class="fa fa-user-shield" style="font-size:2rem;color:#0d6efd;"></i>
+                <h2>Espace Administrateur</h2>
+                <p class="text-muted">Veuillez vous connecter pour accéder au tableau de bord</p>
+            </div>
+            <form method="post" action="{{ path('admin_login') }}" class="needs-validation" novalidate>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token_admin|default('...') }}">
+                <div class="form-group mb-3">
+                    <label for="admin-email" class="form-label">Adresse Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                        <input type="email" class="form-control" id="admin-email" name="email" required placeholder="admin@example.com">
+                        <div class="invalid-feedback">
+                            Veuillez entrer une adresse email valide.
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="admin-password" class="form-label">Mot de passe</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                        <input type="password" class="form-control" id="admin-password" name="password" required placeholder="••••••••">
+                        <div class="invalid-feedback">
+                            Veuillez entrer votre mot de passe.
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="admin-remember" name="_remember_me">
+                    <label class="form-check-label" for="admin-remember">Se souvenir de moi</label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-login mb-3" style="width:100%;">
+                    <i class="fa fa-sign-in me-2"></i> Se connecter
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Extra responsive and tab styles for mobile */
+@media (max-width: 600px) {
+    .login-section {padding:1rem 0.5rem;}
+    .login-tabs {flex-direction:column;}
+    .login-tab {border-bottom:none;border-right:2px solid transparent;text-align:left;}
+    .login-tab.active {border-right:2px solid #0d6efd;border-bottom:none;background:#f0f7ff;}
+}
+.login-container {display:none;animation:fadeIn 0.5s;}
+.login-container.active {display:block;}
+@keyframes fadeIn {from {opacity:0;transform:translateY(20px);} to {opacity:1;transform:none;}}
+.login-tab.active {color:#0d6efd;border-bottom:2px solid #0d6efd;background:#f0f7ff;}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Tab logic
+    document.querySelectorAll('.login-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            const tabName = this.getAttribute('data-tab');
+            document.querySelectorAll('.login-container').forEach(form => {
+                form.classList.remove('active');
+                form.style.display = 'none';
+            });
+            const activeForm = document.getElementById(tabName + '-login');
+            activeForm.classList.add('active');
+            activeForm.style.display = 'block';
+        });
+    });
+    // Set initial active
+    document.querySelector('.login-container.active').style.display = 'block';
+
+    // Bootstrap-style validation
+    document.querySelectorAll('.needs-validation').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+});
+</script>
+{% endblock %}

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Applicant;
+use App\Entity\Candidat;
 use App\Service\CvKeywordExtractor;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,6 +22,21 @@ class BestMatchController extends AbstractController
         $this->httpClient = $httpClient;
     }
 
+    /**
+     * Extract candidat_id from session/cookie/token
+     */
+    private function getCandidatId(Request $request): ?int
+    {
+        // Adjust this based on where you store the token
+        // Example: token in session
+        return $request->getSession()->get('candidat_id');
+        // Or from cookies:
+        // return $request->cookies->get('candidat_id');
+        // Or from bearer token:
+        // $token = $request->headers->get('Authorization');
+        // Parse token to get candidat_id if JWT, etc.
+    }
+
     #[Route('/best-match', name: 'best_match')]
     public function bestMatch(
         Request $request, 
@@ -33,100 +49,136 @@ class BestMatchController extends AbstractController
         $cvKeywords = [];
         $profileLinks = [];
 
+        $candidatId = $this->getCandidatId($request);
+        if (!$candidatId) {
+            throw $this->createAccessDeniedException('User not authenticated.');
+        }
+
+        $candidatRepo = $em->getRepository(Candidat::class);
+        /** @var Candidat|null $candidat */
+        $candidat = $candidatRepo->find($candidatId);
+
+        if (!$candidat) {
+            throw $this->createNotFoundException('Candidate not found.');
+        }
+
+        $cvFilePath = null;
+        $cvContent = null;
+
+        // Handle POST: CV upload
         if ($request->isMethod('POST')) {
             $cvFile = $request->files->get('cv');
-
             if (!$cvFile) {
                 $error = 'Please upload your CV (PDF format).';
             } elseif (strtolower($cvFile->getClientOriginalExtension()) !== 'pdf') {
                 $error = 'Only PDF files are accepted.';
             } else {
-                $tmpPath = sys_get_temp_dir() . '/' . uniqid('cv_') . '.pdf';
+                // Save CV to public/uploads/cv
+                $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/cv';
+                $cvFileName = 'cv_' . $candidatId . '_' . uniqid() . '.pdf';
+
                 try {
-                    $cvFile->move(dirname($tmpPath), basename($tmpPath));
-                    $cvContent = $keywordExtractor->extractTextFromPdf($tmpPath);
+                    $cvFile->move($uploadDir, $cvFileName);
+                    $candidat->setCv($cvFileName);
+                    $em->flush();
+
+                    $cvFilePath = $uploadDir . '/' . $cvFileName;
+                    $cvContent = $keywordExtractor->extractTextFromPdf($cvFilePath);
 
                     if (!$cvContent) {
                         $error = 'Unable to read CV. Please ensure it\'s a valid PDF.';
-                    } else {
-                        $cvKeywords = $keywordExtractor->extractKeywordsFromCV($cvContent);
-
-                        // Extract profile links from CV content
-                        $profileLinks = $this->extractProfileLinks($cvContent);
-                        $request->getSession()->set('profileLinks', $profileLinks);
-
-                        // Save CV text to session for later use in quick apply
-                        $request->getSession()->set('cvText', $cvContent);
-
-                        if (empty($cvKeywords)) {
-                            $error = 'No relevant keywords found in your CV.';
-                        } else {
-                            $conn = $em->getConnection();
-                            $where = [];
-                            foreach ($cvKeywords as $keyword) {
-                                $where[] = "(j.title LIKE :kw_" . md5($keyword) . " OR j.description LIKE :kw_" . md5($keyword) . ")";
-                            }
-                            $whereSql = implode(' OR ', $where);
-                            $params = [];
-                            foreach ($cvKeywords as $keyword) {
-                                $params['kw_' . md5($keyword)] = '%' . $keyword . '%';
-                            }
-
-                            $relevanceCases = [];
-                            foreach ($cvKeywords as $keyword) {
-                                $ph = 'kw_' . md5($keyword);
-                                $relevanceCases[] =
-                                    "(CASE WHEN j.title LIKE :$ph THEN 1 ELSE 0 END + CASE WHEN j.description LIKE :$ph THEN 1 ELSE 0 END)";
-                            }
-
-                            $sql = "
-                                SELECT j.*, (
-                                    " . implode(' + ', $relevanceCases) . "
-                                ) AS relevance_score
-                                FROM jobs j
-                                WHERE $whereSql
-                                ORDER BY relevance_score DESC, j.posted_date DESC
-                                LIMIT 50
-                            ";
-
-                            $stmt = $conn->prepare($sql);
-                            $result = $stmt->executeQuery($params)->fetchAllAssociative();
-
-                            // Calculate and add match percentage for each job
-                            $totalKeywords = count($cvKeywords);
-                            foreach ($result as &$job) {
-                                $jobMatchCount = 0;
-                                $jobTitle = mb_strtolower($job['title']);
-                                $jobDescription = mb_strtolower($job['description']);
-
-                                foreach ($cvKeywords as $keyword) {
-                                    if (
-                                        mb_stripos($jobTitle, $keyword) !== false ||
-                                        mb_stripos($jobDescription, $keyword) !== false
-                                    ) {
-                                        $jobMatchCount++;
-                                    }
-                                }
-                                $job['match_percent'] = $totalKeywords > 0
-                                    ? round(($jobMatchCount / $totalKeywords) * 100)
-                                    : 0;
-                            }
-
-                            $jobs = $result;
-                            $count = count($jobs);
-                        }
                     }
-                    @unlink($tmpPath);
                 } catch (FileException $e) {
                     $error = 'File upload failed.';
                 }
             }
         }
 
-        // Fetch all applied job IDs for the current user (user_id = 1)
+        // On GET or after successful upload, try to get CV from DB/file
+        if (!$cvContent && $candidat->getCv()) {
+            $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/cv';
+            $cvFilePath = $uploadDir . '/' . $candidat->getCv();
+            if (file_exists($cvFilePath)) {
+                $cvContent = $keywordExtractor->extractTextFromPdf($cvFilePath);
+            } else {
+                $error = 'Your CV file could not be found on the server. Please upload it again.';
+            }
+        }
+
+        // If we have CV content, extract keywords and perform matching
+        if ($cvContent && !$error) {
+            $cvKeywords = $keywordExtractor->extractKeywordsFromCV($cvContent);
+
+            // Extract profile links from CV content
+            $profileLinks = $this->extractProfileLinks($cvContent);
+            $request->getSession()->set('profileLinks', $profileLinks);
+
+            // Save CV text to session for later use in quick apply
+            $request->getSession()->set('cvText', $cvContent);
+
+            if (empty($cvKeywords)) {
+                $error = 'No relevant keywords found in your CV.';
+            } else {
+                $conn = $em->getConnection();
+                $where = [];
+                foreach ($cvKeywords as $keyword) {
+                    $where[] = "(j.title LIKE :kw_" . md5($keyword) . " OR j.description LIKE :kw_" . md5($keyword) . ")";
+                }
+                $whereSql = implode(' OR ', $where);
+                $params = [];
+                foreach ($cvKeywords as $keyword) {
+                    $params['kw_' . md5($keyword)] = '%' . $keyword . '%';
+                }
+
+                $relevanceCases = [];
+                foreach ($cvKeywords as $keyword) {
+                    $ph = 'kw_' . md5($keyword);
+                    $relevanceCases[] =
+                        "(CASE WHEN j.title LIKE :$ph THEN 1 ELSE 0 END + CASE WHEN j.description LIKE :$ph THEN 1 ELSE 0 END)";
+                }
+
+                $sql = "
+                    SELECT j.*, (
+                        " . implode(' + ', $relevanceCases) . "
+                    ) AS relevance_score
+                    FROM jobs j
+                    WHERE $whereSql
+                    ORDER BY relevance_score DESC, j.posted_date DESC
+                    LIMIT 50
+                ";
+
+                $stmt = $conn->prepare($sql);
+                $result = $stmt->executeQuery($params)->fetchAllAssociative();
+
+                // Calculate and add match percentage for each job
+                $totalKeywords = count($cvKeywords);
+                foreach ($result as &$job) {
+                    $jobMatchCount = 0;
+                    $jobTitle = mb_strtolower($job['title']);
+                    $jobDescription = mb_strtolower($job['description']);
+
+                    foreach ($cvKeywords as $keyword) {
+                        if (
+                            mb_stripos($jobTitle, $keyword) !== false ||
+                            mb_stripos($jobDescription, $keyword) !== false
+                        ) {
+                            $jobMatchCount++;
+                        }
+                    }
+                    $job['match_percent'] = $totalKeywords > 0
+                        ? round(($jobMatchCount / $totalKeywords) * 100)
+                        : 0;
+                }
+
+                $jobs = $result;
+                $count = count($jobs);
+            }
+        }
+
+        // Fetch all applied job IDs for the current user
         $appliedJobIds = [];
         $appRepo = $em->getRepository(Applicant::class);
-        $applications = $appRepo->findBy(['userId' => 1]);
+        $applications = $appRepo->findBy(['userId' => $candidatId]);
         foreach ($applications as $application) {
             $appliedJobIds[] = $application->getJobId();
         }
@@ -135,7 +187,7 @@ class BestMatchController extends AbstractController
             'jobs' => $jobs,
             'error' => $error,
             'count' => $count,
-            'appliedJobIds' => $appliedJobIds, // <-- Pass to Twig
+            'appliedJobIds' => $appliedJobIds,
         ]);
     }
 
@@ -145,15 +197,19 @@ class BestMatchController extends AbstractController
         EntityManagerInterface $em,
         Request $request
     ): Response {
+        $candidatId = $this->getCandidatId($request);
+        if (!$candidatId) {
+            throw $this->createAccessDeniedException('User not authenticated.');
+        }
+
         $job = $em->getConnection()->fetchAssociative('SELECT * FROM jobs WHERE id = ?', [$jobId]);
-        
         if (!$job) {
             throw $this->createNotFoundException('Job not found');
         }
 
-        // Check if already applied (using user ID 1)
+        // Check if already applied
         $existingApplication = $em->getRepository(Applicant::class)->findOneBy([
-            'userId' => 1,
+            'userId' => $candidatId,
             'jobId' => $jobId
         ]);
 
@@ -172,19 +228,19 @@ class BestMatchController extends AbstractController
         // Generate AI-powered application message using CV and job info
         $aiMessage = $this->generateApplicationMessage($job['title'], $job['description'], $cvText);
 
-        // Create new application with user ID 1
+        // Create new application
         $application = new Applicant();
-        $application->setUserId(1); // Hardcoded user ID
+        $application->setUserId($candidatId);
         $application->setJobId($jobId);
         $application->setCompanyId($job['company_id']);
-        
+
         $comment = $aiMessage ?? "I'm excited to apply for this position. My skills and experience make me a strong candidate for this role.";
-        
+
         if ($profileLink) {
             $comment .= ": " . $profileLink;
             $application->setAdditionalFile($profileLink);
         }
-        
+
         $application->setComment($comment);
         $application->setStatus('Pending');
 
@@ -195,8 +251,10 @@ class BestMatchController extends AbstractController
         return $this->redirectToRoute('best_match');
     }
 
+    // ... (generateApplicationMessage, extractProfileLinks, selectBestProfileLink remain the same)
     private function generateApplicationMessage(string $jobTitle, string $jobDescription, ?string $cvText = null): ?string
     {
+        // ... same as before ...
         try {
             $cvTextForPrompt = $cvText ?? '';
 
@@ -213,7 +271,7 @@ The candidate's full CV is below:
 Instructions:
 Write 3 concise paragraphs:
 1. Express genuine interest and enthusiasm for the company and role.
-2. Highlight Iyed’s most relevant skills, projects, or experiences for this job (based on the CV above).
+2. Highlight  most relevant skills, projects, or experiences for this job (based on the CV above).
 3. End with a confident, positive closing and a call to action.
 
 Maintain a professional, enthusiastic, and personal tone. Avoid generic statements. Reference specific details from the candidate CV and the job description.
@@ -221,7 +279,7 @@ EOT;
 
             $response = $this->httpClient->request('POST', 'https://openrouter.ai/api/v1/chat/completions', [
                 'headers' => [
-                    'Authorization' => 'Bearer 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',
+                    'Authorization' => 'Bearer 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',
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
@@ -239,11 +297,9 @@ EOT;
 
             if (isset($content['choices'][0]['message']['content'])) {
                 $message = trim($content['choices'][0]['message']['content']);
-                // Remove incomplete last sentence
                 $message = preg_replace('/[^.!?]+$/', '', $message);
                 return $message;
             }
-
             return null;
         } catch (\Exception $e) {
             return null;
@@ -254,7 +310,6 @@ EOT;
     {
         $links = [];
         $pattern = '/\b(?:https?:\/\/)?(?:www\.)?(?:github\.com\/[a-zA-Z0-9-]+|linkedin\.com\/in\/[a-zA-Z0-9-]+)\b/';
-        
         if (preg_match_all($pattern, $text, $matches)) {
             foreach ($matches[0] as $match) {
                 if (!preg_match('/^https?:\/\//i', $match)) {
@@ -263,7 +318,6 @@ EOT;
                 $links[] = $match;
             }
         }
-        
         return array_unique($links);
     }
 
@@ -272,13 +326,11 @@ EOT;
         if (empty($links)) {
             return null;
         }
-
         foreach ($links as $link) {
             if (stripos($link, 'linkedin.com') !== false) {
                 return $link;
             }
         }
-
         return $links[0];
     }
 }

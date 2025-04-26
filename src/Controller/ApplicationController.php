@@ -26,7 +26,7 @@ class ApplicationController extends AbstractController
             $applicant->setUserId((int)$request->request->get('user_id'));
             $applicant->setComment($request->request->get('comment'));
             $applicant->setAdditionalFile($request->request->get('additional_file'));
-            
+
             $entityManager->persist($applicant);
             $entityManager->flush();
 
@@ -39,31 +39,63 @@ class ApplicationController extends AbstractController
         ]);
     }
 
-    #[Route('/my-applications/{user_id}', name: 'app_user_applications')]
-    public function userApplications(int $user_id, ApplicantRepository $applicantRepository): Response
-    {
-        $applications = $applicantRepository->findBy(
-            ['userId' => $user_id],
-            ['appliedDate' => 'DESC']
-        );
 
+    #[Route('/my-applications', name: 'app_user_applications', methods: ['GET'])]
+    public function userApplications(Request $request, ApplicantRepository $applicantRepository): Response
+    {
+        $userId = $request->query->get('user_id');
+        $applications = [];
+    
+        if ($userId) {
+            $applications = $applicantRepository->findBy(
+                ['userId' => $userId],
+                ['appliedDate' => 'DESC']
+            );
+        }
+    
         return $this->render('application/user_applications.html.twig', [
+            'user_id' => $userId,
             'applications' => $applications,
-            'user_id' => $user_id,
         ]);
     }
 
-    #[Route('/company-applications/{company_id}', name: 'app_company_applications')]
-    public function companyApplications(int $company_id, ApplicantRepository $applicantRepository): Response
+    #[Route('/company-applications', name: 'company_applications', methods: ['GET'])]
+    public function companyApplications(Request $request, ApplicantRepository $applicantRepository): Response
     {
-        $applications = $applicantRepository->findBy(
-            ['companyId' => $company_id],
-            ['appliedDate' => 'DESC']
-        );
+        $companyId = $request->query->get('company_id');
+        $applications = [];
+
+        if ($companyId) {
+            $applications = $applicantRepository->findBy(
+                ['companyId' => $companyId],
+                ['appliedDate' => 'DESC']
+            );
+        }
 
         return $this->render('application/company_applications.html.twig', [
+            'company_id' => $companyId,
             'applications' => $applications,
-            'company_id' => $company_id,
+        ]);
+    }
+    #[Route('/company-pending', name: 'company_pending', methods: ['GET'])]
+    public function companyPending(Request $request, ApplicantRepository $applicantRepository): Response
+    {
+        $companyId = $request->query->get('company_id');
+        $applications = [];
+    
+        if ($companyId) {
+            $applications = $applicantRepository->findBy(
+                [
+                    'companyId' => $companyId,
+                    'status' => 'Pending'
+                ],
+                ['appliedDate' => 'DESC']
+            );
+        }
+    
+        return $this->render('application/pending_application.html.twig', [
+            'company_id' => $companyId,
+            'applications' => $applications,
         ]);
     }
 
@@ -74,10 +106,8 @@ class ApplicationController extends AbstractController
         EntityManagerInterface $entityManager,
         EmployeeRepository $employeeRepository
     ): Response {
-        // Store the old status before updating
         $oldStatus = $applicant->getStatus();
-        
-        // Handle POST requests for form submission
+
         if ($request->isMethod('POST')) {
             if ($request->request->has('comment')) {
                 $applicant->setComment($request->request->get('comment'));
@@ -85,10 +115,9 @@ class ApplicationController extends AbstractController
             } elseif ($request->request->has('status')) {
                 $newStatus = $request->request->get('status');
                 $applicant->setStatus($newStatus);
-                
+
                 // If status is changed to "Accepted", create a new employee
                 if ($newStatus === 'Accepted' && $oldStatus !== 'Accepted') {
-                    // Check if employee already exists to avoid duplicates
                     $existingEmployee = $employeeRepository->findOneBy([
                         'userId' => $applicant->getUserId(),
                         'companyId' => $applicant->getCompanyId(),
@@ -106,24 +135,28 @@ class ApplicationController extends AbstractController
                     }
                 }
             }
-    
+
             $entityManager->flush();
             $this->addFlash('success', 'Application updated successfully!');
-    
-            return $request->request->has('comment') 
-                ? $this->redirectToRoute('app_user_applications', ['user_id' => $applicant->getUserId()])
-                : $this->redirectToRoute('app_company_applications', ['company_id' => $applicant->getCompanyId()]);
+
+            // FIX: Use the correct route name after status update
+            if ($request->request->has('comment')) {
+                return $this->redirectToRoute('app_user_applications', ['user_id' => $applicant->getUserId()]);
+            } else {
+                return $this->redirectToRoute('company_applications', ['company_id' => $applicant->getCompanyId()]);
+            }
         }
-    
+
         // Handle GET requests to display the edit form
         return $this->render('application/edit_application.html.twig', [
             'application' => $applicant
         ]);
     }
+
     #[Route('/application/delete/{id}', name: 'app_delete_application', methods: ['POST'])]
     public function deleteApplication(Request $request, Applicant $applicant, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$applicant->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $applicant->getId(), $request->request->get('_token'))) {
             $entityManager->remove($applicant);
             $entityManager->flush();
             $this->addFlash('success', 'Application deleted successfully!');

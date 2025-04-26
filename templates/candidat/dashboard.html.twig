@@ -1,0 +1,235 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Espace Candidat | {{ candidat_name }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --danger-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        
+        .profile-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+        
+        .profile-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary-color);
+            font-weight: 600;
+            border-bottom: none;
+            padding: 1rem 1.5rem;
+        }
+        
+        .cv-preview {
+            border: 1px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .cv-preview i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .btn-download {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .file-info {
+            background-color: var(--light-color);
+            border-radius: 6px;
+            padding: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .upload-section {
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1.5rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-section:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.03);
+        }
+        
+        .no-cv {
+            background-color: rgba(73, 80, 87, 0.05);
+            border-left: 4px solid var(--accent-color);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <div class="dashboard-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-2">Bonjour, {{ candidat_name }}</h1>
+                <p class="mb-0">Bienvenue dans votre espace candidat</p>
+            </div>
+            <div>
+                <a href="{{ path('candidat_logout') }}" class="btn btn-light">
+                    <i class="fas fa-sign-out-alt me-1"></i> Déconnexion
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            {% if candidat.cv %}
+            <div class="profile-card">
+                <div class="card-header">
+                    <i class="fas fa-file-alt me-2"></i> Votre CV
+                </div>
+                <div class="card-body">
+                    <div class="cv-preview">
+                        <i class="fas fa-file-pdf"></i>
+                        <h4 class="h5">CV de {{ candidat_name }}</h4>
+                        <p class="text-muted">Document professionnel</p>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="file-info">
+                            <i class="fas fa-file me-2"></i>
+                            <span>{{ candidat.cv }}</span>
+                        </div>
+                        
+                        <div>
+                            <a href="{{ asset('uploads/cv/' ~ candidat.cv) }}" 
+                               target="_blank" 
+                               class="btn btn-download">
+                                <i class="fas fa-download me-2"></i> Télécharger
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="profile-card no-cv">
+                <div class="card-body">
+                    <div class="upload-section">
+                        <i class="fas fa-file-upload mb-3" style="font-size: 2.5rem; color: var(--accent-color);"></i>
+                        <h3 class="h5">Aucun CV téléchargé</h3>
+                        <p class="text-muted mb-4">Ajoutez votre CV pour postuler aux offres</p>
+                        <a href="{{ path('candidat_upload_cv') }}" class="btn btn-primary">
+                            <i class="fas fa-upload me-2"></i> Uploader un CV
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="profile-card">
+                <div class="card-header">
+                    <i class="fas fa-chart-line me-2"></i> Statistiques
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h4 class="h6 text-muted mb-2">CV Complet</h4>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: {{ candidat.cv ? '100' : '25' }}%;"></div>
+                        </div>
+                        <small class="text-muted">{{ candidat.cv ? 'Complet' : 'À compléter' }}</small>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="mb-3">
+                        <h4 class="h6 text-muted mb-1">Prochaines étapes</h4>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-{{ candidat.cv ? 'check-circle text-success' : 'circle text-muted' }} me-2"></i>
+                                Uploader son CV
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-circle text-muted me-2"></i>
+                                Compléter son profil
+                            </li>
+                            <li>
+                                <i class="fas fa-circle text-muted me-2"></i>
+                                Postuler à des offres
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vérification de session
+            const storedId = localStorage.getItem('candidat_id');
+            const serverId = "{{ app.session.get('candidat_id') }}";
+            
+            if (!storedId || storedId !== serverId) {
+                localStorage.removeItem('candidat_id');
+                localStorage.removeItem('candidat_name');
+                window.location.href = "{{ path('candidat_logout') }}";
+            }
+            
+            // Mise à jour des données dans localStorage
+            localStorage.setItem('candidat_name', "{{ app.session.get('candidat_name')|escape('js') }}");
+            
+            // Animation des éléments
+            const cards = document.querySelectorAll('.profile-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 150 * index);
+            });
+        });
+    </script>
+{% endblock %}
