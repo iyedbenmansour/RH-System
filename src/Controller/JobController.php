@@ -4,11 +4,14 @@ namespace App\Controller;
 
 use App\Entity\Job;
 use App\Form\JobType;
+use App\Repository\ApplicantRepository;
+use App\Repository\JobRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class JobController extends AbstractController
 {
@@ -113,6 +116,16 @@ class JobController extends AbstractController
             'job' => $job,
         ]);
     }
+
+    #[Route('/job/{id}/check-applied/{userId}', name: 'job_check_applied', methods: ['GET'])]
+public function checkApplied(int $id, int $userId, ApplicantRepository $applicantRepository): JsonResponse
+{
+    $applied = $applicantRepository->findOneBy([
+        'jobId' => $id,
+        'userId' => $userId,
+    ]);
+    return $this->json(['applied' => $applied !== null]);
+}
 
     #[Route('/job/edit/{id}', name: 'app_job_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Job $job, EntityManagerInterface $entityManager): Response
