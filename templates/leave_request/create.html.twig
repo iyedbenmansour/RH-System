@@ -12,6 +12,7 @@
         .card-header-custom {
             background-color: #f8f9fa;
             border-bottom: 1px solid #e9ecef;
+            padding: 1rem 1.5rem;
         }
         .form-help-text {
             font-size: 0.85rem;
@@ -29,6 +30,7 @@
         .form-footer {
             background-color: #f8f9fa;
             border-top: 1px solid #e9ecef;
+            padding: 1rem 1.5rem;
         }
     </style>
 {% endblock %}
@@ -40,79 +42,75 @@
             <h1 class="h3 mb-0">Create Leave Request</h1>
             <p class="text-muted mb-0 mt-1">Complete the form below to submit a leave request</p>
         </div>
-        
+
         <div class="card-body">
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger">{{ message }}</div>
+            {% endfor %}
+
             <div class="alert alert-info">
-                <i class="bi bi-info-circle-fill me-2"></i>
+                <i class="fas fa-info-circle me-2"></i>
                 All fields marked with an asterisk (*) are required. Please provide accurate information for your leave request.
             </div>
-            
-            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-                <div class="mb-4 required-field">
-                    {{ form_label(form.employeeId, 'Employee') }}
-                    {{ form_widget(form.employeeId, {'attr': {'class': 'form-control', 'placeholder': 'Select your employee ID'}}) }}
-                    <div class="form-help-text mt-1">Select your employee ID from the dropdown.</div>
-                    {{ form_errors(form.employeeId) }}
+
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'needs-validation'}}) }}
+
+            <div class="row mb-4">
+                <div class="col-md-6 required-field">
+                    {{ form_label(form.startDate) }}
+                    {{ form_widget(form.startDate) }}
+                    <div class="form-help-text mt-1">First day of your leave period.</div>
+                    {{ form_errors(form.startDate) }}
                 </div>
-                
-                <div class="mb-4 required-field">
-                    {{ form_label(form.companyId, 'Company') }}
-                    {{ form_widget(form.companyId, {'attr': {'class': 'form-control', 'placeholder': 'Select your company'}}) }}
-                    <div class="form-help-text mt-1">Select the company you're employed with.</div>
-                    {{ form_errors(form.companyId) }}
+
+                <div class="col-md-6 required-field">
+                    {{ form_label(form.endDate) }}
+                    {{ form_widget(form.endDate) }}
+                    <div class="form-help-text mt-1">Last day of your leave period.</div>
+                    {{ form_errors(form.endDate) }}
                 </div>
-                
-                <div class="row mb-4">
-                    <div class="col-md-6 required-field">
-                        {{ form_label(form.startDate, 'Start Date') }}
-                        {{ form_widget(form.startDate, {'attr': {'class': 'form-control', 'placeholder': 'Select start date'}}) }}
-                        <div class="form-help-text mt-1">First day of your leave period.</div>
-                        {{ form_errors(form.startDate) }}
-                    </div>
-                    
-                    <div class="col-md-6 required-field">
-                        {{ form_label(form.endDate, 'End Date') }}
-                        {{ form_widget(form.endDate, {'attr': {'class': 'form-control', 'placeholder': 'Select end date'}}) }}
-                        <div class="form-help-text mt-1">Last day of your leave period.</div>
-                        {{ form_errors(form.endDate) }}
-                    </div>
-                </div>
-                
-                <div class="mb-4 required-field">
-                    {{ form_label(form.leaveType, 'Leave Type') }}
-                    {{ form_widget(form.leaveType, {'attr': {'class': 'form-select'}}) }}
-                    <div class="form-help-text mt-1">Select the appropriate type of leave you're requesting.</div>
-                    {{ form_errors(form.leaveType) }}
-                </div>
-                
-                <div class="mb-4 required-field">
-                    {{ form_label(form.description, 'Description') }}
-                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4, 'placeholder': 'Provide details about your leave request...'}}) }}
-                    <div class="d-flex justify-content-between align-items-center mt-1">
-                        <div class="form-help-text">Please explain the reason for your leave request.</div>
-                        <div class="char-counter">
-                            <span id="currentLength">0</span>/<span id="maxLength">500</span> characters
-                        </div>
-                    </div>
-                    {{ form_errors(form.description) }}
-                </div>
-                
-                {{ form_rest(form) }}
             </div>
-            
+
+            <div class="mb-4 required-field">
+                {{ form_label(form.leaveType) }}
+                {{ form_widget(form.leaveType) }}
+                <div class="form-help-text mt-1">Select the appropriate type of leave you're requesting.</div>
+                {{ form_errors(form.leaveType) }}
+            </div>
+
+            <div class="mb-4 required-field">
+                {{ form_label(form.description) }}
+                {{ form_widget(form.description) }}
+                <div class="d-flex justify-content-between align-items-center mt-1">
+                    <div class="form-help-text">Please explain the reason for your leave request.</div>
+                    <div class="char-counter">
+                        <span id="currentLength">0</span>/<span id="maxLength">500</span> characters
+                    </div>
+                </div>
+                {{ form_errors(form.description) }}
+            </div>
+
+            <div class="mb-4">
+                {{ form_label(form.pdfFile) }}
+                {{ form_widget(form.pdfFile) }}
+                <div class="form-help-text mt-1">Upload supporting documentation if required (PDF only, max 1MB).</div>
+                {{ form_errors(form.pdfFile) }}
+            </div>
+
             <div class="card-footer form-footer py-3">
                 <div class="d-flex justify-content-between">
                     <button type="reset" class="btn btn-outline-secondary">
-                        <i class="bi bi-eraser me-1"></i> Reset
+                        <i class="fas fa-eraser me-1"></i> Reset
                     </button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check-circle me-1"></i> Submit Request
+                        <i class="fas fa-check-circle me-1"></i> Submit Request
                     </button>
                 </div>
             </div>
-        {{ form_end(form) }}
+            {{ form_end(form) }}
+        </div>
     </div>
-    
+
     <div class="card form-card">
         <div class="card-header card-header-custom py-3">
             <h2 class="h5 mb-0">Leave Request Guidelines</h2>
@@ -130,36 +128,23 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const textArea = document.querySelector('textarea[id$="_description"]');
-        const currentLength = document.getElementById('currentLength');
-        const maxLength = document.getElementById('maxLength');
+document.addEventListener('DOMContentLoaded', function() {
+    // Character counter for description
+    const descriptionField = document.getElementById('{{ form.description.vars.id }}');
+    const currentLength = document.getElementById('currentLength');
+    const maxLength = document.getElementById('maxLength');
+    
+    if (descriptionField) {
+        const maxChars = descriptionField.getAttribute('maxlength') || 500;
+        maxLength.textContent = maxChars;
         
-        if (textArea && currentLength && maxLength) {
-            currentLength.textContent = textArea.value.length;
-            textArea.addEventListener('input', function() {
-                currentLength.textContent = this.value.length;
-                currentLength.style.color = this.value.length > 450 ? '#dc3545' : '#6c757d';
-            });
-        }
+        descriptionField.addEventListener('input', function() {
+            currentLength.textContent = this.value.length;
+        });
         
-        const startDateInput = document.querySelector('input[id$="_startDate"]');
-        const endDateInput = document.querySelector('input[id$="_endDate"]');
-        
-        if (startDateInput && endDateInput) {
-            startDateInput.addEventListener('change', validateDates);
-            endDateInput.addEventListener('change', validateDates);
-            
-            function validateDates() {
-                const startDate = new Date(startDateInput.value);
-                const endDate = new Date(endDateInput.value);
-                startDateInput.setCustomValidity('');
-                endDateInput.setCustomValidity('');
-                if (endDate < startDate) {
-                    endDateInput.setCustomValidity('End date must be after start date');
-                }
-            }
-        }
-    });
+        // Initialize counter
+        currentLength.textContent = descriptionField.value.length;
+    }
+});
 </script>
 {% endblock %}

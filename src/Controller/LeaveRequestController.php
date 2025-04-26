@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\LeaveRequest;
 use App\Entity\OnlineJob;
+use App\Entity\Employee;
+use App\Repository\EmployeeRepository;
 use App\Form\LeaveRequestType;
 use App\Repository\LeaveRequestRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,22 +21,40 @@ class LeaveRequestController extends AbstractController
 {
     #[Route('/leave-request/create', name: 'leave_request_create', methods: ['GET', 'POST'])]
     public function create(
-        Request $request, 
+        Request $request,
         EntityManagerInterface $entityManager,
         SluggerInterface $slugger
     ): Response {
+        // Get employee ID from session
+        $employeeId = $request->getSession()->get('employee_id');
+        if (!$employeeId) {
+            $this->addFlash('error', 'You must be logged in to create a leave request');
+            return $this->redirectToRoute('login');
+        }
+
+        // Find employee and verify they exist
+        $employee = $entityManager->getRepository(Employee::class)->find($employeeId);
+        if (!$employee) {
+            $this->addFlash('error', 'Employee not found');
+            return $this->redirectToRoute('dashboard');
+        }
+
+        // Create and pre-populate leave request
         $leaveRequest = new LeaveRequest();
+        $leaveRequest->setEmployeeId($employee->getId());
+        $leaveRequest->setCompanyId($employee->getCompanyId());
+
         $form = $this->createForm(LeaveRequestType::class, $leaveRequest);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Handle PDF upload
             $pdfFile = $form->get('pdfFile')->getData();
-            
             if ($pdfFile) {
                 $originalFilename = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$pdfFile->guessExtension();
-                
+
                 try {
                     $pdfFile->move(
                         $this->getParameter('pdf_directory'),
@@ -42,23 +62,23 @@ class LeaveRequestController extends AbstractController
                     );
                     $leaveRequest->setPdfPath($newFilename);
                 } catch (FileException $e) {
-                    $this->addFlash('error', 'There was an error uploading your PDF file.');
-                    return $this->redirectToRoute('leave_request_create');
+                    $this->addFlash('error', 'There was an error uploading your PDF file');
                 }
             }
-            
+
             $leaveRequest->setConfirmed(false);
             $entityManager->persist($leaveRequest);
             $entityManager->flush();
 
             $this->addFlash('success', 'Leave request created successfully!');
-            return $this->redirectToRoute('employee_leave_requests', ['employeeId' => $leaveRequest->getEmployeeId()]);
+            return $this->redirectToRoute('employee_leave_requests');
         }
 
         return $this->render('leave_request/create.html.twig', [
             'form' => $form->createView(),
         ]);
     }
+    
 
     #[Route('/leave-requests/employee', name: 'employee_leave_requests', methods: ['GET'])]
     public function employeeLeaveRequests(
