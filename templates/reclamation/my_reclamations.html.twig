@@ -1,0 +1,111 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Réclamations{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .transition-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .status-indicator {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .bg-warning { background-color: #ffc107; }
+        .bg-info { background-color: #0dcaf0; }
+        .bg-success { background-color: #198754; }
+        .bg-danger { background-color: #dc3545; }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h2 mb-0 text-primary fw-bold">Réclamations de l'utilisateur #{{ searchTerm }}</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ path('app_reclamation_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-2"></i>Nouvelle Réclamation
+            </a>
+        </div>
+    </div>
+
+    <!-- Reclamations List -->
+    <div id="reclamations-container">
+        {% if reclamations|length > 0 %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i> 
+                L'utilisateur a <strong>{{ reclamations.getTotalItemCount }}</strong> réclamation(s)
+            </div>
+
+            {% for reclamation in reclamations %}
+                <div class="card mb-4 shadow-sm transition-hover">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start">
+                            <!-- Status Indicator -->
+                            <div class="status-indicator 
+                                {% if reclamation.statueOfReclamation == 'Not Treated' %}bg-warning
+                                {% elseif reclamation.statueOfReclamation == 'In Progress' %}bg-info
+                                {% elseif reclamation.statueOfReclamation == 'Resolved' %}bg-success
+                                {% else %}bg-danger{% endif %}"
+                                title="{{ reclamation.statueOfReclamation }}">
+                            </div>
+
+                            <!-- Content -->
+                            <div class="ms-3 flex-grow-1">
+                                <h5 class="card-title">
+                                    {{ reclamation.title }}
+                                </h5>
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">
+                                        <i class="far fa-calendar-alt me-1"></i>
+                                        {{ reclamation.date|date('d/m/Y H:i') }}
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="fas fa-user me-1"></i>
+                                        User ID: {{ reclamation.userId }}
+                                    </small>
+                                </div>
+                                <p class="card-text mt-2">
+                                    {{ reclamation.description|slice(0, 120) ~ (reclamation.description|length > 120 ? '...' : '') }}
+                                </p>
+                                <div class="text-end mt-3">
+                                    <a href="{{ path('app_reclamation_client', {'id': reclamation.id}) }}" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye me-1"></i> Voir les détails
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <!-- Pagination -->
+            <div class="navigation">
+                {{ knp_pagination_render(reclamations) }}
+            </div>
+        {% else %}
+            <div class="alert alert-warning text-center py-5">
+                <i class="fas fa-inbox fa-3x mb-3 text-muted"></i>
+                <h4>Aucune réclamation trouvée</h4>
+                <p>L'utilisateur #{{ searchTerm }} n'a pas encore de réclamations</p>
+                <a href="{{ path('app_reclamation_new') }}" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus-circle me-2"></i>Créer une réclamation
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {# Removed the search-related JavaScript #}
+{% endblock %}

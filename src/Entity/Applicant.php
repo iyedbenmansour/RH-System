@@ -5,6 +5,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use DateTimeInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: "App\Repository\ApplicantRepository")]
 #[ORM\Table(name: "applicants")]
@@ -16,24 +17,54 @@ class Applicant
     private $id;
 
     #[ORM\Column(type: "integer")]
+    #[Assert\NotBlank(message: "User ID cannot be blank.")]
+    #[Assert\Positive(message: "User ID must be a positive number.")]
     private $userId;
 
     #[ORM\Column(type: "integer")]
+    #[Assert\NotBlank(message: "Job ID cannot be blank.")]
+    #[Assert\Positive(message: "Job ID must be a positive number.")]
     private $jobId;
 
     #[ORM\Column(type: "integer")]
+    #[Assert\NotBlank(message: "Company ID cannot be blank.")]
+    #[Assert\Positive(message: "Company ID must be a positive number.")]
     private $companyId;
 
     #[ORM\Column(type: "text", nullable: true)]
+    #[Assert\Length(
+        max: 1000,
+        maxMessage: "Comment cannot be longer than {{ limit }} characters."
+    )]
     private $comment;
 
     #[ORM\Column(type: "string", length: 255, nullable: true)]
+    #[Assert\File(
+        maxSize: "5M",
+        mimeTypes: [
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "text/plain"
+        ],
+        mimeTypesMessage: "Please upload a valid document (PDF, DOC, DOCX or TXT)."
+    )]
     private $additionalFile;
 
     #[ORM\Column(type: "datetime")]
+    #[Assert\NotBlank(message: "Applied date cannot be blank.")]
+    #[Assert\LessThanOrEqual(
+        value: "now",
+        message: "Applied date cannot be in the future."
+    )]
     private $appliedDate;
 
     #[ORM\Column(type: "string", length: 50, options: ["default" => "Pending"])]
+    #[Assert\NotBlank(message: "Status cannot be blank.")]
+    #[Assert\Choice(
+        choices: ["Pending", "Reviewed", "Interviewed", "Accepted", "Rejected"],
+        message: "Invalid status. Must be one of: Pending, Reviewed, Interviewed, Accepted, Rejected."
+    )]
     private $status = 'Pending';
 
     public function __construct()

@@ -89,6 +89,9 @@
               <li class="nav-item">
                 <a class="nav-link" href="{{ path('employee_leave_requests') }}">My Requests</a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#" id="reclamation-link">My Reclamation</a>
+              </li>
               <!-- This is the login/profile item -->
               <li class="nav-item" id="login-profile-nav">
                 <a class="nav-link" href="{{ path('login_page') }}">
@@ -218,29 +221,37 @@
   <!-- footer section -->
 
   <!-- jQery -->
-  <script type="text/javascript" src="js/jquery-3.4.1.min.js"></script>
+  <script type="text/javascript" src="{{ asset('Front/js/jquery-3.4.1.min.js')}}"></script>
   <!-- popper js -->
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
   <!-- bootstrap js -->
-  <script type="text/javascript" src="js/bootstrap.js"></script>
+  <script type="text/javascript" src="{{ asset('Front/js/bootstrap.js')}}"></script>
   <!-- owl slider -->
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
   <!-- custom js -->
-  <script type="text/javascript" src="js/custom.js"></script>
+  <script type="text/javascript" src="{{ asset('Front/js/custom.js')}}"></script>
   <!-- Google Map -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
   <!-- End Google Map -->
 
-  <!-- Script to switch Login to Profile if candidat_id is in localStorage -->
+  <!-- Script to handle login/profile and reclamation link -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Handle login/profile link
       var navItem = document.getElementById('login-profile-nav');
       if (navItem && localStorage.getItem('candidat_id')) {
         var link = navItem.querySelector('a');
-        // Change text to 'Profile'
         link.innerHTML = '<i class="fa fa-user" aria-hidden="true"></i> Profile';
-        // Change href to profile page (adjust route as needed)
         link.setAttribute('href', "{{ path('candidat_dashboard') }}");
+      }
+
+      // Handle reclamation link
+      var reclamationLink = document.getElementById('reclamation-link');
+      var employeeId = localStorage.getItem('employee_id');
+      if (reclamationLink && employeeId) {
+        reclamationLink.setAttribute('href', "/reclamation/my-reclamations/" + employeeId);
+      } else if (reclamationLink) {
+        reclamationLink.setAttribute('href', "{{ path('login_page') }}");
       }
     });
   </script>

@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\JobRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: JobRepository::class)]
 #[ORM\Table(name: 'jobs')]
@@ -16,24 +17,57 @@ class Job
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Job title cannot be blank.")]
+    #[Assert\Length(
+        min: 5,
+        max: 255,
+        minMessage: "Job title must be at least {{ limit }} characters long.",
+        maxMessage: "Job title cannot be longer than {{ limit }} characters."
+    )]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: "Description cannot be blank.")]
+    #[Assert\Length(
+        min: 20,
+        minMessage: "Description must be at least {{ limit }} characters long."
+    )]
     private ?string $description = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: "Company ID cannot be blank.")]
+    #[Assert\Positive(message: "Company ID must be a positive number.")]
     private ?int $companyId = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Position cannot be blank.")]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: "Position must be at least {{ limit }} characters long.",
+        maxMessage: "Position cannot be longer than {{ limit }} characters."
+    )]
     private ?string $position = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Location cannot be blank.")]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: "Location must be at least {{ limit }} characters long.",
+        maxMessage: "Location cannot be longer than {{ limit }} characters."
+    )]
     private ?string $location = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Assert\NotBlank(message: "Posted date cannot be blank.")]
+    #[Assert\LessThanOrEqual(
+        value: "now",
+        message: "Posted date cannot be in the future."
+    )]
     private ?\DateTimeInterface $postedDate = null;
 
-    // Getters and setters for all properties...
+    // Getters and setters remain the same...
     public function getId(): ?int { return $this->id; }
 
     public function getTitle(): ?string { return $this->title; }

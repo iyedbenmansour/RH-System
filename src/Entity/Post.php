@@ -5,6 +5,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\PostRepository;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 #[ORM\Table(name: 'posts')]
@@ -16,24 +17,58 @@ class Post
     private $id;
 
     #[ORM\Column(type: 'integer')]
+    #[Assert\NotBlank(message: "User ID cannot be blank.")]
+    #[Assert\Positive(message: "User ID must be a positive number.")]
     private $userId;
 
     #[ORM\Column(type: 'text')]
+    #[Assert\NotBlank(message: "Post content cannot be blank.")]
+    #[Assert\Length(
+        min: 10,
+        max: 5000,
+        minMessage: "Post content must be at least {{ limit }} characters long.",
+        maxMessage: "Post content cannot be longer than {{ limit }} characters."
+    )]
     private $content;
 
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    #[Assert\PositiveOrZero(message: "Like count cannot be negative.")]
     private $likeCount = 0;
 
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    #[Assert\PositiveOrZero(message: "Dislike count cannot be negative.")]
     private $dislikeCount = 0;
 
     #[ORM\Column(type: 'datetime')]
+    #[Assert\NotBlank(message: "Creation date cannot be blank.")]
+    #[Assert\LessThanOrEqual(
+        value: "now",
+        message: "Creation date cannot be in the future."
+    )]
     private $createdAt;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Assert\File(
+        maxSize: "2M",
+        mimeTypes: [
+            "image/jpeg",
+            "image/png",
+            "image/gif",
+            "image/webp"
+        ],
+        mimeTypesMessage: "Please upload a valid image (JPEG, PNG, GIF or WEBP)."
+    )]
     private $imagePath;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Assert\File(
+        maxSize: "5M",
+        mimeTypes: [
+            "application/pdf",
+            "application/x-pdf"
+        ],
+        mimeTypesMessage: "Please upload a valid PDF file."
+    )]
     private $pdfPath;
 
     public function __construct()

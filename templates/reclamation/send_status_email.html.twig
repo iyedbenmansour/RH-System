@@ -1,0 +1,120 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Envoyer un email de notification{% endblock %}
+
+{% block body %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Notification par email</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ path('app_reclamation_index') }}">Réclamations</a></li>
+        <li class="breadcrumb-item"><a href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}">Détails</a></li>
+        <li class="breadcrumb-item active">Envoyer un email</li>
+    </ol>
+    
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                <strong>{{ label|capitalize }}!</strong> {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+    
+    {% if emailSent is defined and emailSent %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Succès!</strong> L'email a été envoyé avec succès à alabendawed@gmail.com.
+            <p>Vous allez être redirigé vers la page de détails dans <span id="countdown">5</span> secondes...</p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <script>
+            // Redirection automatique après 5 secondes
+            let seconds = 5;
+            const countdownElement = document.getElementById('countdown');
+            const redirectInterval = setInterval(function() {
+                seconds--;
+                countdownElement.textContent = seconds;
+                if (seconds <= 0) {
+                    clearInterval(redirectInterval);
+                    window.location.href = "{{ redirectUrl|default(path('app_reclamation_show', {'id': reclamation.id})) }}";
+                }
+            }, 1000);
+        </script>
+    {% endif %}
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-envelope me-1"></i>
+            Envoyer une notification concernant la réclamation: {{ reclamation.title }}
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">Informations sur la réclamation</h5>
+                        <p><strong>ID:</strong> {{ reclamation.id }}</p>
+                        <p><strong>Titre:</strong> {{ reclamation.title }}</p>
+                        <p><strong>Date:</strong> {{ reclamation.date|date('d/m/Y H:i') }}</p>
+                        <p><strong>Statut actuel:</strong> 
+                            {% set statusClass = {
+                                'Not Treated': 'bg-warning text-dark',
+                                'In Progress': 'bg-info',
+                                'Resolved': 'bg-success',
+                                'Rejected': 'bg-danger'
+                            } %}
+                            <span class="badge {{ statusClass[reclamation.statueOfReclamation] }}">
+                                {{ reclamation.statueOfReclamation }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="alert alert-secondary">
+                        <h5 class="alert-heading">Destinataire</h5>
+                        <p><i class="fas fa-user me-2"></i> Employé ID: {{ reclamation.userId }}</p>
+                        <p><i class="fas fa-building me-2"></i> Entreprise ID: {{ reclamation.companyId }}</p>
+                        <p class="text-muted small">L'email sera envoyé à: <strong>alabendawed@gmail.com</strong></p>
+                    </div>
+                </div>
+            </div>
+            
+            <form method="post" class="needs-validation" {% if emailSent is defined and emailSent %}style="display: none;"{% endif %}>
+                <div class="mb-3">
+                    <label for="comment" class="form-label">Message de notification</label>
+                    <p class="text-muted">Ce message sera inclus dans l'email envoyé à l'employé.</p>
+                    <textarea id="comment" name="comment" class="form-control" rows="8" required>{{ comment }}</textarea>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Retour
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-1"></i> Envoyer l'email
+                    </button>
+                </div>
+            </form>
+            
+            {% if emailSent is defined and emailSent %}
+                <div class="text-center my-5">
+                    <a href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-1"></i> Retourner à la page de détails
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Faire défiler vers l'alerte de succès si elle existe
+        const alertSuccess = document.querySelector('.alert-success');
+        if (alertSuccess) {
+            alertSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+</script>
+{% endblock %} 

@@ -338,6 +338,25 @@
                                 </ul>
                             </div>
                         </li>
+
+                        <!-- New Reclamation Section -->
+                        <li class="nav-item">
+                            <a href="#reclamationSubmenu" class="nav-link" data-bs-toggle="collapse">
+                                <i class="bx bx-message-square-error"></i>
+                                <span>Reclamations</span>
+                            </a>
+                            <div class="collapse" id="reclamationSubmenu">
+                                <ul class="nav flex-column sub-menu">
+                                    <li class="nav-item">
+                                        <a href="{{ path('app_reclamation_index') }}" class="nav-link">Pending Reclamation</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ path('app_reclamation_archive') }}" class="nav-link">Archive</a>
+                                    </li>
+                              
+                                </ul>
+                            </div>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -412,4 +431,4 @@
 
     {% block javascript %}{% endblock %}
 </body>
-</html> 
+</html>

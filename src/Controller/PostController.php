@@ -160,7 +160,7 @@ public function generateText(Request $request): JsonResponse
     try {
         // Updated endpoint and API key
         $apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
-        $apiKey = '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';
+        $apiKey = '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';
 
         $requestBody = [
             'model' => 'gpt-4', // Specify the model

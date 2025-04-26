@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Complaint #{{ reclamation.id }}{% endblock %}
+
+{% block body %}
+<section class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3>{{ reclamation.title }}</h3>
+                    <span class="badge bg-{{ reclamation.statueOfReclamation|lower|replace({' ': '-'}) }}">
+                        {{ reclamation.statueOfReclamation }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Description</h5>
+                        <p>{{ reclamation.description }}</p>
+                    </div>
+
+                    {% if reclamation.imagePath %}
+                    <div class="mb-4">
+                        <h5>Image</h5>
+                        <img src="{{ asset('uploads/reclamation/images/' ~ reclamation.imagePath) }}" class="img-fluid rounded">
+                    </div>
+                    {% endif %}
+
+                    {% if reclamation.pdfPath %}
+                    <div>
+                        <h5>PDF Document</h5>
+                        <a href="{{ asset('uploads/reclamation/pdfs/' ~ reclamation.pdfPath) }}" target="_blank" class="btn btn-primary">
+                            View PDF
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>Responses ({{ reclamation.reponses|length }})</h5>
+        </div>
+        <div class="card-body">
+            {% if reclamation.reponses|length > 0 %}
+                {% for reponse in reclamation.reponses %}
+                    <div class="mb-3 p-3 border rounded">
+                        <div class="d-flex justify-content-between mb-2">
+                            <strong>User #{{ reponse.idUser }}</strong>
+                            <small>{{ reponse.date|date('d M Y H:i') }}</small>
+                        </div>
+                        <p>{{ reponse.reponse }}</p>
+                        {% if reponse.pdfPath %}
+                            <a href="{{ asset('uploads/reponse_pdfs/' ~ reponse.pdfPath) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                View PDF
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No responses yet</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
