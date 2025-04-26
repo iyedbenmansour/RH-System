@@ -1,0 +1,41 @@
+{# templates/jitsi/form.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Create or Join Meeting{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h2>Video Meeting</h2>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ path('create_meeting') }}" class="btn btn-primary btn-lg">
+                        Create New Meeting
+                    </a>
+                </div>
+                
+                <hr>
+                
+                <form action="{{ path('join_meeting', {'roomName': ''}) }}" method="get" class="mt-3">
+                    <div class="mb-3">
+                        <label for="roomName" class="form-label">Room Name</label>
+                        <input type="text" class="form-control" id="roomName" name="roomName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="displayName" class="form-label">Your Name</label>
+                        <input type="text" class="form-control" id="displayName" name="displayName" value="Guest">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="moderator" name="moderator">
+                        <label class="form-check-label" for="moderator">Join as Moderator</label>
+                    </div>
+                    <button type="submit" class="btn btn-success">Join Meeting</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

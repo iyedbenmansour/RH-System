@@ -4,17 +4,16 @@ namespace App\Controller;
 
 use App\Entity\LeaveRequest;
 use App\Entity\OnlineJob;
-
 use App\Form\LeaveRequestType;
 use App\Repository\LeaveRequestRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-
 
 class LeaveRequestController extends AbstractController
 {
@@ -61,20 +60,34 @@ class LeaveRequestController extends AbstractController
         ]);
     }
 
-  
     #[Route('/leave-requests/employee/{employeeId}', name: 'employee_leave_requests', methods: ['GET'])]
-    public function employeeLeaveRequests(int $employeeId, LeaveRequestRepository $leaveRequestRepository, EntityManagerInterface $entityManager): Response
-    {
-        $leaveRequests = $leaveRequestRepository->findBy(['employeeId' => $employeeId]);
+    public function employeeLeaveRequests(
+        int $employeeId, 
+        LeaveRequestRepository $leaveRequestRepository, 
+        EntityManagerInterface $entityManager,
+        PaginatorInterface $paginator,
+        Request $request
+    ): Response {
+        $query = $leaveRequestRepository->createQueryBuilder('lr')
+            ->where('lr.employeeId = :employeeId')
+            ->setParameter('employeeId', $employeeId)
+            ->getQuery();
+            
+        $leaveRequests = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            5 // Items per page
+        );
         
         // Calculate confirmed normal leave days
         $confirmedNormalDays = 0;
-        foreach ($leaveRequests as $request) {
+        $allLeaveRequests = $leaveRequestRepository->findBy(['employeeId' => $employeeId]);
+        foreach ($allLeaveRequests as $request) {
             if ($request->isConfirmed() && $request->getLeaveType() === 'normal') {
                 $start = $request->getStartDate();
                 $end = $request->getEndDate();
                 $diff = $start->diff($end);
-                $confirmedNormalDays += $diff->days + 1; // +1 to include both start and end dates
+                $confirmedNormalDays += $diff->days + 1;
             }
         }
         
@@ -82,8 +95,8 @@ class LeaveRequestController extends AbstractController
         
         // Get all online jobs for these leave requests
         $onlineJobs = [];
-        if (!empty($leaveRequests)) {
-            $leaveRequestIds = array_map(fn($lr) => $lr->getId(), $leaveRequests);
+        if (!empty($allLeaveRequests)) {
+            $leaveRequestIds = array_map(fn($lr) => $lr->getId(), $allLeaveRequests);
             $onlineJobs = $entityManager->getRepository(OnlineJob::class)
                 ->findBy(['leaveRequestId' => $leaveRequestIds]);
             
@@ -177,30 +190,43 @@ class LeaveRequestController extends AbstractController
         return $this->redirectToRoute('employee_leave_requests', ['employeeId' => $employeeId]);
     }
 
-
-#[Route('/leave-requests/company/{companyId}', name: 'company_leave_requests', methods: ['GET'])]
-public function companyLeaveRequests(int $companyId, LeaveRequestRepository $leaveRequestRepository, EntityManagerInterface $entityManager): Response
-{
-    $leaveRequests = $leaveRequestRepository->findBy(['companyId' => $companyId]);
-    
-    // Get all online jobs for these leave requests
-    $onlineJobs = [];
-    if (!empty($leaveRequests)) {
-        $leaveRequestIds = array_map(fn($lr) => $lr->getId(), $leaveRequests);
-        $onlineJobResults = $entityManager->getRepository(OnlineJob::class)
-            ->findBy(['leaveRequestId' => $leaveRequestIds]);
+    #[Route('/leave-requests/company/{companyId}', name: 'company_leave_requests', methods: ['GET'])]
+    public function companyLeaveRequests(
+        int $companyId, 
+        LeaveRequestRepository $leaveRequestRepository, 
+        EntityManagerInterface $entityManager,
+        PaginatorInterface $paginator,
+        Request $request
+    ): Response {
+        $query = $leaveRequestRepository->createQueryBuilder('lr')
+            ->where('lr.companyId = :companyId')
+            ->setParameter('companyId', $companyId)
+            ->getQuery();
+            
+        $leaveRequests = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            5 // Items per page
+        );
         
-        // Create a mapping of leaveRequestId => OnlineJob
-        foreach ($onlineJobResults as $onlineJob) {
-            $onlineJobs[$onlineJob->getLeaveRequestId()] = $onlineJob;
+        // Get all online jobs for these leave requests
+        $onlineJobs = [];
+        if (!empty($leaveRequests)) {
+            $leaveRequestIds = array_map(fn($lr) => $lr->getId(), $leaveRequests->getItems());
+            $onlineJobResults = $entityManager->getRepository(OnlineJob::class)
+                ->findBy(['leaveRequestId' => $leaveRequestIds]);
+            
+            // Create a mapping of leaveRequestId => OnlineJob
+            foreach ($onlineJobResults as $onlineJob) {
+                $onlineJobs[$onlineJob->getLeaveRequestId()] = $onlineJob;
+            }
         }
-    }
 
-    return $this->render('leave_request/company_list.html.twig', [
-        'leaveRequests' => $leaveRequests,
-        'onlineJobs' => $onlineJobs,
-    ]);
-}
+        return $this->render('leave_request/company_list.html.twig', [
+            'leaveRequests' => $leaveRequests,
+            'onlineJobs' => $onlineJobs,
+        ]);
+    }
 
     #[Route('/leave-request/confirm/{id}', name: 'leave_request_confirm', methods: ['POST'])]
     public function confirm(int $id, LeaveRequestRepository $leaveRequestRepository, EntityManagerInterface $entityManager): Response
@@ -217,7 +243,8 @@ public function companyLeaveRequests(int $companyId, LeaveRequestRepository $lea
         $this->addFlash('success', 'Leave request confirmed successfully!');
         return $this->redirectToRoute('company_leave_requests', ['companyId' => $leaveRequest->getCompanyId()]);
     }
-    #[Route('/leave-request/revoke/{id}', name: 'leave_request_revoke', methods: ['POST'])]
+
+    #[Route('/leave-request/revoque/{id}', name: 'leave_request_revoke', methods: ['POST'])]
     public function revoke(int $id, LeaveRequestRepository $leaveRequestRepository, EntityManagerInterface $entityManager): Response
     {
         $leaveRequest = $leaveRequestRepository->find($id);
@@ -226,12 +253,13 @@ public function companyLeaveRequests(int $companyId, LeaveRequestRepository $lea
             throw $this->createNotFoundException('Leave request not found');
         }
 
-        $leaveRequest->setConfirmed(false); // Revoke the confirmation
+        $leaveRequest->setConfirmed(false);
         $entityManager->flush();
 
         $this->addFlash('success', 'Leave request confirmation revoked successfully!');
         return $this->redirectToRoute('company_leave_requests', ['companyId' => $leaveRequest->getCompanyId()]);
     }
+
     #[Route('/company/{companyId}/leave-ranking', name: 'company_leave_ranking')]
     public function companyLeaveRanking(
         int $companyId,
@@ -272,12 +300,9 @@ public function companyLeaveRequests(int $companyId, LeaveRequestRepository $lea
             $rank++;
         }
     
-        return $this->render('leave_request/company.html.twig', [
+        return $this->render('leave_request/company_ranking.html.twig', [
             'companyId' => $companyId,
             'leaveRanking' => $leaveRanking
         ]);
     }
-    
-    
-
 }

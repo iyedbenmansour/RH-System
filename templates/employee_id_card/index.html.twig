@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee ID Card Generator (PDF Preview Demo)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            background-color: #f5f7fa;
+            padding: 2rem;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .flex-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .form-card {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            max-width: 450px;
+            width: 100%;
+        }
+        .mb-3 { margin-bottom: 1rem; }
+        .mb-4 { margin-bottom: 1.5rem; }
+        .row { display: flex; align-items: center; }
+        .row label { flex: 0 0 100px; font-weight: bold; }
+        .row input[type="text"],
+        .row input[type="date"] { flex: 1; padding: 0.5rem; border-radius: 5px; border: 1px solid #ccc; }
+        .row input[type="file"] { flex: 1; }
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: #3498db; color: white; }
+        .btn-success { background: #27ae60; color: white; width: 100%; }
+        .btn-pdf { background: #f39c12; color: white; width: 100%; margin-top: 1rem; }
+        .preview-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            width: 320px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        .company-header {
+            background-color: #3498db;
+            border-radius: 15px 15px 0 0;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .company-header h3 { color: white; margin: 0; }
+        .photo-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: #f0f3f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        .info-box {
+            background-color: #f5f7fa;
+            padding: 15px;
+            border-radius: 8px;
+            width: 270px;
+            margin: 0 auto;
+        }
+        .barcode-area {
+            width: 200px;
+            height: 60px;
+            margin: 10px auto 0 auto;
+            display: block;
+        }
+        #asciiBarcode {
+            width: 200px;
+            height: 60px;
+            margin: 10px auto 0 auto;
+            border: 1px solid #333;
+            background: #fff;
+            text-align: center;
+            font-family: monospace;
+            font-size: 36px;
+            letter-spacing: 1px;
+            line-height: 60px;
+        }
+        @media (max-width: 700px) {
+            .flex-wrap { flex-direction: column; align-items: stretch; }
+            .form-card, .preview-card { max-width: 100%; }
+            .preview-card { margin: 0 auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Employee ID Card Generator</h1>
+        <div class="flex-wrap">
+            <!-- Form Section -->
+            <div class="form-card">
+                <h2 style="color: #3498db;">Enter Employee Information</h2>
+                <form id="employeeForm" autocomplete="off" onsubmit="return false;">
+                    <div class="mb-3 row">
+                        <label for="id">ID:</label>
+                        <input type="text" id="id" name="id" placeholder="Enter ID" oninput="updatePreview()">
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="fullName">Full Name:</label>
+                        <input type="text" id="fullName" name="fullName" placeholder="Enter Full Name" oninput="updatePreview()">
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="position">Position:</label>
+                        <input type="text" id="position" name="position" placeholder="Enter Position" oninput="updatePreview()">
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="telephone">Telephone:</label>
+                        <input type="text" id="telephone" name="telephone" placeholder="Enter Telephone" oninput="updatePreview()">
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="startDate">Start Date:</label>
+                        <input type="date" id="startDate" name="startDate" onchange="updatePreview()">
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="endDate">End Date:</label>
+                        <input type="date" id="endDate" name="endDate" onchange="updatePreview()">
+                    </div>
+                    <div class="mb-4 row">
+                        <label for="photo">Photo:</label>
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <div style="width: 60px; height: 60px; border-radius: 5px; background-color: #f0f3f6; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                <span id="photoPreview" style="color: #95a5a6;">No photo</span>
+                            </div>
+                            <input type="file" id="photo" name="photo" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
+                            <button type="button" class="btn btn-primary" onclick="document.getElementById('photo').click();">Upload Photo</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">Generate ID Card (Demo Only)</button>
+                </form>
+            </div>
+            <!-- Preview Section -->
+            <div>
+                <h2 style="color: #3498db;">ID Card Preview</h2>
+                <div class="preview-card" id="previewCard">
+                    <div class="company-header">
+                        <h3>Employee Badge</h3>
+                    </div>
+                    <div style="padding: 1.5rem 0 0 0; flex:1; display:flex; flex-direction:column; align-items:center; gap:10px;">
+                        <div class="photo-container">
+                            <span id="previewPhoto" style="color: #95a5a6;">No photo</span>
+                        </div>
+                        <h4 id="previewFullName" style="color: #2c3e50; font-weight: bold; margin: 0;">Full Name</h4>
+                        <p id="previewPosition" style="color: #7f8c8d; margin: 0;">Position</p>
+                        <div class="info-box">
+                            <p id="previewId" style="color: #34495e; margin: 0;">ID: 0000</p>
+                            <p id="previewTelephone" style="color: #34495e; margin: 0;">Tel: 000-000-0000</p>
+                            <p id="previewDates" style="color: #34495e; margin: 0;">Valid: Start - End</p>
+                        </div>
+                        <!-- Barcode Area -->
+                        <canvas id="barcodeCanvas" class="barcode-area" width="200" height="60"></canvas>
+                        <div id="asciiBarcode" style="display:none;"></div>
+                        <p style="color: #95a5a6; font-size: 0.75rem; font-style: italic; margin:0;">
+                            Authorized Signature
+                        </p>
+                    </div>
+                </div>
+                <button class="btn btn-pdf" onclick="downloadPDF()">Download as PDF</button>
+            </div>
+        </div>
+        <div style="margin-top:2rem; text-align:center; color:#888; font-size:0.95rem;">
+            &copy; <span id="currentYear"></span> Company Name - Employee Management System
+        </div>
+    </div>
+
+    <!-- JsBarcode CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <!-- html2canvas and jsPDF CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script>
+        // Photo upload and preview
+        function handlePhotoUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    // Form preview
+                    let preview = document.getElementById('photoPreview');
+                    if (preview.tagName === 'IMG') {
+                        preview.src = e.target.result;
+                    } else {
+                        preview.innerHTML = '';
+                        let img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.maxWidth = '100%';
+                        img.style.maxHeight = '100%';
+                        preview.appendChild(img);
+                    }
+                    // Card preview
+                    let pPhoto = document.getElementById('previewPhoto');
+                    if (pPhoto.tagName === 'IMG') {
+                        pPhoto.src = e.target.result;
+                    } else {
+                        pPhoto.innerHTML = '';
+                        let img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.maxWidth = '100%';
+                        img.style.maxHeight = '100%';
+                        pPhoto.appendChild(img);
+                    }
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Update preview fields
+        function updatePreview() {
+            document.getElementById('previewFullName').textContent = document.getElementById('fullName').value || 'Full Name';
+            document.getElementById('previewPosition').textContent = document.getElementById('position').value || 'Position';
+            document.getElementById('previewId').textContent = 'ID: ' + (document.getElementById('id').value || '0000');
+            document.getElementById('previewTelephone').textContent = 'Tel: ' + (document.getElementById('telephone').value || '000-000-0000');
+            // Dates
+            let start = document.getElementById('startDate').value;
+            let end = document.getElementById('endDate').value;
+            let startText = start ? new Date(start).toLocaleDateString('en-US', {year:'numeric', month:'short', day:'numeric'}) : 'Start';
+            let endText = end ? new Date(end).toLocaleDateString('en-US', {year:'numeric', month:'short', day:'numeric'}) : 'End';
+            document.getElementById('previewDates').textContent = `Valid: ${startText} - ${endText}`;
+            // Barcode
+            generateBarcode();
+        }
+
+        // Barcode generation with fallback
+        function generateBarcode() {
+            const canvas = document.getElementById('barcodeCanvas');
+            const ascii = document.getElementById('asciiBarcode');
+            const id = document.getElementById('id').value || '0000';
+            const fullName = document.getElementById('fullName').value || 'DefaultName';
+            const barcodeData = `${id}-${fullName.substring(0, 5).toUpperCase()}`;
+            ascii.style.display = 'none';
+            canvas.style.display = 'block';
+            try {
+                JsBarcode(canvas, barcodeData, {
+                    format: "CODE128",
+                    width: 2,
+                    height: 40,
+                    displayValue: true,
+                    fontSize: 12,
+                    margin: 5,
+                    background: "#ffffff",
+                    lineColor: "#000000"
+                });
+            } catch (e) {
+                // ASCII fallback
+                canvas.style.display = 'none';
+                ascii.style.display = 'block';
+                ascii.innerHTML = makeAsciiBarcode(barcodeData);
+            }
+        }
+        // ASCII barcode fallback
+        function makeAsciiBarcode(data) {
+            let seed = 0;
+            for (let i = 0; i < data.length; i++) seed += data.charCodeAt(i);
+            function random() {
+                const x = Math.sin(seed++) * 10000;
+                return x - Math.floor(x);
+            }
+            let pattern = '';
+            for (let i = 0; i < 32; i++) {
+                pattern += (random() > 0.5) ? '|' : '&nbsp;';
+            }
+            return pattern + `<div style="font-size:12px; color:#333;">${data}</div>`;
+        }
+
+        // PDF Download
+        function downloadPDF() {
+            const card = document.getElementById('previewCard');
+            html2canvas(card, {
+                scale: 2,
+                backgroundColor: '#fff',
+                useCORS: true
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jspdf.jsPDF({
+                    orientation: 'portrait',
+                    unit: 'pt',
+                    format: [320, 500]
+                });
+                pdf.addImage(imgData, 'PNG', 0, 0, 320, 500);
+                let name = document.getElementById('fullName').value.replace(/\s+/g,'_') || 'employee';
+                pdf.save(name + '_id_card.pdf');
+            });
+        }
+
+        // Set current year and initialize preview
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+            updatePreview();
+            // Set today as default start date
+            let today = new Date().toISOString().slice(0,10);
+            let nextYear = new Date();
+            nextYear.setFullYear(nextYear.getFullYear()+1);
+            document.getElementById('startDate').value = today;
+            document.getElementById('endDate').value = nextYear.toISOString().slice(0,10);
+            updatePreview();
+        });
+    </script>
+</body>
+</html>
