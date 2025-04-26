@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ roomName }} | Meeting</title>
+    <style>
+        :root {
+            /* Professional dark theme palette */
+            --bg-darkest: #1a1a1a;
+            --bg-dark: #242424;
+            --bg-medium: #2d2d2d;
+            --bg-light: #383838;
+            --text-primary: #f0f0f0;
+            --text-secondary: #b0b0b0;
+            --accent-color: #2c5fd2;
+            --accent-hover: #3d6fe0;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --transition: all 0.2s ease-out;
+            --border-radius: 4px;
+            --header-height: 48px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-darkest);
+            color: var(--text-primary);
+            line-height: 1.5;
+            overflow: hidden;
+        }
+        
+        #meet-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+        }
+        
+        /* Minimalist top bar that can auto-hide */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: rgba(36, 36, 36, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+            transition: transform 0.3s ease;
+        }
+        
+        .top-bar.hidden {
+            transform: translateY(-100%);
+        }
+        
+        .meeting-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .meeting-icon {
+            color: var(--accent-color);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(44, 95, 210, 0.15);
+        }
+        
+        .meeting-title {
+            font-weight: 500;
+            font-size: 16px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+        
+        .meeting-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .action-button {
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 6px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: var(--transition);
+            height: 36px;
+        }
+        
+        .action-button:hover {
+            background: var(--bg-light);
+            color: var(--text-primary);
+        }
+        
+        .action-button.active {
+            background: var(--bg-light);
+            color: var(--accent-color);
+        }
+        
+        /* Invite panel with modern styling */
+        .invite-panel {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            right: 0;
+            background: var(--bg-medium);
+            transform: translateY(-100%);
+            transition: transform 0.25s ease-out;
+            z-index: 99;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+        }
+        
+        .invite-panel.active {
+            transform: translateY(0);
+            max-height: 200px;
+            padding: 16px;
+        }
+        
+        .invite-content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 700px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .invite-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .invite-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .close-panel {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        
+        .close-panel:hover {
+            background: var(--bg-light);
+            color: var(--text-primary);
+        }
+        
+        .url-container {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+        
+        .meeting-url {
+            background: var(--bg-dark);
+            border: 1px solid var(--bg-light);
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            font-family: 'SF Mono', 'Roboto Mono', monospace;
+            font-size: 14px;
+            padding: 10px 12px;
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .copy-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 0 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        
+        .copy-btn:hover {
+            background: var(--accent-hover);
+        }
+        
+        /* Toast notification for copy success */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            border-radius: var(--border-radius);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .toast.active {
+            opacity: 1;
+        }
+        
+        .toast-icon {
+            color: var(--success-color);
+        }
+        
+        /* Auto-hide and show control */
+        #auto-hide-toggle {
+            margin-left: 10px;
+            font-size: 12px;
+            background: transparent;
+            border: 1px solid var(--bg-light);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        #auto-hide-toggle:hover {
+            background: var(--bg-light);
+            color: var(--text-primary);
+        }
+        
+        #auto-hide-toggle.active {
+            background: rgba(44, 95, 210, 0.2);
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+            .meeting-title {
+                max-width: 120px;
+            }
+            
+            .button-text {
+                display: none;
+            }
+            
+            .meeting-actions {
+                gap: 4px;
+            }
+            
+            .action-button {
+                padding: 6px 8px;
+            }
+            
+            .invite-content {
+                gap: 8px;
+            }
+            
+            .url-container {
+                flex-direction: column;
+            }
+            
+            .copy-btn {
+                height: 40px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <!-- Minimalist top bar -->
+    <div class="top-bar" id="topBar">
+        <div class="meeting-info">
+            <div class="meeting-icon">
+                <i class="fas fa-video"></i>
+            </div>
+            <div class="meeting-title">{{ roomName }}</div>
+            <button id="auto-hide-toggle" title="Auto-hide header">
+                <i class="fas fa-eye-slash"></i>
+            </button>
+        </div>
+        <div class="meeting-actions">
+            <button class="action-button" id="shareButton">
+                <i class="fas fa-link"></i>
+                <span class="button-text">Invite</span>
+            </button>
+            <button class="action-button" id="fullscreenButton">
+                <i class="fas fa-expand"></i>
+                <span class="button-text">Fullscreen</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Invite panel with meeting link -->
+    <div class="invite-panel" id="invitePanel">
+        <div class="invite-content">
+            <div class="invite-header">
+                <div class="invite-title">SHARE MEETING INVITE</div>
+                <button class="close-panel" id="closePanel">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="url-container">
+                <div class="meeting-url" id="meetingUrl">{{ app.request.schemeAndHttpHost ~ path('join_meeting', {'roomName': roomName}) }}</div>
+                <button class="copy-btn" id="copyButton">
+                    <i class="fas fa-copy"></i> Copy link
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Jitsi meet container -->
+    <div id="meet-container"></div>
+    
+    <!-- Toast notification -->
+    <div class="toast" id="toast">
+        <span class="toast-icon">
+            <i class="fas fa-check-circle"></i>
+        </span>
+        <span>Meeting link copied</span>
+    </div>
+
+    <script src='https://{{ domain }}/external_api.js'></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const topBar = document.getElementById('topBar');
+            const invitePanel = document.getElementById('invitePanel');
+            const shareButton = document.getElementById('shareButton');
+            const closePanel = document.getElementById('closePanel');
+            const copyButton = document.getElementById('copyButton');
+            const meetingUrl = document.getElementById('meetingUrl');
+            const toast = document.getElementById('toast');
+            const autoHideToggle = document.getElementById('auto-hide-toggle');
+            const fullscreenButton = document.getElementById('fullscreenButton');
+            
+            // Variables for header auto-hide
+            let mouseTimer;
+            let isAutoHideEnabled = false;
+            let isUserInteracting = false;
+            
+            // Initialize Jitsi Meet
+            const domain = '{{ domain }}';
+            const options = {
+                roomName: '{{ roomName }}',
+                width: '100%',
+                height: '100%',
+                parentNode: document.querySelector('#meet-container'),
+                userInfo: {
+                    displayName: '{{ displayName }}'
+                },
+                configOverwrite: {
+                    startWithAudioMuted: false,
+                    startWithVideoMuted: false,
+                    prejoinPageEnabled: true,
+                    disableDeepLinking: true,
+                    disableInviteFunctions: true, // Disable Jitsi's own invite UI
+                    toolbarButtons: [
+                        'microphone', 'camera', 'desktop', 'chat',
+                        'raisehand', 'settings', 'hangup', 'videoquality', 
+                        'tileview', 'mute-everyone', 'security'
+                    ],
+                    subject: '' // Hide the room name from Jitsi's UI since we show it ourselves
+                },
+                interfaceConfigOverwrite: {
+                    DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
+                    TOOLBAR_BUTTONS: [
+                        'microphone', 'camera', 'desktop', 'chat',
+                        'raisehand', 'settings', 'hangup', 'videoquality', 
+                        'tileview', 'mute-everyone', 'security'
+                    ],
+                    SHOW_JITSI_WATERMARK: false,
+                    SHOW_WATERMARK_FOR_GUESTS: false,
+                    SHOW_BRAND_WATERMARK: false,
+                    DEFAULT_BACKGROUND: '#1a1a1a',
+                    VERTICAL_FILMSTRIP: true
+                }
+            };
+
+            const api = new JitsiMeetExternalAPI(domain, options);
+            
+            // Event Listeners
+            api.addListener('videoConferenceJoined', () => {
+                console.log('User joined the conference');
+                
+                // Start auto-hide timer
+                if (isAutoHideEnabled) {
+                    startAutoHideTimer();
+                }
+            });
+            
+            api.addListener('readyToClose', () => {
+                window.location.href = '{{ app.request.schemeAndHttpHost }}';
+            });
+            
+            // Share button toggle
+            shareButton.addEventListener('click', () => {
+                invitePanel.classList.toggle('active');
+                shareButton.classList.toggle('active');
+                isUserInteracting = true;
+                clearTimeout(mouseTimer);
+            });
+            
+            // Close panel
+            closePanel.addEventListener('click', () => {
+                invitePanel.classList.remove('active');
+                shareButton.classList.remove('active');
+                
+                if (isAutoHideEnabled) {
+                    isUserInteracting = false;
+                    startAutoHideTimer();
+                }
+            });
+            
+            // Copy meeting URL
+            copyButton.addEventListener('click', () => {
+                navigator.clipboard.writeText(meetingUrl.textContent)
+                    .then(() => {
+                        toast.classList.add('active');
+                        setTimeout(() => {
+                            toast.classList.remove('active');
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Could not copy text: ', err);
+                    });
+            });
+            
+            // Auto-hide toggle
+            autoHideToggle.addEventListener('click', () => {
+                isAutoHideEnabled = !isAutoHideEnabled;
+                autoHideToggle.classList.toggle('active');
+                
+                if (isAutoHideEnabled) {
+                    autoHideToggle.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                    startAutoHideTimer();
+                } else {
+                    autoHideToggle.innerHTML = '<i class="fas fa-eye"></i>';
+                    clearTimeout(mouseTimer);
+                    topBar.classList.remove('hidden');
+                }
+            });
+            
+            // Fullscreen button
+            fullscreenButton.addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(e => {
+                        console.error(`Error attempting to enable fullscreen: ${e.message}`);
+                    });
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
+            });
+            
+            // Mouse movement detection for showing/hiding the header
+            document.addEventListener('mousemove', () => {
+                if (!isAutoHideEnabled) return;
+                
+                // Show the header on mouse movement
+                topBar.classList.remove('hidden');
+                clearTimeout(mouseTimer);
+                
+                if (!isUserInteracting) {
+                    startAutoHideTimer();
+                }
+            });
+            
+            // Escape key to close panel and exit fullscreen
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    if (invitePanel.classList.contains('active')) {
+                        invitePanel.classList.remove('active');
+                        shareButton.classList.remove('active');
+                    }
+                    
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen();
+                    }
+                }
+            });
+            
+            // Click outside panel to close it
+            document.addEventListener('click', (event) => {
+                if (invitePanel.classList.contains('active') && 
+                    !invitePanel.contains(event.target) && 
+                    !shareButton.contains(event.target)) {
+                    invitePanel.classList.remove('active');
+                    shareButton.classList.remove('active');
+                }
+            });
+            
+            // Helper function to start auto-hide timer
+            function startAutoHideTimer() {
+                mouseTimer = setTimeout(() => {
+                    topBar.classList.add('hidden');
+                }, 3000);
+            }
+            
+            // Detect enter/exit of panel for auto-hide purposes
+            invitePanel.addEventListener('mouseenter', () => {
+                isUserInteracting = true;
+                clearTimeout(mouseTimer);
+            });
+            
+            invitePanel.addEventListener('mouseleave', () => {
+                if (isAutoHideEnabled) {
+                    isUserInteracting = false;
+                    startAutoHideTimer();
+                }
+            });
+            
+            topBar.addEventListener('mouseenter', () => {
+                isUserInteracting = true;
+                clearTimeout(mouseTimer);
+            });
+            
+            topBar.addEventListener('mouseleave', () => {
+                if (isAutoHideEnabled && !invitePanel.classList.contains('active')) {
+                    isUserInteracting = false;
+                    startAutoHideTimer();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

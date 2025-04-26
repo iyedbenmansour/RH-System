@@ -1,0 +1,504 @@
+{# templates/leave_request/company_list.html.twig #}
+{% extends 'baseBack.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Basic styles for the page */
+        .main-container {
+            max-width: 1200px;
+            padding: 2rem 1.5rem;
+        }
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        .card-header {
+            background-color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .empty-state {
+            padding: 3rem 1.5rem;
+            text-align: center;
+        }
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f1f5f9;
+            border-radius: 50%;
+        }
+        .empty-state-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        .empty-state-text {
+            max-width: 400px;
+            margin: 0 auto 1.5rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Additional styles for action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+        .online-job-indicator {
+            font-size: 0.75rem;
+            color: #6c757d;
+            text-align: right;
+        }
+        .employee-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .employee-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .date-range {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        .date-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+        }
+        .leave-type {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .type-vacation { background-color: #e3f2fd; color: #1976d2; }
+        .type-sick { background-color: #f3e5f5; color: #8e24aa; }
+        .type-personal { background-color: #e8f5e9; color: #388e3c; }
+        .type-normal { background-color: #fff3e0; color: #fb8c00; }
+        .type-other { background-color: #f5f5f5; color: #616161; }
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+        .status-pending { background-color: #fff3e0; color: #fb8c00; }
+        .status-confirmed { background-color: #e8f5e9; color: #388e3c; }
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .status-pending .status-indicator { background-color: #fb8c00; }
+        .status-confirmed .status-indicator { background-color: #388e3c; }
+        .description {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Pagination styles */
+        .navigation {
+            display: flex;
+            justify-content: center;
+            padding: 1.5rem 0;
+        }
+        .pagination {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            gap: 0.5rem;
+        }
+        .page-item {
+            display: flex;
+        }
+        .page-link {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            color: #0d6efd;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .page-link:hover {
+            background-color: #e9ecef;
+        }
+        .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: white;
+        }
+        .page-item.disabled .page-link {
+            color: #6c757d;
+            pointer-events: none;
+        }
+    </style>
+{% endblock %}
+
+{% block title %}Company Leave Requests{% endblock %}
+
+{% block body %}
+<div class="main-container">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Leave Requests Management</h2>
+            <div class="d-flex align-items-center">
+                {% if leaveRequests is iterable %}
+                    <span class="badge bg-light text-dark me-2">{{ leaveRequests.getTotalItemCount|default(0) }} requests</span>
+                {% endif %}
+                <button class="btn btn-sm btn-outline-primary">
+                    Export CSV
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            {% if companyId %}
+                {% if leaveRequests|length > 0 %}
+                    <table class="table request-table">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Date Range</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in leaveRequests %}
+                                <tr>
+                                    <td data-label="Employee">
+                                        <div class="employee-info">
+                                            <div class="employee-avatar">
+                                                {{ request.employeeId|first|upper }}
+                                            </div>
+                                            <span class="employee-name">{{ request.employeeId }}</span>
+                                        </div>
+                                    </td>
+                                    <td data-label="Date Range">
+                                        <div class="date-range">
+                                            <span class="date-badge">
+                                                <i class="bi bi-calendar-event"></i>
+                                                {{ request.startDate|date('M d, Y') }}
+                                            </span>
+                                            <span class="date-badge">
+                                                <i class="bi bi-calendar-event"></i>
+                                                {{ request.endDate|date('M d, Y') }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td data-label="Type">
+                                        {% set typeClass = 'type-other' %}
+                                        {% if request.leaveType == 'Vacation' %}
+                                            {% set typeClass = 'type-vacation' %}
+                                        {% elseif request.leaveType == 'Sick' %}
+                                            {% set typeClass = 'type-sick' %}
+                                        {% elseif request.leaveType == 'Personal' %}
+                                            {% set typeClass = 'type-personal' %}
+                                        {% elseif request.leaveType == 'Normal' %}
+                                            {% set typeClass = 'type-normal' %}
+                                        {% endif %}
+                                        
+                                        <span class="leave-type {{ typeClass }}">
+                                            {{ request.leaveType }}
+                                        </span>
+                                    </td>
+                                    <td data-label="Description">
+                                        <div class="description" title="{{ request.description }}">
+                                            {{ request.description|default('No description') }}
+                                        </div>
+                                    </td>
+                                    <td data-label="Status">
+                                        <div class="status status-{{ request.isConfirmed ? 'confirmed' : 'pending' }}">
+                                            <span class="status-indicator"></span>
+                                            {{ request.isConfirmed ? 'Confirmed' : 'Pending' }}
+                                        </div>
+                                    </td>
+                                    <td data-label="Actions">
+                                        <div class="action-buttons">
+                                            {% if request.pdfPath %}
+                                                <a href="{{ asset('uploads/pdfs/' ~ request.pdfPath) }}" 
+                                                   class="btn btn-sm btn-outline-primary"
+                                                   target="_blank">
+                                                    View PDF
+                                                </a>
+                                            {% endif %}
+                                            
+                                            {% if not request.isConfirmed %}
+                                                <form action="{{ path('leave_request_confirm', { id: request.id }) }}" 
+                                                      method="post">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('confirm' ~ request.id) }}">
+                                                    <button type="submit" 
+                                                            class="btn btn-sm btn-success">
+                                                        Confirm Request
+                                                    </button>
+                                                </form>
+                                            {% else %}
+                                                <form action="{{ path('leave_request_revoke', { id: request.id }) }}" 
+                                                      method="post">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('revoke' ~ request.id) }}">
+                                                    <button type="submit" 
+                                                            class="btn btn-sm btn-warning">
+                                                        Revoke Approval
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                            
+                                            {% if request.isConfirmed and onlineJobs[request.id] is defined %}
+                                                {% set onlineJob = onlineJobs[request.id] %}
+                                                <a href="{{ path('online_job_view', { id: onlineJob.id }) }}" 
+                                                   class="btn btn-sm btn-outline-info">
+                                                    View Job
+                                                </a>
+                                                
+                                                <form action="{{ path('online_job_toggle_status', { id: onlineJob.id }) }}" 
+                                                      method="post">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('toggle_status' ~ onlineJob.id) }}">
+                                                    <button type="submit" 
+                                                            class="btn btn-sm {{ onlineJob.isConfirmed ? 'btn-warning' : 'btn-success' }}">
+                                                        {{ onlineJob.isConfirmed ? 'Revoke Job' : 'Confirm Job' }}
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {% if request.isConfirmed and onlineJobs[request.id] is defined %}
+                                            <div class="online-job-indicator mt-1">
+                                                <span>Online Job {{ onlineJobs[request.id].isConfirmed ? 'Confirmed' : 'Pending' }}</span>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="navigation">
+                        {{ knp_pagination_render(leaveRequests) }}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="bi bi-calendar-x" style="font-size: 2rem;"></i>
+                        </div>
+                        <h3 class="empty-state-title">No Leave Requests Found</h3>
+                        <p class="empty-state-text">There are currently no leave requests to display. When employees submit requests, they will appear here.</p>
+                        <button class="btn btn-primary" onclick="location.reload()">
+                            Refresh Page
+                        </button>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-shield-lock" style="font-size: 2rem;"></i>
+                    </div>
+                    <h3 class="empty-state-title">No Company ID Set</h3>
+                    <p class="empty-state-text">
+                        Please set your Company ID in your browser's local storage. 
+                        <br>Refresh the page after setting it.
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const localCompanyId = localStorage.getItem('company_id');
+        const mainContainer = document.querySelector('.main-container');
+    
+        // If company_id is not in local storage, prompt the user to set it
+        if (!localCompanyId) {
+            mainContainer.innerHTML = `
+                <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+                    <div style="font-size:2rem;color:#ef4444;"><i class="bi bi-shield-lock"></i></div>
+                    <h3 style="margin-top:1rem;">Access Restricted</h3>
+                    <p style="max-width:350px;text-align:center;">Please set your <strong>Company ID</strong> in your browser's local storage to access leave requests for your company.</p>
+                    <input id="companyIdInput" type="text" placeholder="Enter Company ID" class="form-control mb-3" style="max-width:200px;">
+                    <button id="setCompanyIdBtn" class="btn btn-primary">Set Company ID</button>
+                </div>
+            `;
+            document.getElementById('setCompanyIdBtn').onclick = function () {
+                const val = document.getElementById('companyIdInput').value.trim();
+                if (!val) return alert('Please enter a company ID.');
+                localStorage.setItem('company_id', val);
+                location.reload();
+            };
+            return;
+        }
+    
+        // Function to load content for a specific page
+        function loadPage(page = 1, pushHistory = true) {
+            const url = new URL(window.location.pathname, window.location.origin);
+            url.searchParams.set('page', page); // Always set ?page=... (even for 1)
+    
+            mainContainer.style.opacity = 0.4; // Optional: visual loading
+    
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': localCompanyId,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+            })
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newContent = doc.querySelector('.main-container');
+                if (newContent) {
+                    mainContainer.innerHTML = newContent.innerHTML;
+                    attachPaginationListeners();
+                    initTooltips();
+                    attachFormHandlers();
+                }
+                mainContainer.style.opacity = 1;
+            })
+            .catch(error => {
+                console.error('Error fetching leave requests:', error);
+                mainContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="bi bi-exclamation-triangle" style="font-size:2rem;"></i>
+                        </div>
+                        <h3 class="empty-state-title">Failed to Load Data</h3>
+                        <p class="empty-state-text">Please check your network connection or try again later.</p>
+                    </div>
+                `;
+                mainContainer.style.opacity = 1;
+            });
+    
+            // Update browser history (except on initial load)
+            if (pushHistory) {
+                window.history.pushState({page: page}, '', url);
+            }
+        }
+    
+        // Function to attach event listeners to pagination links
+        function attachPaginationListeners() {
+            document.querySelectorAll('.page-link').forEach(link => {
+                if (link.href && !link.closest('.disabled')) {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        // The paginator may generate /leave-requests/company for page 1 (no ?page=1)
+                        // So, if ?page is missing, treat as page 1
+                        const url = new URL(this.href, window.location.origin);
+                        let page = url.searchParams.get('page');
+                        if (!page) page = 1;
+                        loadPage(page, true);
+                    });
+                }
+            });
+        }
+    
+        // Function to initialize tooltips
+        function initTooltips() {
+            if (window.bootstrap) {
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            }
+        }
+    
+        // Function to attach form submission handlers
+        function attachFormHandlers() {
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    fetch(form.action, {
+                        method: form.method,
+                        body: new FormData(form),
+                        headers: {
+                            'Authorization': localStorage.getItem('company_id'),
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (response.redirected) {
+                            window.location.href = response.url;
+                        } else {
+                            return response.text().then(html => {
+                                const parser = new DOMParser();
+                                const doc = parser.parseFromString(html, 'text/html');
+                                const newContent = doc.querySelector('.main-container');
+                                if (newContent) {
+                                    mainContainer.innerHTML = newContent.innerHTML;
+                                    attachPaginationListeners();
+                                    initTooltips();
+                                    attachFormHandlers();
+                                }
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error submitting form:', error);
+                    });
+                });
+            });
+        }
+    
+        // Initial: attach handlers to server-rendered content
+        attachPaginationListeners();
+        attachFormHandlers();
+        initTooltips();
+    
+        // On initial load, if page param is present, AJAX load that page for consistency
+        const urlParams = new URLSearchParams(window.location.search);
+        const initPage = urlParams.get('page') || 1;
+        if (initPage && initPage !== '1') {
+            loadPage(initPage, false);
+        }
+    
+        // Handle browser back/forward navigation
+        window.addEventListener('popstate', function(event) {
+            const url = new URL(window.location.href);
+            let page = url.searchParams.get('page');
+            if (!page) page = 1;
+            loadPage(page, false);
+        });
+    });
+    </script>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Initialize tooltips on initial page load
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+{% endblock %}
