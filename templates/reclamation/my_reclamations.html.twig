@@ -1,0 +1,145 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Réclamations{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h2 mb-0 text-primary fw-bold">Mes Réclamations</h1>
+            <p class="text-muted">Consultez toutes vos réclamations envoyées</p>
+        </div>
+        <div class="col-md-4 d-flex justify-content-md-end align-items-center">
+            <a href="{{ path('app_reclamation_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-2"></i>Nouvelle Réclamation
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtres de recherche -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-8">
+                    <label for="search" class="form-label">Rechercher</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fas fa-search"></i></span>
+                        <input type="text" name="q" id="search" value="{{ search }}" class="form-control" placeholder="Rechercher par titre ou description">
+                    </div>
+                </div>
+                {% if app.request.query.has('userId') %}
+                <input type="hidden" name="userId" value="{{ app.request.query.get('userId') }}">
+                {% endif %}
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">Rechercher</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des réclamations -->
+    {% if reclamations|length > 0 %}
+        <div class="row mb-3">
+            <div class="col">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> Vous avez un total de <strong>{{ reclamations.getTotalItemCount }}</strong> réclamation(s)
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            {% for reclamation in reclamations %}
+                <div class="col-md-12 mb-4">
+                    <div class="card shadow-sm h-100 border-0 transition-hover">
+                        <div class="card-body position-relative">
+                            <div class="row">
+                                <!-- Statut de la réclamation -->
+                                <div class="col-auto">
+                                    {% set statusClass = {
+                                        'Not Treated': 'bg-warning',
+                                        'In Progress': 'bg-info',
+                                        'Resolved': 'bg-success',
+                                        'Rejected': 'bg-danger'
+                                    } %}
+                                    <div class="rounded-circle {{ statusClass[reclamation.statueOfReclamation] }} status-indicator" 
+                                         data-bs-toggle="tooltip" 
+                                         title="{{ reclamation.statueOfReclamation }}">
+                                    </div>
+                                </div>
+                                
+                                <!-- Contenu principal -->
+                                <div class="col">
+                                    <h5 class="card-title mb-1">
+                                        <a href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}" class="text-dark text-decoration-none stretched-link">
+                                            {{ reclamation.title }}
+                                        </a>
+                                    </h5>
+                                    <div class="mb-2">
+                                        <span class="badge {{ statusClass[reclamation.statueOfReclamation] }}">{{ reclamation.statueOfReclamation }}</span>
+                                        <small class="text-muted ms-2">
+                                            <i class="far fa-calendar-alt me-1"></i>{{ reclamation.date|date('d/m/Y H:i') }}
+                                        </small>
+                                    </div>
+                                    <p class="card-text text-muted mb-0">
+                                        {{ reclamation.description|length > 120 ? reclamation.description|slice(0, 120) ~ '...' : reclamation.description }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-top-0 d-flex justify-content-between">
+                            <div>
+                                {% if reclamation.imagePath and reclamation.imagePath != 'no-image.jpg' %}
+                                    <span class="badge bg-light text-dark">
+                                        <i class="far fa-image me-1"></i>Image jointe
+                                    </span>
+                                {% endif %}
+                                {% if reclamation.pdfPath and reclamation.pdfPath != 'no-pdf.pdf' %}
+                                    <span class="badge bg-light text-dark ms-1">
+                                        <i class="far fa-file-pdf me-1"></i>PDF joint
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <a href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye me-1"></i>Détails
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        <div class="navigation d-flex justify-content-center mt-4">
+            {{ knp_pagination_render(reclamations, 'reclamation/_pagination.html.twig') }}
+        </div>
+    {% else %}
+        <div class="alert alert-warning">
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-3x mb-3 text-muted"></i>
+                <h4>Aucune réclamation trouvée</h4>
+                <p class="mb-0">Vous n'avez pas encore soumis de réclamations ou votre recherche n'a donné aucun résultat.</p>
+                <a href="{{ path('app_reclamation_new') }}" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus-circle me-2"></i>Créer une réclamation
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .transition-hover {
+        transition: all 0.3s ease;
+    }
+    .transition-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+    .status-indicator {
+        width: 15px;
+        height: 15px;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %} 

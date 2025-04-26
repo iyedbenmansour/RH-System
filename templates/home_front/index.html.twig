@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Career Bridge{% endblock %}
+
+{% block body %}
+<!-- Main Banner Section -->
+<section class="slider_section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="detail-box p-4">
+                    <h1>
+                        Vos Réclamations <br>
+                        Notre Priorité
+                    </h1>
+                    <p class="py-3">
+                        Nous sommes à votre écoute pour résoudre vos problèmes et améliorer nos services.
+                        Consultez facilement vos réclamations et suivez leur statut en temps réel.
+                    </p>
+                    <div class="btn-box">
+                        <a href="{{ path('app_reclamation_my_list') }}" class="btn btn-primary">
+                            <i class="fa fa-list me-2"></i> Voir Mes Réclamations
+                        </a>
+                        <a href="{{ path('app_reclamation_new') }}" class="btn btn-outline-primary ms-2">
+                            <i class="fa fa-plus-circle me-2"></i> Nouvelle Réclamation
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="img-box">
+                    <img src="{{ asset('Front/images/service-img.jpg') }}" alt="Service Image" class="img-fluid rounded shadow-lg">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="service_section layout_padding">
+    <div class="container">
+        <div class="heading_container heading_center">
+            <h2>
+                Gestion des Réclamations
+            </h2>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-4 mb-4">
+                <div class="box h-100 p-4 shadow-sm">
+                    <div class="img-box mb-3 text-center">
+                        <i class="fa fa-clipboard fa-3x text-primary"></i>
+                    </div>
+                    <div class="detail-box">
+                        <h5>Soumettez votre réclamation</h5>
+                        <p>
+                            Créez une réclamation détaillée avec possibilité d'ajouter des pièces jointes pour clarifier votre demande.
+                        </p>
+                        <a href="{{ path('app_reclamation_new') }}" class="btn btn-sm btn-primary mt-2">
+                            <i class="fa fa-plus-circle me-1"></i> Créer
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="box h-100 p-4 shadow-sm">
+                    <div class="img-box mb-3 text-center">
+                        <i class="fa fa-search fa-3x text-primary"></i>
+                    </div>
+                    <div class="detail-box">
+                        <h5>Suivez vos réclamations</h5>
+                        <p>
+                            Consultez l'état de vos réclamations en temps réel et suivez leur évolution jusqu'à leur résolution.
+                        </p>
+                        <a href="{{ path('app_reclamation_my_list') }}" class="btn btn-sm btn-primary mt-2">
+                            <i class="fa fa-eye me-1"></i> Consulter
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="box h-100 p-4 shadow-sm">
+                    <div class="img-box mb-3 text-center">
+                        <i class="fa fa-comments fa-3x text-primary"></i>
+                    </div>
+                    <div class="detail-box">
+                        <h5>Recevez des réponses</h5>
+                        <p>
+                            Nos équipes traitent vos réclamations et vous fournissent des réponses détaillées et personnalisées.
+                        </p>
+                        <a href="#" class="btn btn-sm btn-primary mt-2">
+                            <i class="fa fa-question-circle me-1"></i> En savoir plus
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
