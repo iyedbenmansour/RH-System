@@ -11,7 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Annotation\Route;//url
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
@@ -20,16 +20,16 @@ class LeaveRequestController extends AbstractController
 {
     #[Route('/leave-request/create', name: 'leave_request_create', methods: ['GET', 'POST'])]
     public function create(
-        Request $request, 
-        EntityManagerInterface $entityManager,
+        Request $request,//données du formulaire
+        EntityManagerInterface $entityManager,//GB
         SluggerInterface $slugger
     ): Response {
-        $leaveRequest = new LeaveRequest();
+        $leaveRequest = new LeaveRequest();//vide
         $form = $this->createForm(LeaveRequestType::class, $leaveRequest);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $pdfFile = $form->get('pdfFile')->getData();
+            $pdfFile = $form->get('pdfFile')->getData();//recuperer champ valeur 
             
             if ($pdfFile) {
                 $originalFilename = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
@@ -41,7 +41,7 @@ class LeaveRequestController extends AbstractController
                         $this->getParameter('pdf_directory'),
                         $newFilename
                     );
-                    $leaveRequest->setPdfPath($newFilename);
+                    $leaveRequest->setPdfPath($newFilename);//save
                 } catch (FileException $e) {
                     $this->addFlash('error', 'There was an error uploading your PDF file.');
                     return $this->redirectToRoute('leave_request_create');
@@ -50,7 +50,7 @@ class LeaveRequestController extends AbstractController
             
             $leaveRequest->setConfirmed(false);
             $entityManager->persist($leaveRequest);
-            $entityManager->flush();
+            $entityManager->flush();//xécute la requête SQL → la demande est enregistrée en base de données
 
             $this->addFlash('success', 'Leave request created successfully!');
             return $this->redirectToRoute('employee_leave_requests', ['employeeId' => $leaveRequest->getEmployeeId()]);
@@ -62,8 +62,8 @@ class LeaveRequestController extends AbstractController
     }
 
   
-    #[Route('/leave-requests/employee/{employeeId}', name: 'employee_leave_requests', methods: ['GET'])]
-    public function employeeLeaveRequests(int $employeeId, LeaveRequestRepository $leaveRequestRepository, EntityManagerInterface $entityManager): Response
+    #[Route('/leave-requests/employee/{employeeId}', name: 'employee_leave_requests', methods: ['GET'])]// accepte seulement les requêtes GET
+    public function employeeLeaveRequests(int $employeeId, LeaveRequestRepository $leaveRequestRepository, EntityManagerInterface $entityManager): Response//page http
     {
         $leaveRequests = $leaveRequestRepository->findBy(['employeeId' => $employeeId]);
         
@@ -90,11 +90,11 @@ class LeaveRequestController extends AbstractController
             // Create a mapping of leaveRequestId => OnlineJob
             $onlineJobs = array_reduce($onlineJobs, function($carry, $oj) {
                 $carry[$oj->getLeaveRequestId()] = $oj;
-                return $carry;
+                return $carry;//garde en mémoire le résultat à chaque étape
             }, []);
         }
     
-        return $this->render('leave_request/employee_list.html.twig', [
+        return $this->render('leave_request/employee_list.html.twig', [//affichage page html
             'leaveRequests' => $leaveRequests,
             'onlineJobs' => $onlineJobs,
             'confirmedNormalDays' => $confirmedNormalDays,
@@ -105,7 +105,7 @@ class LeaveRequestController extends AbstractController
     #[Route('/leave-request/edit/{id}', name: 'leave_request_edit', methods: ['GET', 'POST'])]
     public function edit(
         int $id, 
-        Request $request, 
+        Request $request,//donne  
         LeaveRequestRepository $leaveRequestRepository, 
         EntityManagerInterface $entityManager,
         SluggerInterface $slugger
@@ -113,7 +113,7 @@ class LeaveRequestController extends AbstractController
         $leaveRequest = $leaveRequestRepository->find($id);
 
         if (!$leaveRequest) {
-            throw $this->createNotFoundException('Leave request not found');
+            throw $this->createNotFoundException('Leave request not found');//lancer err
         }
 
         $form = $this->createForm(LeaveRequestType::class, $leaveRequest);
@@ -130,7 +130,7 @@ class LeaveRequestController extends AbstractController
                 try {
                     $pdfFile->move(
                         $this->getParameter('pdf_directory'),
-                        $newFilename
+                        $newFilename//servise
                     );
                     
                     // Remove old file if exists
@@ -186,7 +186,7 @@ public function companyLeaveRequests(int $companyId, LeaveRequestRepository $lea
     // Get all online jobs for these leave requests
     $onlineJobs = [];
     if (!empty($leaveRequests)) {
-        $leaveRequestIds = array_map(fn($lr) => $lr->getId(), $leaveRequests);
+        $leaveRequestIds = array_map(fn($lr) => $lr->getId(), $leaveRequests);//[2 4]
         $onlineJobResults = $entityManager->getRepository(OnlineJob::class)
             ->findBy(['leaveRequestId' => $leaveRequestIds]);
         
