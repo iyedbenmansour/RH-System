@@ -1,0 +1,228 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Edit Formation{% endblock %}
+
+{% block body %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap');
+
+        body, .wrapper, .form-container, .form-label, .form-control, .btn {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #4B4B4B;
+        }
+
+        .form-container {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            width: 100% !important;  /* Force full width for each form group */
+            clear: both !important;  /* Ensure no floating elements disrupt layout */
+            position: relative !important;  /* Ensure the form-group is relative to control absolute elements inside it */
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100% !important;
+            padding: 12px !important;
+            margin: 8px 0 !important;
+            border: 1px solid #ddd !important;
+            border-radius: 4px !important;
+            background-color: #f4f4f4 !important;
+            font-size: 1rem !important;
+            color: #555 !important;
+            height: 40px !important;  /* Ensures uniform height for all input fields */
+            box-sizing: border-box !important;  /* Ensures proper box sizing for padding and borders */
+            display: block !important;
+        }
+
+        .form-control[readonly] {
+            background-color: #e9ecef !important;
+            cursor: not-allowed !important;
+        }
+
+        .form-control textarea {
+            height: 120px !important;  /* Ensures textarea has enough height */
+            resize: vertical !important;
+        }
+
+        .form-control#status {
+            text-align: left !important;  /* Align the text to the left in the status input */
+            padding-left: 15px !important;  /* Ensure the text doesn't touch the left edge of the input */
+            width: 100% !important;  /* Force the status input to take full width like others */
+            height: 40px !important;  /* Force the same height for the Status input */
+            margin: 8px 0 !important;  /* Ensure consistent margin as the other inputs */
+            box-sizing: border-box !important;  /* Enforce box sizing consistency */
+            border: 1px solid #ddd !important;  /* Ensure the status input has the same border */
+            background-color: #f4f4f4 !important;  /* Same background as the other fields */
+        }
+
+        .btn {
+            padding: 12px 20px !important;
+            border-radius: 5px !important;
+            font-size: 1rem !important;
+            text-decoration: none !important;
+            text-align: center !important;
+            cursor: pointer !important;
+        }
+
+        .btn-primary {
+            background-color: #007BFF !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3 !important;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268 !important;
+        }
+
+        .btn-danger {
+            background-color: #dc3545 !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333 !important;
+        }
+
+        .form-actions {
+            display: flex !important;
+            justify-content: space-between !important;
+            margin-top: 20px !important;
+        }
+
+        .form-actions a, .form-actions button {
+            display: inline-block !important;
+            padding: 12px 20px !important;
+            border-radius: 5px !important;
+            font-size: 1rem !important;
+        }
+
+        .form-actions i {
+            margin-right: 8px !important;
+        }
+
+        .inline-form {
+            display: inline !important;
+        }
+
+        .back-btn {
+            background-color: #f8f9fa !important;
+            color: #007BFF !important;
+            text-align: center !important;
+            text-decoration: none !important;
+        }
+
+        .edit-btn {
+            background-color: #ffc107 !important;
+            color: #fff !important;
+        }
+
+        .edit-btn:hover {
+            background-color: #e0a800 !important;
+        }
+
+        .delete-btn {
+            background-color: #dc3545 !important;
+            color: #fff !important;
+        }
+
+        .delete-btn:hover {
+            background-color: #c82333 !important;
+        }
+    </style>
+
+    <div class="wrapper">
+        <h1 class="page-title">Edit Formation</h1>
+
+        <div class="form-container">
+            {{ form_start(form) }}
+
+            <div class="form-group">
+                <label for="titre">Title</label>
+                {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="duree">Duration</label>
+                {{ form_widget(form.duree, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="prix">Price</label>
+                {{ form_widget(form.prix, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="type">Type</label>
+                {{ form_widget(form.type, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="formateur">Instructor</label>
+                {{ form_widget(form.formateur, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="nbparticipant">Number of Participants</label>
+                {{ form_widget(form.nbparticipant, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="status">Status</label>
+                {{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="form-actions">
+                <button class="btn save-btn" type="submit">
+                    <i class="fas fa-save"></i> {{ button_label|default('Save') }}
+                </button>
+                <a href="{{ path('app_formation_show_back', {'id': formation.id}) }}" class="btn back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to formation
+                </a>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

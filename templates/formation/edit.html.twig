@@ -1,0 +1,13 @@
+{% extends 'formation/base.html.twig' %}
+
+{% block title %}Edit Formation{% endblock %}
+
+{% block body %}
+    <h1>Edit Formation</h1>
+
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <button class="btn btn-success">{{ button_label|default('Update') }}</button>
+        <a href="{{ path('app_formation_edit_back') }}" class="btn btn-secondary">Back to list</a>
+    {{ form_end(form) }}
+{% endblock %}

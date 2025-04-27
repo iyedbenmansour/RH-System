@@ -1,0 +1,201 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Create New Event{% endblock %}
+
+{% block body %}
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap');
+
+        /* Applying the font to the body and form */
+        body, .container, .form-container, .form-label, .form-control, .btn {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        /* Container for the page content */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* Styling for the title */
+        .page-title {
+            font-size: 2.5em;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #4B4B4B;
+        }
+
+        /* Form container styling */
+        .form-container {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Form field group styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        /* Label styling */
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            color: #333;
+        }
+
+        /* Input field styling */
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        /* Specific input size for small inputs like coordinates */
+        .input-sm {
+            width: 48%;
+            display: inline-block;
+            margin-right: 4%;
+        }
+
+        /* Button styling */
+        .btn {
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 1rem;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* Actions section button margin */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        /* Styling for coordinates container */
+        .coordinate-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Back link styling */
+        .back-btn {
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            color: #007BFF;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background-color: #e2e6ea;
+        }
+    </style>
+
+    <div class="container">
+        <h1 class="page-title">Create New Event</h1>
+
+        <div class="form-container">
+            {{ form_start(form) }}
+
+            <div class="form-group">
+                <label for="name" class="form-label">Event Name</label>
+                {{ form_widget(form.name, {'attr': {'class': 'form-control input-lg'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="form-label">Description</label>
+                {{ form_widget(form.description, {'attr': {'class': 'form-control input-lg'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="date" class="form-label">Date</label>
+                {{ form_widget(form.date, {'attr': {'class': 'form-control input-lg'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="location" class="form-label">Location</label>
+                {{ form_widget(form.location, {'attr': {'class': 'form-control input-lg'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="organiser" class="form-label">Organiser</label>
+                {{ form_widget(form.organiser, {'attr': {'class': 'form-control input-lg'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="eventType" class="form-label">Event Type</label>
+                {{ form_widget(form.eventType, {'attr': {'class': 'form-control input-lg'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="nbParticipant" class="form-label">Participants</label>
+                {{ form_widget(form.nbParticipant, {'attr': {'class': 'form-control input-lg'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="ticketPrice" class="form-label">Ticket Price</label>
+                {{ form_widget(form.ticketPrice, {'attr': {'class': 'form-control input-lg'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="hasFormation" class="form-label">Has Formation</label>
+                {{ form_widget(form.hasFormation, {'attr': {'class': 'form-control input-lg'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="formationId" class="form-label">Formation ID</label>
+                {{ form_widget(form.formationId, {'attr': {'class': 'form-control input-lg'}}) }}
+            </div>
+
+            <div class="form-group">
+                <label for="coordinates" class="form-label">Coordinates</label>
+                <div class="coordinate-container">
+                    {{ form_widget(form.latitude, {'attr': {'class': 'form-control input-sm'}}) }}
+                    {{ form_widget(form.longitude, {'attr': {'class': 'form-control input-sm'}}) }}
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-primary save-btn" type="submit">{{ button_label|default('Save') }}</button>
+                <a href="{{ path('app_event_index_back') }}" class="btn btn-secondary back-btn">Back to list</a>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+{% endblock %}

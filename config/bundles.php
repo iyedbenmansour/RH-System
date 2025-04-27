@@ -18,5 +18,7 @@ return [
     Knp\Bundle\TimeBundle\KnpTimeBundle::class => ['all' => true],
     Symfony\UX\Chartjs\ChartjsBundle::class => ['all' => true],
     Knp\Bundle\SnappyBundle\KnpSnappyBundle::class => ['all' => true],
-
+    Omines\DataTablesBundle\DataTablesBundle::class => ['all' => true],
+    CalendarBundle\CalendarBundle::class => ['all' => true],
+    Symfony\WebpackEncoreBundle\WebpackEncoreBundle::class => ['all' => true],
 ];
