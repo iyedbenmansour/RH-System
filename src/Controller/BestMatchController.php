@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Applicant;
+use App\Entity\Job;
 use App\Entity\Candidat;
 use App\Service\CvKeywordExtractor;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,6 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\HttpClient\HttpClient;
+use App\Repository\CandidatRepository;
 
 class BestMatchController extends AbstractController
 {
@@ -27,14 +30,7 @@ class BestMatchController extends AbstractController
      */
     private function getCandidatId(Request $request): ?int
     {
-        // Adjust this based on where you store the token
-        // Example: token in session
         return $request->getSession()->get('candidat_id');
-        // Or from cookies:
-        // return $request->cookies->get('candidat_id');
-        // Or from bearer token:
-        // $token = $request->headers->get('Authorization');
-        // Parse token to get candidat_id if JWT, etc.
     }
 
     #[Route('/best-match', name: 'best_match')]
@@ -65,7 +61,6 @@ class BestMatchController extends AbstractController
         $cvFilePath = null;
         $cvContent = null;
 
-        // Handle POST: CV upload
         if ($request->isMethod('POST')) {
             $cvFile = $request->files->get('cv');
             if (!$cvFile) {
@@ -73,7 +68,6 @@ class BestMatchController extends AbstractController
             } elseif (strtolower($cvFile->getClientOriginalExtension()) !== 'pdf') {
                 $error = 'Only PDF files are accepted.';
             } else {
-                // Save CV to public/uploads/cv
                 $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/cv';
                 $cvFileName = 'cv_' . $candidatId . '_' . uniqid() . '.pdf';
 
@@ -94,7 +88,6 @@ class BestMatchController extends AbstractController
             }
         }
 
-        // On GET or after successful upload, try to get CV from DB/file
         if (!$cvContent && $candidat->getCv()) {
             $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/cv';
             $cvFilePath = $uploadDir . '/' . $candidat->getCv();
@@ -105,15 +98,10 @@ class BestMatchController extends AbstractController
             }
         }
 
-        // If we have CV content, extract keywords and perform matching
         if ($cvContent && !$error) {
             $cvKeywords = $keywordExtractor->extractKeywordsFromCV($cvContent);
-
-            // Extract profile links from CV content
             $profileLinks = $this->extractProfileLinks($cvContent);
             $request->getSession()->set('profileLinks', $profileLinks);
-
-            // Save CV text to session for later use in quick apply
             $request->getSession()->set('cvText', $cvContent);
 
             if (empty($cvKeywords)) {
@@ -150,7 +138,6 @@ class BestMatchController extends AbstractController
                 $stmt = $conn->prepare($sql);
                 $result = $stmt->executeQuery($params)->fetchAllAssociative();
 
-                // Calculate and add match percentage for each job
                 $totalKeywords = count($cvKeywords);
                 foreach ($result as &$job) {
                     $jobMatchCount = 0;
@@ -175,7 +162,6 @@ class BestMatchController extends AbstractController
             }
         }
 
-        // Fetch all applied job IDs for the current user
         $appliedJobIds = [];
         $appRepo = $em->getRepository(Applicant::class);
         $applications = $appRepo->findBy(['userId' => $candidatId]);
@@ -195,19 +181,19 @@ class BestMatchController extends AbstractController
     public function quickApply(
         int $jobId,
         EntityManagerInterface $em,
-        Request $request
+        Request $request,
+        CandidatRepository $candidatRepository
     ): Response {
         $candidatId = $this->getCandidatId($request);
         if (!$candidatId) {
             throw $this->createAccessDeniedException('User not authenticated.');
         }
 
-        $job = $em->getConnection()->fetchAssociative('SELECT * FROM jobs WHERE id = ?', [$jobId]);
+        $job = $em->getRepository(Job::class)->find($jobId);
         if (!$job) {
             throw $this->createNotFoundException('Job not found');
         }
 
-        // Check if already applied
         $existingApplication = $em->getRepository(Applicant::class)->findOneBy([
             'userId' => $candidatId,
             'jobId' => $jobId
@@ -218,21 +204,17 @@ class BestMatchController extends AbstractController
             return $this->redirectToRoute('best_match');
         }
 
-        // Get profile links from session
         $profileLinks = $request->getSession()->get('profileLinks', []);
         $profileLink = $this->selectBestProfileLink($profileLinks);
 
-        // Get CV text from session (may be null)
         $cvText = $request->getSession()->get('cvText');
 
-        // Generate AI-powered application message using CV and job info
-        $aiMessage = $this->generateApplicationMessage($job['title'], $job['description'], $cvText);
+        $aiMessage = $this->generateApplicationMessage($job->getTitle(), $job->getDescription(), $cvText);
 
-        // Create new application
         $application = new Applicant();
         $application->setUserId($candidatId);
         $application->setJobId($jobId);
-        $application->setCompanyId($job['company_id']);
+        $application->setCompanyId($job->getCompanyId());
 
         $comment = $aiMessage ?? "I'm excited to apply for this position. My skills and experience make me a strong candidate for this role.";
 
@@ -247,14 +229,17 @@ class BestMatchController extends AbstractController
         $em->persist($application);
         $em->flush();
 
+        $candidat = $candidatRepository->find($candidatId);
+        if ($candidat) {
+            $this->sendApplicationConfirmationEmail($candidat, $job);
+        }
+
         $this->addFlash('success', 'Application submitted successfully!');
         return $this->redirectToRoute('best_match');
     }
 
-    // ... (generateApplicationMessage, extractProfileLinks, selectBestProfileLink remain the same)
     private function generateApplicationMessage(string $jobTitle, string $jobDescription, ?string $cvText = null): ?string
     {
-        // ... same as before ...
         try {
             $cvTextForPrompt = $cvText ?? '';
 
@@ -271,7 +256,7 @@ The candidate's full CV is below:
 Instructions:
 Write 3 concise paragraphs:
 1. Express genuine interest and enthusiasm for the company and role.
-2. Highlight  most relevant skills, projects, or experiences for this job (based on the CV above).
+2. Highlight most relevant skills, projects, or experiences for this job (based on the CV above).
 3. End with a confident, positive closing and a call to action.
 
 Maintain a professional, enthusiastic, and personal tone. Avoid generic statements. Reference specific details from the candidate CV and the job description.
@@ -279,7 +264,7 @@ EOT;
 
             $response = $this->httpClient->request('POST', 'https://openrouter.ai/api/v1/chat/completions', [
                 'headers' => [
-                    'Authorization' => 'Bearer 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',
+                    'Authorization' => 'Bearer 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',
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
@@ -332,5 +317,51 @@ EOT;
             }
         }
         return $links[0];
+    }
+
+    private function sendApplicationConfirmationEmail(Candidat $candidat, Job $job): void
+    {
+        $subject = 'Your Application Has Been Submitted';
+        $htmlContent = $this->renderView('emails/application_confirmation.html.twig', [
+            'name' => $candidat->getName(),
+            'jobTitle' => $job->getTitle(),
+        ]);
+
+        $client = HttpClient::create();
+
+        $url = 'https://send.api.mailtrap.io/api/send';
+        $apiToken = '34bac4712a0f73772374f6ac6ecb42d8';
+
+        $payload = [
+            'from' => [
+                'email' => 'hello@demomailtrap.co',
+                'name' => 'JobPlatform'
+            ],
+            'to' => [
+                [
+                    'email' => $candidat->getEmail(),
+                    'name' => $candidat->getName()
+                ]
+            ],
+            'subject' => $subject,
+            'html' => $htmlContent,
+            'category' => 'job-application'
+        ];
+
+        $headers = [
+            'Authorization' => 'Bearer ' . $apiToken,
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json'
+        ];
+
+        $response = $client->request('POST', $url, [
+            'headers' => $headers,
+            'json' => $payload,
+        ]);
+
+        $statusCode = $response->getStatusCode();
+        if ($statusCode < 200 || $statusCode >= 300) {
+            throw new \Exception('Failed to send application confirmation email. Status: ' . $statusCode);
+        }
     }
 }

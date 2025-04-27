@@ -5,30 +5,53 @@ namespace App\Controller;
 use App\Entity\Applicant;
 use App\Entity\Job;
 use App\Entity\Employee;
+use App\Entity\Candidat;
 use App\Repository\EmployeeRepository;
 use App\Repository\ApplicantRepository;
+use App\Repository\CandidatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\MailerService;
+use Symfony\Component\HttpClient\HttpClient; // Add this import
+
 
 class ApplicationController extends AbstractController
 {
-    #[Route('/job/apply/{id}', name: 'app_job_apply')]
-    public function apply(Request $request, Job $job, EntityManagerInterface $entityManager): Response
+    private $mailerService;
+
+    public function __construct(MailerService $mailerService)
     {
+        $this->mailerService = $mailerService;
+    }
+
+    #[Route('/job/apply/{id}', name: 'app_job_apply')]
+    public function apply(
+        Request $request, 
+        Job $job, 
+        EntityManagerInterface $entityManager,
+        CandidatRepository $candidatRepository
+    ): Response {
         $applicant = new Applicant();
         $applicant->setJobId($job->getId());
         $applicant->setCompanyId($job->getCompanyId());
 
         if ($request->isMethod('POST')) {
-            $applicant->setUserId((int)$request->request->get('user_id'));
+            $userId = (int)$request->request->get('user_id');
+            $applicant->setUserId($userId);
             $applicant->setComment($request->request->get('comment'));
             $applicant->setAdditionalFile($request->request->get('additional_file'));
 
             $entityManager->persist($applicant);
             $entityManager->flush();
+
+            // Send confirmation email to the applicant
+            $candidat = $candidatRepository->find($userId);
+            if ($candidat) {
+                $this->sendApplicationConfirmationEmail($candidat, $job);
+            }
 
             $this->addFlash('success', 'Application submitted successfully!');
             return $this->redirectToRoute('app_job_show', ['id' => $job->getId()]);
@@ -39,6 +62,52 @@ class ApplicationController extends AbstractController
         ]);
     }
 
+    private function sendApplicationConfirmationEmail(Candidat $candidat, Job $job): void
+    {
+        $subject = 'Your Application Has Been Submitted';
+        $htmlContent = $this->renderView('emails/application_confirmation.html.twig', [
+            'name' => $candidat->getName(),
+            'jobTitle' => $job->getTitle(),
+        ]);
+
+        // Create client only if not already created
+        $client = HttpClient::create();
+
+        $url = 'https://send.api.mailtrap.io/api/send';
+        $apiToken = '34bac4712a0f73772374f6ac6ecb42d8';
+
+        $payload = [
+            'from' => [
+                'email' => 'hello@demomailtrap.co',
+                'name' => 'JobPlatform'
+            ],
+            'to' => [
+                [
+                    'email' => $candidat->getEmail(),
+                    'name' => $candidat->getName()
+                ]
+            ],
+            'subject' => $subject,
+            'html' => $htmlContent,
+            'category' => 'job-application'
+        ];
+
+        $headers = [
+            'Authorization' => 'Bearer ' . $apiToken,
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json'
+        ];
+
+        $response = $client->request('POST', $url, [
+            'headers' => $headers,
+            'json' => $payload,
+        ]);
+
+        $statusCode = $response->getStatusCode();
+        if ($statusCode < 200 || $statusCode >= 300) {
+            throw new \Exception('Failed to send application confirmation email. Status: ' . $statusCode);
+        }
+    }
 
     #[Route('/my-applications', name: 'app_user_applications', methods: ['GET'])]
     public function userApplications(Request $request, ApplicantRepository $applicantRepository): Response
