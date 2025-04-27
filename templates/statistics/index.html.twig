@@ -1,0 +1,158 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Job Application Statistics{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <!-- Search Form -->
+    <div class="row mb-4">
+        <div class="col-md-6 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Search Company Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <form id="searchForm" method="get" action="{{ path('company_statistics') }}" class="form-inline">
+                        <div class="input-group w-100">
+                            <input type="hidden" 
+                                   id="companyIdInput" 
+                                   name="company_id" 
+                                   value="{{ app.request.query.get('company_id') ?? '' }}">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i> Load Statistics
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set company_id input value from localStorage if available
+        window.onload = function() {
+            const companyId = localStorage.getItem('company_id');
+            if (companyId) {
+                document.getElementById('companyIdInput').value = companyId;
+            }
+        };
+    </script>
+
+    {% if app.request.query.get('company_id') %}
+        <!-- Export Button -->
+        <div class="text-end mb-4">
+            <a href="{{ path('company_statistics_pdf', {'company_id': app.request.query.get('company_id')}) }}" 
+               class="btn btn-primary">
+                <i class="fas fa-file-pdf"></i> Export to PDF
+            </a>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Jobs</h5>
+                        <h2 class="card-text">{{ stats.total_jobs }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Applications</h5>
+                        <h2 class="card-text">{{ stats.total_applications }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <h5 class="card-title">Acceptance Rate</h5>
+                        <h2 class="card-text">{{ stats.acceptance_rate }}%</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Distribution -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Application Status Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for status, count in stats.status_counts %}
+                    <div class="col-md-2 mb-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6>{{ status }}</h6>
+                                <h4>{{ count }}</h4>
+                                {% if stats.total_applications > 0 %}
+                                    <div class="progress mt-2">
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: {{ (count / stats.total_applications) * 100 }}%" 
+                                             aria-valuenow="{{ (count / stats.total_applications) * 100 }}" 
+                                             aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <small>{{ ((count / stats.total_applications) * 100)|round(1) }}%</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Jobs Table -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Job Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Job Title</th>
+                                <th>Applications</th>
+                                <th>Pending</th>
+                                <th>Reviewed</th>
+                                <th>Interviewed</th>
+                                <th>Accepted</th>
+                                <th>Rejected</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for job in stats.jobs %}
+                            <tr>
+                                <td>{{ job.title }}</td>
+                                <td>{{ job.total_applications }}</td>
+                                <td>{{ job.status_counts.Pending }}</td>
+                                <td>{{ job.status_counts.Reviewed }}</td>
+                                <td>{{ job.status_counts.Interviewed }}</td>
+                                <td>{{ job.status_counts.Accepted }}</td>
+                                <td>{{ job.status_counts.Rejected }}</td>
+                                <td>
+                                    <a href="{{ path('job_statistics', {'id': job.id}) }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        Details
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle"></i> Please enter a Company ID to view statistics.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

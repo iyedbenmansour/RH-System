@@ -35,8 +35,8 @@
             --dark-color: #5a5c69;
             --text-primary: #6e84a3;
             --text-secondary: #8492a6;
-            --bg-sidebar: #2c3e50;
-            --bg-sidebar-active: #34495e;
+            --bg-sidebar: #502c2c;
+            --bg-sidebar-active: #54345e;
         }
 
         body {
@@ -265,7 +265,7 @@
                         <li class="menu-title">MENU</li>
 
                         <li class="nav-item">
-                            <a href="{{ path('company_dashboard') }}" class="nav-link {% if app.request.get('_route') == 'app_home_back' %}active{% endif %}">
+                            <a href="{{ path('admin_dashboard') }}" class="nav-link {% if app.request.get('_route') == 'app_home_back' %}active{% endif %}">
                                 <i class="bx bx-home-circle"></i>
                                 <span>Dashboard</span>
                             </a>
@@ -279,11 +279,9 @@
                             <div class="collapse" id="userSubmenu">
                                 <ul class="nav flex-column sub-menu">
                                     <li class="nav-item">
-                                        <a href="{{ path('company_statistics') }}" class="nav-link">Company Statistics</a>
+                                        <a href="{{ path('admin_dashboard') }}" class="nav-link"> Statistics</a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a href="#" class="nav-link">Add User</a>
-                                    </li>
+                                  
                                 </ul>
                             </div>
                         </li>
@@ -291,16 +289,14 @@
                         <li class="nav-item">
                             <a href="#jobSubmenu" class="nav-link" data-bs-toggle="collapse">
                                 <i class="bx bx-briefcase"></i>
-                                <span>Jobs</span>
+                                <span>user</span>
                             </a>
                             <div class="collapse" id="jobSubmenu">
                                 <ul class="nav flex-column sub-menu">
                                     <li class="nav-item">
-                                        <a href="{{ path('app_job_list') }}"class="nav-link">All Jobs</a>
+                                        <a href="{{ path('admin_user_statistics') }}"class="nav-link">USer stat</a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a href="{{ path('app_job_new') }}" class="nav-link">Add Job</a>
-                                    </li>
+                                
                                 </ul>
                             </div>
                         </li>
@@ -308,61 +304,21 @@
                         <li class="nav-item">
                             <a href="#applicationSubmenu" class="nav-link" data-bs-toggle="collapse">
                                 <i class="bx bx-file"></i>
-                                <span>Applications</span>
+                                <span>company</span>
                             </a>
                             <div class="collapse" id="applicationSubmenu">
                                 <ul class="nav flex-column sub-menu">
                                     <li class="nav-item">
-                                        <a href="{{ path('company_applications') }}" class="nav-link">All Applications</a>
+                                        <a href="{{ path('admin_company_statistics') }}" class="nav-link">company stat</a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a href="{{ path('company_pending') }}" class="nav-link">Pending Applications</a>
-                                    </li>
+                                  
                                 </ul>
                             </div>
                         </li>
 
-                        <li class="nav-item">
-                            <a href="#settingSubmenu" class="nav-link" data-bs-toggle="collapse">
-                                <i class="bx bx-cog"></i>
-                                <span>All Requests</span>
-                            </a>
-                            <div class="collapse" id="settingSubmenu">
-                                <ul class="nav flex-column sub-menu">
-                                    <li class="nav-item">
-                                        <a href="{{ path('company_leave_requests') }}" class="nav-link">All Requests</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ path('company_leave_ranking') }}" class="nav-link">Company Leave Ranking</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ path('employee_id_card') }}" class="nav-link">Service Card</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ path('create_meeting') }}" class="nav-link">Meet</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </li>
+                     
 
-                        <!-- New Reclamation Section -->
-                        <li class="nav-item">
-                            <a href="#reclamationSubmenu" class="nav-link" data-bs-toggle="collapse">
-                                <i class="bx bx-message-square-error"></i>
-                                <span>Reclamations</span>
-                            </a>
-                            <div class="collapse" id="reclamationSubmenu">
-                                <ul class="nav flex-column sub-menu">
-                                    <li class="nav-item">
-                                        <a href="{{ path('app_reclamation_index') }}" class="nav-link">Pending Reclamation</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ path('app_reclamation_archive') }}" class="nav-link">Archive</a>
-                                    </li>
-                              
-                                </ul>
-                            </div>
-                        </li>
+                      
                     </ul>
                 </div>
             </div>

@@ -1,0 +1,108 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Statistics for {{ stats.job.title }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Statistics for {{ stats.job.title }}</h1>
+        <a href="{{ path('company_statistics', {'company_id': stats.job.companyId}) }}" 
+           class="btn btn-outline-secondary">
+            Back to All Statistics
+        </a>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Status Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for status, count in stats.status_counts %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ status }}
+                            <span class="badge bg-primary rounded-pill">{{ count }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Status Percentages</h5>
+                </div>
+                <div class="card-body">
+                    {% for status, count in stats.status_counts %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>{{ status }}</span>
+                                <span>
+                                    {% if stats.total_applications > 0 %}
+                                        {{ ((count / stats.total_applications) * 100)|round(1) }}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {% if stats.total_applications > 0 %}{{ (count / stats.total_applications) * 100 }}%{% else %}0%{% endif %}" 
+                                     aria-valuenow="{% if stats.total_applications > 0 %}{{ (count / stats.total_applications) * 100 }}{% else %}0{% endif %}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Recent Applications</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Applicant ID</th>
+                            <th>Status</th>
+                            <th>Applied Date</th>
+                            <th>Comment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in stats.applications|slice(0, 10) %}
+                        <tr>
+                            <td>{{ application.userId }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if application.status == 'Accepted' %}bg-success
+                                    {% elseif application.status == 'Rejected' %}bg-danger
+                                    {% elseif application.status == 'Pending' %}bg-warning
+                                    {% else %}bg-info{% endif %}">
+                                    {{ application.status }}
+                                </span>
+                            </td>
+                            <td>{{ application.appliedDate|date('Y-m-d H:i') }}</td>
+                            <td>{{ application.comment|default('No comment')|u.truncate(30, '...') }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4">No applications found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

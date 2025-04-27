@@ -1,0 +1,274 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Company Statistics{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1 class="mb-4">Company Statistics Dashboard</h1>
+        
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Companies</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ companyCount }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-building fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Total Employees</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ employeeCount }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Avg Employees/Company</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{ companyCount > 0 ? (employeeCount / companyCount)|round(1) : 0 }}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-friends fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Employees Distribution by Company</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-bar">
+                            <canvas id="employeesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Top Companies</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-pie pt-4 pb-2">
+                            <canvas id="topCompaniesChart"></canvas>
+                        </div>
+                        <div class="mt-4 text-center small">
+                            {% for company in companiesData|slice(0, 5) %}
+                                <span class="mr-2 d-block">
+                                    <i class="fas fa-circle" style="color: {{ random(['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b']) }}"></i> 
+                                    {{ company.companyName|length > 15 ? company.companyName|slice(0, 15) ~ '...' : company.companyName }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Companies Table -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Top Companies by Employee Count</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Company Name</th>
+                                <th>Employees</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for company in companiesData|slice(0, 10) %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ company.companyName }}</td>
+                                <td>{{ company.employeeCount }}</td>
+                                <td>
+                                    {{ employeeCount > 0 ? ((company.employeeCount / employeeCount) * 100)|round(1) ~ '%' : '0%' }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Employees Distribution Chart (Bar Chart)
+            var ctx1 = document.getElementById('employeesChart');
+            if (ctx1) {
+                new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: {{ companyNames|raw }},
+                        datasets: [{
+                            label: 'Employees',
+                            data: {{ employeeCounts|raw }},
+                            backgroundColor: '#4e73df',
+                            borderColor: '#4e73df',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        layout: {
+                            padding: {
+                                left: 10,
+                                right: 25,
+                                top: 25,
+                                bottom: 0
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false,
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: "rgb(234, 236, 244)",
+                                    zeroLineColor: "rgb(234, 236, 244)",
+                                    drawBorder: false,
+                                    borderDash: [2],
+                                    zeroLineBorderDash: [2]
+                                },
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    afterBody: function(context) {
+                                        const total = {{ employeeCount }};
+                                        const value = context[0].raw;
+                                        const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                        return `Percentage: ${percentage}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Top Companies Chart (Pie Chart)
+            var ctx2 = document.getElementById('topCompaniesChart');
+            if (ctx2) {
+                const topCompanies = {{ companiesData|slice(0, 5)|json_encode|raw }};
+                
+                new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: topCompanies.map(c => c.companyName.length > 15 ? 
+                              c.companyName.substring(0, 15) + '...' : c.companyName),
+                        datasets: [{
+                            data: topCompanies.map(c => c.employeeCount),
+                            backgroundColor: [
+                                '#4e73df',
+                                '#1cc88a',
+                                '#36b9cc',
+                                '#f6c23e',
+                                '#e74a3b'
+                            ],
+                            hoverBackgroundColor: [
+                                '#2e59d9',
+                                '#17a673',
+                                '#2c9faf',
+                                '#dda20a',
+                                '#be2617'
+                            ],
+                            hoverBorderColor: "rgba(234, 236, 244, 1)",
+                        }],
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: {
+                                backgroundColor: "rgb(255,255,255)",
+                                bodyColor: "#858796",
+                                borderColor: '#dddfeb',
+                                borderWidth: 1,
+                                xPadding: 15,
+                                yPadding: 15,
+                                displayColors: false,
+                                caretPadding: 10,
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = {{ employeeCount }};
+                                        const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: false
+                            },
+                        },
+                        cutout: '80%',
+                    },
+                });
+            }
+        });
+    </script>
+{% endblock %}

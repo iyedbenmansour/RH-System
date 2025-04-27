@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'baseAdmin.html.twig' %}
 
 {% block title %}Tableau de bord Administrateur{% endblock %}
 
@@ -196,7 +196,7 @@
                 <p class="mb-0">Bienvenue, {{ admin.name }}</p>
             </div>
             <div>
-                <a href="{{ path('admin_logout') }}" class="btn btn-light">
+                <a href="{{ path('logout') }}" class="btn btn-light">
                     <i class="fas fa-sign-out-alt me-1"></i> Déconnexion
                 </a>
             </div>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Company Statistics PDF</title>
+    <style>
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 12px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #aaa;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #eee;
+        }
+    </style>
+</head>
+<body>
+    <h1>Company Statistics for ID: {{ company_id }}</h1>
+
+    <h2>Summary</h2>
+    <table>
+        <tr>
+            <th>Total Jobs</th>
+            <td>{{ stats.total_jobs }}</td>
+        </tr>
+        <tr>
+            <th>Total Applications</th>
+            <td>{{ stats.total_applications }}</td>
+        </tr>
+        <tr>
+            <th>Acceptance Rate</th>
+            <td>{{ stats.acceptance_rate }}%</td>
+        </tr>
+    </table>
+
+    <h2>Application Status Distribution</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for status, count in stats.status_counts %}
+                <tr>
+                    <td>{{ status }}</td>
+                    <td>{{ count }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Jobs</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Job Title</th>
+                <th>Applications</th>
+                <th>Pending</th>
+                <th>Reviewed</th>
+                <th>Interviewed</th>
+                <th>Accepted</th>
+                <th>Rejected</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in stats.jobs %}
+            <tr>
+                <td>{{ job.title }}</td>
+                <td>{{ job.total_applications }}</td>
+                <td>{{ job.status_counts.Pending|default(0) }}</td>
+                <td>{{ job.status_counts.Reviewed|default(0) }}</td>
+                <td>{{ job.status_counts.Interviewed|default(0) }}</td>
+                <td>{{ job.status_counts.Accepted|default(0) }}</td>
+                <td>{{ job.status_counts.Rejected|default(0) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

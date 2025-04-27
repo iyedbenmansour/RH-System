@@ -17,7 +17,7 @@ class ChatbotController extends AbstractController
     public function __construct(HttpClientInterface $client)
     {
         $this->client = $client;
-        $this->openaiApiKey = 'sk-0uU-szt_zkNHIlY7TbQzvOL_YA2SzQT_2YrTzHaCGAT3BlbkFJlDZMZ_HrgoZYPTa7JjJ_5VLiPNHAa3ZKatJK2YysIA'; // replace this
+        $this->openaiApiKey = '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'; // replace this
     }
 
     #[Route('/chat', name: 'chatbot_index')]

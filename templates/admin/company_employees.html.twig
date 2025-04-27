@@ -1,5 +1,4 @@
-{# templates/admin/company_employees.html.twig #}
-{% extends 'base.html.twig' %}
+{% extends 'baseAdmin.html.twig' %}
 
 {% block title %}Employés de {{ company.companyName }}{% endblock %}
 
@@ -7,112 +6,7 @@
 {{ parent() }}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-    :root {
-        --primary-color: #4361ee;
-        --secondary-color: #3f37c9;
-        --light-color: #f8f9fa;
-        --dark-color: #212529;
-        --gray-color: #6c757d;
-    }
-    
-    .page-header {
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        color: white;
-        padding: 1.5rem;
-        border-radius: 8px;
-        margin-bottom: 2rem;
-    }
-    
-    .employee-card {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-    }
-    
-    .back-link {
-        margin-bottom: 1.5rem;
-    }
-    
-    .back-link .btn {
-        border-radius: 6px;
-        padding: 0.5rem 1rem;
-    }
-    
-    .table-responsive {
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    
-    .table {
-        margin-bottom: 0;
-    }
-    
-    .table thead th {
-        background-color: rgba(67, 97, 238, 0.1);
-        color: var(--dark-color);
-        font-weight: 600;
-        border-top: none;
-        padding: 1rem;
-    }
-    
-    .table tbody td {
-        padding: 1rem;
-        vertical-align: middle;
-    }
-    
-    .table-hover tbody tr:hover {
-        background-color: rgba(67, 97, 238, 0.03);
-    }
-    
-    .user-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: var(--light-color);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 10px;
-        color: var(--primary-color);
-        font-weight: bold;
-    }
-    
-    .user-info {
-        display: flex;
-        align-items: center;
-    }
-    
-    .job-id {
-        background-color: rgba(67, 97, 238, 0.1);
-        color: var(--primary-color);
-        padding: 0.35em 0.65em;
-        border-radius: 50rem;
-        font-size: 0.875rem;
-    }
-    
-    .no-employees {
-        padding: 2rem;
-        text-align: center;
-        color: var(--gray-color);
-    }
-    
-    .no-employees i {
-        font-size: 3rem;
-        color: #dee2e6;
-        margin-bottom: 1rem;
-    }
-    
-    .actions .btn {
-        margin-right: 5px;
-    }
-    
-    @media (max-width: 768px) {
-        .table-responsive {
-            border: 1px solid #dee2e6;
-        }
-    }
+    /* Your existing CSS styles */
 </style>
 {% endblock %}
 
@@ -130,7 +24,7 @@
                 <i class="fas fa-users me-2"></i> Employés de {{ company.companyName }}
             </h1>
             <span class="badge bg-light text-dark">
-                {{ employees|length }} employé(s)
+                {{ employeesWithEmail|length }} employé(s)
             </span>
         </div>
     </div>
@@ -140,26 +34,26 @@
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>Nom</th>
+                        <th>Utilisateur ID</th>
                         <th>Email</th>
-                        <th>Poste</th>
+                        <th>Poste (Job ID)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for employee in employees %}
+                    {% for item in employeesWithEmail %}
                     <tr>
                         <td>
                             <div class="user-info">
                                 <div class="user-avatar">
-                                    {{ employee.user.name|first|upper }}
+                                    {{ item.employee.userId }}
                                 </div>
-                                {{ employee.user.name }}
+                                Utilisateur #{{ item.employee.userId }}
                             </div>
                         </td>
-                        <td>{{ employee.user.email }}</td>
+                        <td>{{ item.email }}</td>
                         <td>
-                            {% if employee.jobId %}
-                                <span class="job-id">ID: {{ employee.jobId }}</span>
+                            {% if item.employee.jobId %}
+                                <span class="job-id">ID: {{ item.employee.jobId }}</span>
                             {% else %}
                                 <span class="text-muted">Non spécifié</span>
                             {% endif %}
@@ -186,7 +80,6 @@
 {{ parent() }}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Animation pour le tableau
         const rows = document.querySelectorAll('tbody tr');
         rows.forEach((row, index) => {
             row.style.opacity = '0';

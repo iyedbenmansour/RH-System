@@ -16,6 +16,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use App\Service\LeaveTimeCalculator;
+use App\Service\MailerService; 
+
 
 class LeaveRequestController extends AbstractController
 {
@@ -23,7 +26,8 @@ class LeaveRequestController extends AbstractController
     public function create(
         Request $request,
         EntityManagerInterface $entityManager,
-        SluggerInterface $slugger
+        SluggerInterface $slugger,
+        MailerService $emailService // Inject the email service
     ): Response {
         // Get employee ID from session
         $employeeId = $request->getSession()->get('employee_id');
@@ -70,7 +74,18 @@ class LeaveRequestController extends AbstractController
             $entityManager->persist($leaveRequest);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Leave request created successfully!');
+            // Send test email to tniyed@gmail.com
+            try {
+                $emailSent = $emailService->sendLeaveRequestTestEmail($leaveRequest);
+                if ($emailSent) {
+                    $this->addFlash('success', 'Leave request created successfully! Notification email sent.');
+                } else {
+                    $this->addFlash('warning', 'Leave request created successfully, but notification email could not be sent.');
+                }
+            } catch (\Exception $e) {
+                $this->addFlash('warning', 'Leave request created successfully, but there was an error sending notification: ' . $e->getMessage());
+            }
+
             return $this->redirectToRoute('employee_leave_requests');
         }
 
@@ -78,18 +93,18 @@ class LeaveRequestController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
-    
 
     #[Route('/leave-requests/employee', name: 'employee_leave_requests', methods: ['GET'])]
     public function employeeLeaveRequests(
         Request $request,
         LeaveRequestRepository $leaveRequestRepository, 
         EntityManagerInterface $entityManager,
-        PaginatorInterface $paginator
+        PaginatorInterface $paginator,
+        LeaveTimeCalculator $leaveTimeCalculator
     ): Response {
         // Get the candidate ID from the Authorization header
         $candidateId = $request->headers->get('Authorization');
-    
+        
         // If no candidate ID is provided, return empty response
         if (!$candidateId) {
             return $this->render('leave_request/employee_list.html.twig', [
@@ -99,7 +114,7 @@ class LeaveRequestController extends AbstractController
                 'remainingDays' => 0
             ]);
         }
-    
+        
         $query = $leaveRequestRepository->createQueryBuilder('lr')
             ->where('lr.employeeId = :employeeId')
             ->setParameter('employeeId', $candidateId)
@@ -108,42 +123,32 @@ class LeaveRequestController extends AbstractController
         $leaveRequests = $paginator->paginate(
             $query,
             $request->query->getInt('page', 1),
-            5 // Items per page
+            5
         );
         
-        // Calculate confirmed normal leave days
-        $confirmedNormalDays = 0;
-        $allLeaveRequests = $leaveRequestRepository->findBy(['employeeId' => $candidateId]);
-        foreach ($allLeaveRequests as $request) {
-            if ($request->isConfirmed() && $request->getLeaveType() === 'normal') {
-                $start = $request->getStartDate();
-                $end = $request->getEndDate();
-                $diff = $start->diff($end);
-                $confirmedNormalDays += $diff->days + 1;
-            }
-        }
-        
-        $remainingDays = 18 - $confirmedNormalDays;
+        // Use the service for calculations
+        $confirmedNormalDays = $leaveTimeCalculator->getConfirmedLeaveDays($candidateId, 'Normal');
+        $remainingDays = $leaveTimeCalculator->getRemainingLeaveDays($candidateId);
         
         // Get all online jobs for these leave requests
         $onlineJobs = [];
-        if (!empty($allLeaveRequests)) {
-            $leaveRequestIds = array_map(fn($lr) => $lr->getId(), $allLeaveRequests);
-            $onlineJobs = $entityManager->getRepository(OnlineJob::class)
+        if (count($leaveRequests)) {
+            $leaveRequestIds = array_map(fn($lr) => $lr->getId(), $leaveRequests->getItems());
+            $onlineJobsResults = $entityManager->getRepository(OnlineJob::class)
                 ->findBy(['leaveRequestId' => $leaveRequestIds]);
             
-            // Create a mapping of leaveRequestId => OnlineJob
-            $onlineJobs = array_reduce($onlineJobs, function($carry, $oj) {
+            $onlineJobs = array_reduce($onlineJobsResults, function($carry, $oj) {
                 $carry[$oj->getLeaveRequestId()] = $oj;
                 return $carry;
             }, []);
         }
-    
+
         return $this->render('leave_request/employee_list.html.twig', [
             'leaveRequests' => $leaveRequests,
             'onlineJobs' => $onlineJobs,
             'confirmedNormalDays' => $confirmedNormalDays,
-            'remainingDays' => $remainingDays
+            'remainingDays' => $remainingDays,
+            'timeFormatter' => $leaveTimeCalculator
         ]);
     }
 

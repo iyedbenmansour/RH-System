@@ -1,0 +1,202 @@
+{# templates/candidat/edit_profile.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier mon profil | {{ app.session.get('candidat_name') }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .profile-edit-card {
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .profile-picture {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #4361ee;
+            margin-bottom: 1rem;
+        }
+        
+        .cv-preview-section {
+            border: 1px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .btn-save {
+            background: linear-gradient(135deg, #4361ee, #3f37c9);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Modifier mon profil</h1>
+        <a href="{{ path('candidat_dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Retour
+        </a>
+    </div>
+
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="profile-edit-card">
+        <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+        
+        <div class="row mb-4">
+            
+            
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="name" class="form-label">Nom complet</label>
+                        <input type="text" class="form-control" id="name" name="name" 
+                               value="{{ candidat.name }}" required>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               value="{{ candidat.email }}" required>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="new_password" class="form-label">Nouveau mot de passe</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password">
+                        <small class="text-muted">Laissez vide pour ne pas changer</small>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="confirm_password" class="form-label">Confirmer le mot de passe</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-4">
+            <h4 class="h5 mb-3">CV</h4>
+            
+            {% if candidat.cv %}
+            <div class="cv-preview-section">
+                <i class="fas fa-file-pdf fa-3x mb-3" style="color: #f03e3e;"></i>
+                <h5 class="mb-2">{{ candidat.cv }}</h5>
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="{{ asset('uploads/cv/' ~ candidat.cv) }}" target="_blank" 
+                       class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i> Voir
+                    </a>
+                    <a href="{{ asset('uploads/cv/' ~ candidat.cv) }}" download 
+                       class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-download me-1"></i> Télécharger
+                    </a>
+                    {% if candidat_delete_cv_route is defined %}
+                    <form method="post" action="{{ path('candidat_delete_cv') }}" 
+                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer votre CV ?');">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-trash me-1"></i> Supprimer
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="mb-3">
+                <label for="cv" class="form-label">{{ candidat.cv ? 'Changer de CV' : 'Ajouter un CV' }}</label>
+                <input type="file" class="form-control" id="cv" name="cv" accept=".pdf,.doc,.docx">
+                <small class="text-muted">Formats acceptés: PDF, DOC, DOCX (Max 5MB)</small>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-save">
+                <i class="fas fa-save me-1"></i> Enregistrer les modifications
+            </button>
+        </div>
+        
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Password confirmation validation
+            const newPassword = document.getElementById('new_password');
+            const confirmPassword = document.getElementById('confirm_password');
+            
+            if (newPassword && confirmPassword) {
+                function validatePassword() {
+                    if (newPassword.value !== confirmPassword.value) {
+                        confirmPassword.setCustomValidity("Les mots de passe ne correspondent pas");
+                    } else {
+                        confirmPassword.setCustomValidity('');
+                    }
+                }
+                
+                newPassword.onchange = validatePassword;
+                confirmPassword.onkeyup = validatePassword;
+            }
+            
+            // File size validation
+            const cvInput = document.getElementById('cv');
+            if (cvInput) {
+                cvInput.addEventListener('change', function() {
+                    if (this.files[0]) {
+                        const fileSize = this.files[0].size / 1024 / 1024; // in MB
+                        if (fileSize > 5) {
+                            this.setCustomValidity('Le fichier ne doit pas dépasser 5MB');
+                        } else {
+                            this.setCustomValidity('');
+                        }
+                    }
+                });
+            }
+
+            // Form validation
+            const form = document.querySelector('form.needs-validation');
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                
+                form.classList.add('was-validated');
+            });
+        });
+    </script>
+{% endblock %}

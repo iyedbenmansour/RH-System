@@ -147,4 +147,94 @@ class CandidatController extends AbstractController
 
         return new Response($content.$script);
     }
+
+    // src/Controller/CandidatController.php
+    #[Route('/candidat/edit-profile', name: 'candidat_edit_profile')]
+    public function editProfile(Request $request, FileUploader $fileUploader): Response
+    {
+        if (!$this->session->get('candidat_id')) {
+            return $this->redirectToRoute('candidat_login');
+        }
+    
+        $candidat = $this->entityManager->getRepository(Candidat::class)->find($this->session->get('candidat_id'));
+    
+        if ($request->isMethod('POST')) {
+            try {
+                $candidat->setName($request->request->get('name'));
+                $candidat->setEmail($request->request->get('email'));
+    
+                // Handle password change if provided
+                $newPassword = $request->request->get('new_password');
+                $confirmPassword = $request->request->get('confirm_password');
+                
+                if ($newPassword) {
+                    if ($newPassword === $confirmPassword) {
+                        $candidat->setPassword($newPassword);
+                    } else {
+                        $this->addFlash('error', 'Les mots de passe ne correspondent pas.');
+                        return $this->render('candidat/edit_profile.html.twig', [
+                            'candidat' => $candidat
+                        ]);
+                    }
+                }
+    
+                /** @var UploadedFile $cvFile */
+                $cvFile = $request->files->get('cv');
+                if ($cvFile) {
+                    $fileName = $fileUploader->upload($cvFile);
+                    $candidat->setCv($fileName);
+                }
+    
+                $this->entityManager->flush();
+    
+                // Update session data if name changed
+                if ($candidat->getName() !== $this->session->get('candidat_name')) {
+                    $this->session->set('candidat_name', $candidat->getName());
+                }
+    
+                $this->addFlash('success', 'Profil mis à jour avec succès.');
+                return $this->redirectToRoute('candidat_dashboard');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de la mise à jour : '.$e->getMessage());
+            }
+        }
+    
+        return $this->render('candidat/edit_profile.html.twig', [
+            'candidat' => $candidat
+        ]);
+    }
+
+    #[Route('/candidat/delete-cv', name: 'candidat_delete_cv')]
+public function deleteCv(): Response
+{
+    if (!$this->session->get('candidat_id')) {
+        return $this->redirectToRoute('candidat_login');
+    }
+
+    $candidat = $this->entityManager->getRepository(Candidat::class)->find($this->session->get('candidat_id'));
+    
+    if (!$candidat) {
+        $this->addFlash('error', 'Candidat non trouvé.');
+        return $this->redirectToRoute('candidat_dashboard');
+    }
+    
+    try {
+        // Remove file if it exists
+        $cvPath = $this->getParameter('cv_directory') . '/' . $candidat->getCv();
+        if (file_exists($cvPath)) {
+            unlink($cvPath);
+        }
+        
+        // Update database
+        $candidat->setCv(null);
+        $this->entityManager->flush();
+        
+        $this->addFlash('success', 'CV supprimé avec succès.');
+    } catch (\Exception $e) {
+        $this->addFlash('error', 'Erreur lors de la suppression du CV: ' . $e->getMessage());
+    }
+    
+    return $this->redirectToRoute('candidat_edit_profile');
+}
+
 }
