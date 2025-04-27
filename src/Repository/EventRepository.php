@@ -45,4 +45,14 @@ class EventRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+    public function findEventsBetweenDates(\DateTimeInterface $startDate, \DateTimeInterface $endDate): array
+{
+    return $this->createQueryBuilder('e')
+        ->where('e.date BETWEEN :start AND :end')
+        ->setParameter('start', $startDate->format('Y-m-d'))
+        ->setParameter('end', $endDate->format('Y-m-d'))
+        ->orderBy('e.date', 'ASC')
+        ->getQuery()
+        ->getResult();
+}
 }

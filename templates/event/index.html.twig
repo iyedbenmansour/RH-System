@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Event Carousel{% endblock %}
+{%block head%}<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">{% endblock %}
 
 {% block body %}
 <style>
@@ -194,13 +195,19 @@
     background-color: #c53030;
     transform: translateY(-2px);
 }
-/* FullCalendar general styles */
 #calendar-holder {
-    background: white;
+    width: 70%;
+    height: 60vh;
+    margin: 30px auto; /* center horizontally */
+    background: #ffffff;
     padding: 20px;
     border-radius: 16px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    margin-top: 30px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    overflow-y: auto; /* enable vertical scroll inside if needed */
+}
+
+#calendar-holder .fc {
+    height: 100% !important; /* force FullCalendar to use the container height */
 }
 
 /* Toolbar */
@@ -281,8 +288,96 @@
     }
     
 }
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999; /* Ensures it stays above other content */
+}
 
+/* BELL ICON STYLING ONLY */
+#notification-btn {
+    position:  !important ;
+    transform: none !important;
+    top:80px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    position: relative; /* Required for badge positioning */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
+#notification-btn svg {
+    width: 24px; 
+    height: 24px;
+    color:rgb(0, 106, 255);
+    stroke-width: 2;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #EF4444;
+    color: white;
+    border-radius: 9999px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.notification-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 140px !important;
+    width: 350px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.notification-header {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.notification-list {
+    padding: 0;
+}
+
+.notification-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f1f1f1;
+    transition: background 0.2s;
+}
+
+.notification-item:hover {
+    background: #f8f9fa;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.notification-date {
+    font-size: 12px;
+    color: #718096;
+}
 </style>
 
 <!-- Calendar Button -->
@@ -339,8 +434,28 @@
                                     {% endif %}" 
                                target="_blank" class="btn maps-btn">See Maps</a>
 
-                            <button type="button" class="btn qr-btn" onclick="generatePDF({{ event|json_encode|raw }})">Download Info</button>
-                            <button type="button" class="btn qr-btn" onclick="showQRCode({{ event|json_encode|raw }})">See QR Code</button>
+                            <button type="button" class="btn qr-btn" onclick="generatePDF({
+                                    name: '{{ event.name }}',
+                                    date: '{{ event.date ? event.date|date('Y-m-d') : '' }}',
+                                    location: '{{ event.location }}',
+                                    organiser: '{{ event.organiser }}',
+                                    eventType: '{{ event.eventType }}',
+                                    nbParticipant: {{ event.nbParticipant }},
+                                    ticketPrice: '{{ event.ticketPrice }}'
+                                })">
+                                    Download Event Info
+                                </button>
+                                <button type="button" class="btn qr-btn" onclick="showQRCode({
+                                    name: '{{ event.name }}',
+                                    date: '{{ event.date ? event.date|date('Y-m-d') : '' }}',
+                                    location: '{{ event.location }}',
+                                    organiser: '{{ event.organiser }}',
+                                    eventType: '{{ event.eventType }}',
+                                    nbParticipant: {{ event.nbParticipant }},
+                                    ticketPrice: '{{ event.ticketPrice }}'
+                                })">
+                                    See QR Code
+                                </button>
                         </div>
                     </div>
                 </div>
@@ -361,18 +476,38 @@
 <div class="swipe-text">
     Swipe to see more events
 </div>
+<div class="notification-container">
+    <button id="notification-btn" class="notification-bell">
+        <!-- Here, use a Heroicon SVG instead of <i class="fas fa-bell"></i> -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.657A4.002 4.002 0 0112 19c-1.193 0-2.27-.524-3-1.343M6.343 17.657A8.001 8.001 0 0112 4a8.001 8.001 0 015.657 13.657M8 21h8" />
+        </svg>
+        
+        <span class="notification-badge" id="notification-count">0</span>
+    </button>
 
+    <div id="notification-modal" class="notification-dropdown">
+        <div class="notification-header">
+            <h4>Upcoming Events</h4>
+        </div>
+        <div class="notification-list" id="notification-list">
+            <!-- Notifications will be inserted here -->
+        </div>
+    </div>
+</div>
 {% block javascripts %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="{{ asset('build/runtime.js') }}"></script>
-{{ encore_entry_script_tags('calendar') }}
+    <script src="https://unpkg.com/tailwindcss-jit-cdn"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    {{ encore_entry_script_tags('calendar') }}
+    {{ encore_entry_script_tags('notification') }}
 {% endblock %}
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchBar = document.getElementById('search-bar');
-    const eventCards = document.querySelectorAll('.event-card');
+        document.addEventListener('DOMContentLoaded', function() {
+    const searchBar        = document.getElementById('search-bar');
+    const eventCards       = document.querySelectorAll('.event-card');
     const noResultsMessage = document.getElementById('no-results');
+    
 
     searchBar.addEventListener('input', function() {
         const searchTerm = this.value.trim().toLowerCase();
@@ -391,7 +526,11 @@ document.addEventListener('DOMContentLoaded', function() {
         container.innerHTML = '';
         matchingEvents.forEach(card => container.appendChild(card));
 
-        noResultsMessage.style.display = visibleCards === 0 ? 'block' : 'none';
+        if (visibleCards === 0 && searchTerm !== '') {
+            noResultsMessage.style.display = 'block';
+        } else {
+            noResultsMessage.style.display = 'none';
+        }
 
         if (visibleCards > 0) {
             const firstVisibleCard = document.querySelector('.event-card');
@@ -406,45 +545,91 @@ document.addEventListener('DOMContentLoaded', function() {
 function generatePDF(eventData) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
+    const margin = 10;
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
 
-    doc.setFontSize(16);
-    doc.text(`Event: ${eventData.name}`, 10, 20);
+    doc.setFillColor(0, 123, 255);
+    doc.rect(margin, margin, pageWidth - 2 * margin, 25, 'F');
 
-    const details = [
-        `Date: ${eventData.date}`,
-        `Location: ${eventData.location}`,
-        `Organizer: ${eventData.organiser}`,
-        `Type: ${eventData.eventType}`,
-        `Participants: ${eventData.nbParticipant}`,
-        `Price: ${eventData.ticketPrice} DT`
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Event: ${eventData.name}`, margin + 10, margin + 18);
+
+    doc.setDrawColor(0, 0, 0);
+    doc.line(margin, margin + 25, pageWidth - margin, margin + 25);
+
+    const detailsMarginTop = margin + 30;
+    const sectionMargin = 10;
+    const sectionHeight = 12;
+
+    doc.setFillColor(240, 240, 240);
+    doc.rect(margin, detailsMarginTop, pageWidth - 2 * margin, sectionHeight * 6, 'F');
+
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Event Details", margin + sectionMargin, detailsMarginTop + sectionHeight / 1.5);
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+
+    const eventDetails = [
+        { label: "Date", value: eventData.date },
+        { label: "Location", value: eventData.location },
+        { label: "Organiser", value: eventData.organiser },
+        { label: "Type", value: eventData.eventType },
+        { label: "Participants", value: eventData.nbParticipant.toString() },
+        { label: "Price", value: `${eventData.ticketPrice} DT` }
     ];
 
-    details.forEach((detail, i) => {
-        doc.text(detail, 10, 40 + (i * 10));
+    let detailMargin = detailsMarginTop + sectionHeight * 1.5;
+
+    eventDetails.forEach(detail => {
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(0, 123, 255);
+        doc.text(`${detail.label}: `, margin + sectionMargin, detailMargin);
+
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+        doc.text(detail.value, margin + sectionMargin + 50, detailMargin);
+
+        detailMargin += sectionHeight;
     });
+
+    doc.setDrawColor(0, 0, 0);
+    doc.line(margin, detailMargin + sectionHeight / 2, pageWidth - margin, detailMargin + sectionHeight / 2);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text("Generated by Event System", margin, pageHeight - 10);
 
     doc.save(`${eventData.name}_Details.pdf`);
 }
 
 function showQRCode(eventData) {
-    const eventText = `
+    var eventText = `
         Event Name: ${eventData.name}
         Date: ${eventData.date}
         Location: ${eventData.location}
-        Organizer: ${eventData.organiser}
+        Organiser: ${eventData.organiser}
         Type: ${eventData.eventType}
         Participants: ${eventData.nbParticipant}
         Price: ${eventData.ticketPrice} DT
     `;
+    
+    var qrModal = document.getElementById('qr-modal');
+    var qrCodeImg = document.getElementById('qr-code-img');
 
-    const qrModal = document.getElementById('qr-modal');
-    const qrCodeImg = document.getElementById('qr-code-img');
     qrCodeImg.src = "https://api.qrserver.com/v1/create-qr-code/?data=" + encodeURIComponent(eventText) + "&size=200x200";
     qrModal.style.display = 'flex';
 }
 
 function closeQRCode() {
-    document.getElementById('qr-modal').style.display = 'none';
+    var qrModal = document.getElementById('qr-modal');
+    qrModal.style.display = 'none';
 }
-</script>
+    </script>
+
 {% endblock %}

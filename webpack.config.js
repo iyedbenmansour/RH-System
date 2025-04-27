@@ -13,6 +13,7 @@ Encore
     // Entry points
     .addEntry('app', './assets/app.js')
     .addEntry('calendar', './assets/calendar.js')
+    .addEntry('notification', './assets/notification.js')
     
     // Enable features
     .enableSingleRuntimeChunk()
