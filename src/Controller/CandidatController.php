@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Candidat;
 use App\Entity\Employee;
 use App\Service\FileUploader;
+use App\Service\MailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,12 +20,17 @@ class CandidatController extends AbstractController
     private $entityManager;
     private $session;
     private $brevoApiKey;
+    private $mailerService;
 
-    public function __construct(EntityManagerInterface $entityManager, SessionInterface $session)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager, 
+        SessionInterface $session,
+        MailerService $mailerService
+    ) {
         $this->entityManager = $entityManager;
         $this->session = $session;
         $this->brevoApiKey = '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';
+        $this->mailerService = $mailerService;
     }
 
     #[Route('/candidat/register', name: 'candidat_register')]
@@ -236,5 +242,81 @@ public function deleteCv(): Response
     
     return $this->redirectToRoute('candidat_edit_profile');
 }
+#[Route('/candidat/forgot-password', name: 'candidat_forgot_password')]
+public function forgotPassword(Request $request): Response
+{
+    if ($request->isMethod('POST')) {
+        $email = $request->request->get('email');
+        $candidat = $this->entityManager->getRepository(Candidat::class)->findOneBy(['email' => $email]);
 
+        if ($candidat) {
+            $token = bin2hex(random_bytes(16));
+            
+            $this->session->set('password_reset_token', $token);
+            $this->session->set('password_reset_email', $email);
+            $this->session->set('password_reset_expires', time() + 3600);
+
+            $resetUrl = $this->generateUrl('candidat_reset_password', ['token' => $token], true);
+            
+            try {
+                $this->mailerService->sendPasswordResetEmail(
+                    $candidat->getEmail(),
+                    $candidat->getName(),
+                    $resetUrl
+                );
+                
+                $this->addFlash('success', 'Un email de réinitialisation a été envoyé. Veuillez vérifier votre boîte de réception (y compris les spams).');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de l\'envoi de l\'email: '.$e->getMessage());
+            }
+        } else {
+            $this->addFlash('error', 'Aucun compte trouvé avec cette adresse email.');
+        }
+    }
+
+    return $this->render('candidat/forgot_password.html.twig');
+}
+
+#[Route('/candidat/reset-password/{token}', name: 'candidat_reset_password')]
+public function resetPassword(Request $request, string $token): Response
+{
+    $storedToken = $this->session->get('password_reset_token');
+    $storedEmail = $this->session->get('password_reset_email');
+    $expires = $this->session->get('password_reset_expires');
+
+    if (!$storedToken || $storedToken !== $token || time() > $expires) {
+        $this->addFlash('error', 'Le lien de réinitialisation est invalide ou a expiré.');
+        return $this->redirectToRoute('candidat_forgot_password');
+    }
+
+    $candidat = $this->entityManager->getRepository(Candidat::class)->findOneBy(['email' => $storedEmail]);
+    
+    if (!$candidat) {
+        $this->addFlash('error', 'Aucun compte trouvé avec cette adresse email.');
+        return $this->redirectToRoute('candidat_forgot_password');
+    }
+
+    if ($request->isMethod('POST')) {
+        $newPassword = $request->request->get('new_password');
+        $confirmPassword = $request->request->get('confirm_password');
+
+        if ($newPassword !== $confirmPassword) {
+            $this->addFlash('error', 'Les mots de passe ne correspondent pas.');
+        } else {
+            $candidat->setPassword($newPassword);
+            $this->entityManager->flush();
+
+            $this->session->remove('password_reset_token');
+            $this->session->remove('password_reset_email');
+            $this->session->remove('password_reset_expires');
+
+            $this->addFlash('success', 'Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter.');
+            return $this->redirectToRoute('candidat_login');
+        }
+    }
+
+    return $this->render('candidat/reset_password.html.twig', [
+        'token' => $token
+    ]);
+}
 }

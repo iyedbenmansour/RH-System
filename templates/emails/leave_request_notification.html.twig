@@ -1,0 +1,12 @@
+{# templates/emails/leave_request_confirmation.html.twig #}
+<h2>Leave Request Submitted</h2>
+<p>
+    Employee: <strong>{{ employee.firstName }} {{ employee.lastName }}</strong><br>
+    Leave Type: <strong>{{ leaveRequest.leaveType }}</strong><br>
+    Start Date: <strong>{{ leaveRequest.startDate|date('Y-m-d') }}</strong><br>
+    End Date: <strong>{{ leaveRequest.endDate|date('Y-m-d') }}</strong><br>
+    Reason: <strong>{{ leaveRequest.reason }}</strong>
+</p>
+<p>
+    This leave request was just submitted.
+</p>

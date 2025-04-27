@@ -345,7 +345,7 @@
                             </div>
                         </li>
 
-                        <!-- New Reclamation Section -->
+                        <!-- Reclamation Section -->
                         <li class="nav-item">
                             <a href="#reclamationSubmenu" class="nav-link" data-bs-toggle="collapse">
                                 <i class="bx bx-message-square-error"></i>
@@ -359,7 +359,24 @@
                                     <li class="nav-item">
                                         <a href="{{ path('app_reclamation_archive') }}" class="nav-link">Archive</a>
                                     </li>
-                              
+                                </ul>
+                            </div>
+                        </li>
+
+                        <!-- New Events Section -->
+                        <li class="nav-item">
+                            <a href="#eventSubmenu" class="nav-link" data-bs-toggle="collapse">
+                                <i class="bx bx-calendar-event"></i>
+                                <span>Events</span>
+                            </a>
+                            <div class="collapse" id="eventSubmenu">
+                                <ul class="nav flex-column sub-menu">
+                                    <li class="nav-item">
+                                        <a href="{{ path('app_event_index_back') }}" class="nav-link">All Events</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ path('app_event_new_back') }}" class="nav-link">Create Event</a>
+                                    </li>
                                 </ul>
                             </div>
                         </li>

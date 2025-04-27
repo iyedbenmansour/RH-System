@@ -87,6 +87,24 @@
         .input-group .form-control {
             border-left: none;
         }
+
+        /* New styles for forgot password */
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 1rem;
+        }
+
+        .forgot-password a {
+            color: #6c757d;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .forgot-password a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
     </style>
 {% endblock %}
 
@@ -130,6 +148,9 @@
                         Veuillez entrer votre mot de passe.
                     </div>
                 </div>
+                <div class="forgot-password">
+                    <a href="{{ path('candidat_forgot_password') }}">Mot de passe oublié ?</a>
+                </div>
             </div>
 
             <div class="form-group form-check mb-3">
@@ -172,7 +193,7 @@
                 });
             })();
 
-            // Animation d’entrée
+            // Animation d'entrée
             const loginContainer = document.querySelector('.login-container');
             loginContainer.style.opacity = '0';
             loginContainer.style.transform = 'translateY(20px)';

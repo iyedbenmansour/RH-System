@@ -20,6 +20,7 @@ use App\Service\LeaveTimeCalculator;
 use App\Service\MailerService; 
 
 
+
 class LeaveRequestController extends AbstractController
 {
     #[Route('/leave-request/create', name: 'leave_request_create', methods: ['GET', 'POST'])]
@@ -27,7 +28,8 @@ class LeaveRequestController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         SluggerInterface $slugger,
-        MailerService $emailService // Inject the email service
+        MailerService $mailerService,
+        EmployeeRepository $employeeRepository
     ): Response {
         // Get employee ID from session
         $employeeId = $request->getSession()->get('employee_id');
@@ -35,22 +37,22 @@ class LeaveRequestController extends AbstractController
             $this->addFlash('error', 'You must be logged in to create a leave request');
             return $this->redirectToRoute('login');
         }
-
+    
         // Find employee and verify they exist
-        $employee = $entityManager->getRepository(Employee::class)->find($employeeId);
+        $employee = $employeeRepository->find($employeeId);
         if (!$employee) {
             $this->addFlash('error', 'Employee not found');
             return $this->redirectToRoute('dashboard');
         }
-
+    
         // Create and pre-populate leave request
         $leaveRequest = new LeaveRequest();
         $leaveRequest->setEmployeeId($employee->getId());
         $leaveRequest->setCompanyId($employee->getCompanyId());
-
+    
         $form = $this->createForm(LeaveRequestType::class, $leaveRequest);
         $form->handleRequest($request);
-
+    
         if ($form->isSubmitted() && $form->isValid()) {
             // Handle PDF upload
             $pdfFile = $form->get('pdfFile')->getData();
@@ -58,7 +60,7 @@ class LeaveRequestController extends AbstractController
                 $originalFilename = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$pdfFile->guessExtension();
-
+    
                 try {
                     $pdfFile->move(
                         $this->getParameter('pdf_directory'),
@@ -69,26 +71,22 @@ class LeaveRequestController extends AbstractController
                     $this->addFlash('error', 'There was an error uploading your PDF file');
                 }
             }
-
+    
             $leaveRequest->setConfirmed(false);
             $entityManager->persist($leaveRequest);
             $entityManager->flush();
-
-            // Send test email to tniyed@gmail.com
+    
+            // Send email notification
             try {
-                $emailSent = $emailService->sendLeaveRequestTestEmail($leaveRequest);
-                if ($emailSent) {
-                    $this->addFlash('success', 'Leave request created successfully! Notification email sent.');
-                } else {
-                    $this->addFlash('warning', 'Leave request created successfully, but notification email could not be sent.');
-                }
+                $mailerService->sendLeaveRequestConfirmationEmail($leaveRequest, $employee);
+                $this->addFlash('success', 'Leave request created successfully! Notification email sent.');
             } catch (\Exception $e) {
-                $this->addFlash('warning', 'Leave request created successfully, but there was an error sending notification: ' . $e->getMessage());
+                $this->addFlash('warning', 'Leave request created successfully, but email notification failed to send.');
             }
-
+    
             return $this->redirectToRoute('employee_leave_requests');
         }
-
+    
         return $this->render('leave_request/create.html.twig', [
             'form' => $form->createView(),
         ]);

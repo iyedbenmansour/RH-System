@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <style>
+        /* Base styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .email-header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eeeeee;
+            margin-bottom: 20px;
+        }
+        
+        .email-logo {
+            max-width: 150px;
+            height: auto;
+        }
+        
+        .email-title {
+            color: #2c3e50;
+            margin-top: 10px;
+        }
+        
+        .email-content {
+            padding: 0 10px;
+        }
+        
+        .email-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eeeeee;
+            text-align: center;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 15px 0;
+            background-color: #3498db;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        /* Responsive styles */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100%;
+                margin: 0;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            {% if email_logo is defined and email_logo %}
+                <img src="{{ email_logo }}" alt="Company Logo" class="email-logo">
+            {% else %}
+                <h1 class="email-title">HR Management System</h1>
+            {% endif %}
+        </div>
+        
+        <div class="email-content">
+            {% block content %}{% endblock %}
+        </div>
+        
+        <div class="email-footer">
+            <p>© {{ "now"|date("Y") }} Your Company Name. All rights reserved.</p>
+            <p>
+                {% if unsubscribe_url is defined %}
+                    <a href="{{ unsubscribe_url }}" style="color: #7f8c8d;">Unsubscribe</a> | 
+                {% endif %}
+                <a href="{{ path('app_homepage') }}" style="color: #7f8c8d;">Our Website</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

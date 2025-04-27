@@ -2,85 +2,196 @@
 
 namespace App\Service;
 
+use App\Entity\Reclamation;
+use App\Entity\LeaveRequest;
+use App\Entity\Employee;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
-use Psr\Log\LoggerInterface;
+use Symfony\Component\Mime\Address;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Twig\Environment;
 
-use App\Entity\LeaveRequest;
+// Add this import for HttpClient:
+use Symfony\Component\HttpClient\HttpClient;
 
 class MailerService
 {
-    private MailerInterface $mailer;
-    private LoggerInterface $logger;
+    private $mailer;
+    private $senderEmail;
+    private $twig;
 
-    public function __construct(MailerInterface $mailer, LoggerInterface $logger = null)
-    {
+    // For Mailtrap API
+    private $apiToken = '34bac4712a0f73772374f6ac6ecb42d8';
+    private $apiHost = 'https://send.api.mailtrap.io';
+    private $client = null; // Will be created when needed
+
+    public function __construct(
+        MailerInterface $mailer, 
+        Environment $twig,
+        string $senderEmail = 'alabendawed@gmail.com'
+    ) {
         $this->mailer = $mailer;
-        $this->logger = $logger;
+        $this->twig = $twig;
+        $this->senderEmail = $senderEmail;
     }
 
-    public function sendConfirmationEmail(string $to, string $username)
+    /**
+     * Send notification for a new reclamation
+     */
+    public function sendNewReclamationNotification(string $title, string $description): void
+    {
+        $subject = "Nouvelle réclamation: $title";
+        $body = "Une nouvelle réclamation a été créée:\n\nTitre: $title\n\nDescription: $description";
+        $this->sendEmail($subject, $body);
+    }
+
+    /**
+     * Send status change notification
+     */
+    public function sendStatusChangeNotification(string $title, string $oldStatus, string $newStatus): void
+    {
+        $subject = "Mise à jour du statut de la réclamation: $title";
+        $body = "Le statut de votre réclamation \"$title\" a été mis à jour.\n\nAncien statut: $oldStatus\nNouveau statut: $newStatus";
+        $this->sendEmail($subject, $body);
+    }
+
+    /**
+     * Generic email sending method
+     */
+    private function sendEmail(string $subject, string $body): void
     {
         $email = (new Email())
-            ->from('alabendawed@gmail.com') // Use the same sender email as in your .env
-            ->to($to)
-            ->subject('Confirmation de votre inscription')
-            ->html("
-                <h1>Bienvenue $username !</h1>
-                <p>Merci de vous être inscrit. Veuillez confirmer votre adresse email en cliquant sur le lien suivant :</p>
-                <p><a href='https://tonsite.com/confirmation?email=$to'>Confirmer mon compte</a></p>
-            ");
+            ->from($this->senderEmail)
+            ->to('tniyed@gmail.com')
+            ->subject($subject)
+            ->text($body);
 
         try {
             $this->mailer->send($email);
-            return true;
-        } catch (TransportExceptionInterface $e) {
-            if ($this->logger) {
-                $this->logger->error('Failed to send confirmation email: ' . $e->getMessage());
-            }
-            return false;
+        } catch (\Exception $e) {
+            // Log the error for later processing
+            // In production environment, you might use a logging service
         }
     }
 
     /**
-     * Sends a test email to tniyed@gmail.com whenever a leave request is created
+     * Send reclamation status email
+     * @throws \Exception If sending fails
      */
-    public function sendLeaveRequestTestEmail(LeaveRequest $leaveRequest): bool
+    public function sendReclamationStatusEmail(Reclamation $reclamation, string $comment): void
     {
-        $email = (new Email())
-            ->from('alabendawed@gmail.com')
-            ->to('alabendawed@gmail.com')
-            ->subject('New Leave Request Submitted')
-            ->html(
-                sprintf(
-                    '<h2>Leave Request Notification</h2>
-                    <p>A new leave request has been submitted.</p>
-                    <table border="1" cellpadding="5" style="border-collapse: collapse;">
-                        <tr><th>Field</th><th>Value</th></tr>
-                        <tr><td><strong>Employee ID</strong></td><td>%s</td></tr>
-                        <tr><td><strong>Company ID</strong></td><td>%s</td></tr>
-                        <tr><td><strong>From</strong></td><td>%s</td></tr>
-                        <tr><td><strong>To</strong></td><td>%s</td></tr>
-                        <tr><td><strong>Type</strong></td><td>%s</td></tr>
-                    </table>
-                    <p>Please review this request in the system.</p>',
-                    $leaveRequest->getEmployeeId(),
-                    $leaveRequest->getCompanyId(),
-                    $leaveRequest->getStartDate() ? $leaveRequest->getStartDate()->format('Y-m-d') : '(not set)',
-                    $leaveRequest->getEndDate() ? $leaveRequest->getEndDate()->format('Y-m-d') : '(not set)',
-                    $leaveRequest->getLeaveType() ?? '(not set)'
-                )
-            );
-            
         try {
+            $email = (new TemplatedEmail())
+                ->from(new Address($this->senderEmail, 'Service RH - Réclamations'))
+                ->to('tniyed@gmail.com')
+                ->subject('Mise à jour de votre réclamation: ' . $reclamation->getTitle())
+                ->htmlTemplate('emails/reclamation_status_update.html.twig')
+                ->context([
+                    'reclamation' => $reclamation,
+                    'comment' => $comment,
+                    'status' => $reclamation->getStatueOfReclamation()
+                ]);
             $this->mailer->send($email);
-            return true;
-        } catch (TransportExceptionInterface $e) {
-            if ($this->logger) {
-                $this->logger->error('Failed to send leave request notification: ' . $e->getMessage());
-            }
-            return false;
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function sendLeaveRequestConfirmationEmail(LeaveRequest $leaveRequest, Employee $employee): void
+    {
+        // Create client only if not already created
+        if ($this->client === null) {
+            $this->client = HttpClient::create();
+        }
+    
+        $url = $this->apiHost . '/api/send';
+        $recipient = 'iyedmansour29@gmail.com';
+    
+        $subject = 'New Leave Request Submitted';
+        $bodyText = "A new leave request has been submitted.\n\nPlease check the system for details.";
+    
+        $payload = [
+            'from' => [
+                'email' => 'hello@demomailtrap.co',
+                'name' => 'Leave Management System'
+            ],
+            'to' => [
+                [
+                    'email' => $recipient,
+                    'name' => 'Iyed Mansour'
+                ]
+            ],
+            'subject' => $subject,
+            'text' => $bodyText,
+        ];
+    
+        $headers = [
+            'Authorization' => 'Bearer ' . $this->apiToken,
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json'
+        ];
+    
+        $response = $this->client->request('POST', $url, [
+            'headers' => $headers,
+            'json' => $payload,
+        ]);
+    
+        $statusCode = $response->getStatusCode();
+        if ($statusCode < 200 || $statusCode >= 300) {
+            throw new \Exception('Failed to send email via Mailtrap. Status code: ' . $statusCode . '. Response: ' . $response->getContent(false));
+        }
+    }
+
+      /**
+     * Send password reset email via Mailtrap API
+     */
+    public function sendPasswordResetEmail(string $recipientEmail, string $recipientName, string $resetUrl): void
+    {
+        if ($this->client === null) {
+            $this->client = HttpClient::create();
+        }
+
+        // Prepend the localhost URL if not already present
+        if (strpos($resetUrl, 'http://127.0.0.1:8000') === false) {
+            $resetUrl = 'http://127.0.0.1:8000' . $resetUrl;
+        }
+
+        $subject = 'Réinitialisation de votre mot de passe';
+        $htmlContent = $this->twig->render('emails/password_reset.html.twig', [
+            'name' => $recipientName,
+            'reset_url' => $resetUrl
+        ]);
+
+        $payload = [
+            'from' => [
+                'email' => 'hello@demomailtrap.co',
+                'name' => 'JobPlatform'
+            ],
+            'to' => [
+                [
+                    'email' => $recipientEmail,
+                    'name' => $recipientName
+                ]
+            ],
+            'subject' => $subject,
+            'html' => $htmlContent,
+            'category' => 'password-reset'
+        ];
+
+        $headers = [
+            'Authorization' => 'Bearer ' . $this->apiToken,
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json'
+        ];
+
+        $response = $this->client->request('POST', $this->apiHost . '/api/send', [
+            'headers' => $headers,
+            'json' => $payload,
+        ]);
+
+        $statusCode = $response->getStatusCode();
+        if ($statusCode < 200 || $statusCode >= 300) {
+            throw new \Exception('Failed to send password reset email. Status: ' . $statusCode);
         }
     }
 }
