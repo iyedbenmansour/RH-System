@@ -5,108 +5,154 @@
 {% block body %}
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap');
+
     body {
         font-family: 'Be Vietnam Pro', sans-serif;
+        background-color: #f8fafc;
+        margin: 0;
+        padding: 0;
     }
 
-    .btn {
-        display: inline-block;
-        padding: 10px 20px;
-        border-radius: 8px;
-        text-align: center;
-        transition: all 0.3s ease;
-        font-size: 12px;
+    .carousel-wrapper {
+        max-width: 1200px;
+        margin: 50px auto 0 auto;
+        padding: 0 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
-    .show-btn {
-        background-color: #4CAF50;
-        color: white;
-        border: 2px solid #4CAF50;
+    #carousel-events-container {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 40px;
+        padding-bottom: 30px;
+        scrollbar-width: none;
     }
 
-    .show-btn:hover {
-        background-color: #45a049;
-        border-color: #45a049;
-        cursor: pointer;
+    #carousel-events-container::-webkit-scrollbar {
+        display: none;
     }
 
-    .display-btn {
-        background-color: #007BFF;
-        color: white;
-        border: 2px solid #007BFF;
+    .event-card {
+        scroll-snap-align: center;
+        flex: 0 0 auto;
+        width: 450px;
+        position: relative;
     }
 
-    .display-btn:hover {
-        background-color: #0056b3;
-        border-color: #0056b3;
-        cursor: pointer;
+    .card {
+        background: linear-gradient(135deg, #ffffff, #f1f3f5);
+        border-radius: 20px;
+        padding: 30px 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .display-btn[style="pointer-events: none; opacity: 0.5;"] {
-        background-color: #6c757d;
-        border-color: #6c757d;
-        opacity: 0.5;
-        pointer-events: none;
-    }
-
-    .maps-btn {
-        background-color: #FF5722;
-        color: white;
-        border: 2px solid #FF5722;
-        padding: 8px 12px;
-    }
-
-    .maps-btn:hover {
-        background-color: #e64a19;
-        border-color: #e64a19;
-        cursor: pointer;
-    }
-
-    .qr-btn {
-        background-color: #9C27B0;
-        color: white;
-        border: 2px solid #9C27B0;
-    }
-
-    .qr-btn:hover {
-        background-color: #7b1fa2;
-        border-color: #7b1fa2;
-        cursor: pointer;
-    }
-
-    .swipe-text {
-        text-align: center;
-        font-size: 22px;
-        font-weight: 600;
-        color: #000;
-        margin-top: 20px;
-        opacity: 0.8;
-    }
-
-    .card-text {
-        text-align: center;
-        color: #000;
-        font-size: 18px;
-        line-height: 1.6;
-        font-weight: 400;
+    .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
     }
 
     .card-title {
-        text-align: center;
-        color: #333;
         font-size: 28px;
-        font-weight: 600;
+        font-weight: bold;
+        color: #2d3748;
         margin-bottom: 15px;
-        font-family: 'Be Vietnam Pro', sans-serif;
+        text-align: center;
+    }
+
+    .card-text {
+        font-size: 16px;
+        color: #4a5568;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .btn-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        border-radius: 30px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        color: #fff;
+        border: none;
+        display: inline-block;
+    }
+    #calendar-view-btn {
+    background-color: #4299e1; /* nice blue */
+    color: white;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+    margin: 30px auto;
+    display: block;
+}
+
+#calendar-view-btn:hover {
+    background-color: #2b6cb0;
+    transform: translateY(-2px);
+}
+
+    .show-btn { background: #38a169; }
+    .show-btn:hover { background: #2f855a; transform: scale(1.05); }
+
+    .display-btn { background: #4299e1; }
+    .display-btn:hover { background: #2b6cb0; transform: scale(1.05); }
+
+    .maps-btn { background: #ed8936; }
+    .maps-btn:hover { background: #dd6b20; transform: scale(1.05); }
+
+    .qr-btn { background: #9f7aea; }
+    .qr-btn:hover { background: #6b46c1; transform: scale(1.05); }
+
+    #search-bar {
+        width: 90%;
+        max-width: 500px;
+        padding: 14px 22px;
+        border: 2px solid #ddd;
+        border-radius: 30px;
+        font-size: 16px;
+        margin: 30px auto;
+        display: block;
+        outline: none;
+        transition: 0.3s;
+    }
+
+    #search-bar:focus {
+        border-color: #4299e1;
+        box-shadow: 0 0 8px rgba(66, 153, 225, 0.3);
+    }
+
+    .no-results {
+        text-align: center;
+        color: #999;
+        font-size: 18px;
+        margin-top: 20px;
+        display: none;
     }
 
     .qr-modal {
         display: none;
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        inset: 0;
         background: rgba(0, 0, 0, 0.5);
         justify-content: center;
         align-items: center;
@@ -114,305 +160,291 @@
     }
 
     .qr-modal-content {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
+        background: #fff;
+        padding: 25px;
+        border-radius: 12px;
         text-align: center;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     }
 
     .qr-modal img {
-        max-width: 200px;
+        max-width: 220px;
     }
 
-    .btn-container {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        font-size: 15px;
-    }
-
-    .card {
-        width: 450px;
-    }
-
-    .search-container {
-        width: 80%;
-        max-width: 500px;
-        margin: 0 auto 30px;
-    }
-
-    #search-bar {
-        width: 100%;
-        padding: 12px 20px;
-        border: 2px solid #ddd;
-        border-radius: 25px;
-        font-size: 16px;
-        outline: none;
-        transition: all 0.3s;
-    }
-
-    #search-bar:focus {
-        border-color: #007BFF;
-    }
-
-    .no-results {
+    .swipe-text {
         text-align: center;
         font-size: 18px;
-        color: #666;
-        margin-top: 50px;
-        display: none;
+        font-weight: 600;
+        margin-top: 30px;
+        color: #718096;
     }
+    .close-calendar-btn {
+    margin-top: 20px;
+    background-color: #e53e3e;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
 
-    .event-card {
-        transition: all 0.3s ease;
+.close-calendar-btn:hover {
+    background-color: #c53030;
+    transform: translateY(-2px);
+}
+/* FullCalendar general styles */
+#calendar-holder {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
+}
+
+/* Toolbar */
+.fc-toolbar-title {
+    font-size: 26px;
+    font-weight: bold;
+    color: #2d3748;
+}
+
+.fc-toolbar-chunk button {
+    background-color: #4299e1;
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.fc-toolbar-chunk button:hover {
+    background-color: #2b6cb0;
+}
+
+/* Button active */
+.fc-button-active {
+    background-color: #2b6cb0 !important;
+}
+
+/* Calendar grid */
+.fc-daygrid-day-number {
+    font-weight: 600;
+    color: #4a5568;
+}
+
+/* Event styles */
+.fc-event {
+    background-color: #38b2ac;
+    color: white;
+    border: none;
+    padding: 5px;
+    font-size: 14px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+.fc-event:hover {
+    background-color: #319795;
+}
+
+/* Day cells */
+.fc-daygrid-day {
+    background-color: #f7fafc;
+    transition: background 0.3s;
+}
+
+.fc-daygrid-day:hover {
+    background-color: #edf2f7;
+}
+
+/* Today cell */
+.fc-day-today {
+    background: #bee3f8;
+    font-weight: bold;
+}
+
+/* View switch buttons (month/week/day) */
+.fc-button-group > .fc-button {
+    margin: 0 2px;
+}
+
+/* Make calendar responsive */
+@media (max-width: 768px) {
+    #calendar-holder {
+        padding: 10px;
     }
+    .fc-toolbar-title {
+        font-size: 20px;
+    }
+    
+}
+
+
 </style>
 
-<div class="min-h-screen bg-gray-100 p-4 relative">
-    <!-- Search Bar -->
-    <div class="search-container">
-        <input type="text" id="search-bar" placeholder="Search events by name, location, organizer, type..." autocomplete="off">
-    </div>
+<!-- Calendar Button -->
+<button id="calendar-view-btn">See Calendar</button>
 
-    <!-- No Results Message -->
-    <div class="no-results" id="no-results">
-        No events found matching your search.
-    </div>
+<!-- Calendar holder -->
+<div id="calendar-holder" 
+     data-events="{{ events|map(event => {
+         'id': event.id,
+         'name': event.name|e('js'),
+         'date': event.date ? event.date|date('Y-m-d') : ''
+     })|json_encode|e('html_attr') }}">
+</div>
+<div id="calendar-close-holder" style="text-align: center; margin-top: 15px;"></div>
 
-    <!-- Carousel Container -->
-    <div class="w-96 mx-auto" style="scroll-snap-type: x mandatory;">
-        <div id="carousel-events-container">
-            {% for event in events %}
-                <div class="event-card" data-search="{{ event.name|lower }} {{ event.location|lower }} {{ event.organiser|lower }} {{ event.eventType|lower }}">
-                    <input class="sr-only peer" type="radio" name="carousel" id="carousel-{{ loop.index }}" {% if loop.first %}checked{% endif %} />
-                    <div class="card absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg transition-all duration-300 opacity-0 peer-checked:opacity-100 peer-checked:z-10 z-0">
-                        <div class="py-20 px-2">
-                            <h1 class="card-title hover:cursor-pointer mt-2">{{ event.name }}</h1>
-                            <p class="card-text"><strong>Date:</strong> {{ event.date ? event.date|date('Y-m-d') : '' }}</p>
-                            <p class="card-text"><strong>Location:</strong> {{ event.location }}</p>
-                            <p class="card-text"><strong>Organiser:</strong> {{ event.organiser }}</p>
-                            <p class="card-text"><strong>Type:</strong> {{ event.eventType }}</p>
-                            <p class="card-text"><strong>Participants:</strong> {{ event.nbParticipant }}</p>
-                            <p class="card-text"><strong>Price:</strong> {{ event.ticketPrice }} DT</p>
-                        </div>
-                        
-                        <div class="btn-container px-8 pb-4">
+<!-- Search Bar -->
+<div class="search-container">
+    <input type="text" id="search-bar" placeholder="Search events by name, location, organizer, type..." autocomplete="off">
+</div>
+
+<!-- No Results Message -->
+<div class="no-results" id="no-results">No events found matching your search.</div>
+
+<!-- Carousel -->
+<div class="carousel-wrapper">
+    <div id="carousel-events-container">
+        {% for event in events %}
+            <div class="event-card" data-search="{{ event.name|lower }} {{ event.location|lower }} {{ event.organiser|lower }} {{ event.eventType|lower }}">
+                <input class="sr-only peer" type="radio" name="carousel" id="carousel-{{ loop.index }}" {% if loop.first %}checked{% endif %} />
+                <div class="card">
+                    <div class="card-content">
+                        <h1 class="card-title">{{ event.name }}</h1>
+                        <p class="card-text"><strong>Date:</strong> {{ event.date ? event.date|date('Y-m-d') : '' }}</p>
+                        <p class="card-text"><strong>Location:</strong> {{ event.location }}</p>
+                        <p class="card-text"><strong>Organizer:</strong> {{ event.organiser }}</p>
+                        <p class="card-text"><strong>Type:</strong> {{ event.eventType }}</p>
+                        <p class="card-text"><strong>Participants:</strong> {{ event.nbParticipant }}</p>
+                        <p class="card-text"><strong>Price:</strong> {{ event.ticketPrice }} DT</p>
+
+                        <div class="btn-container">
                             <a href="{{ path('app_event_show', {'id': event.id}) }}" class="btn show-btn">Show</a>
-                            <a href="{% if event.hasFormation %}{{ path('app_formation_show', {'id': event.formationId}) }}{% else %}#{% endif %}" class="btn display-btn" {% if not event.hasFormation %}style="pointer-events: none; opacity: 0.5;"{% endif %}>
-                                Display Formation
+                            <a href="{% if event.hasFormation %}{{ path('app_formation_show', {'id': event.formationId}) }}{% else %}#{% endif %}" 
+                               class="btn display-btn" 
+                               {% if not event.hasFormation %}style="pointer-events: none; opacity: 0.5;"{% endif %}>
+                               Display Formation
                             </a>
                         </div>
-                        <div class="btn-container px-8 pb-4">
-                            <a href="{% if event.latitude is not empty and event.longitude is not empty and 
-                                event.latitude >= -90 and event.latitude <= 90 and 
-                                event.longitude >= -180 and event.longitude <= 180 %}
-                                https://www.google.com/maps?q={{ event.latitude }},{{ event.longitude }}
-                                {% else %}
-                                https://www.google.com/maps?q={{ event.location }}
-                                {% endif %}" target="_blank" class="btn maps-btn">
-                                See Maps
-                            </a>
-                            <button type="button" class="btn qr-btn" onclick="generatePDF({
-                                name: '{{ event.name }}',
-                                date: '{{ event.date ? event.date|date('Y-m-d') : '' }}',
-                                location: '{{ event.location }}',
-                                organiser: '{{ event.organiser }}',
-                                eventType: '{{ event.eventType }}',
-                                nbParticipant: {{ event.nbParticipant }},
-                                ticketPrice: '{{ event.ticketPrice }}'
-                            })">
-                                Download Event Info
-                            </button>
-                            <button type="button" class="btn qr-btn" onclick="showQRCode({
-                                name: '{{ event.name }}',
-                                date: '{{ event.date ? event.date|date('Y-m-d') : '' }}',
-                                location: '{{ event.location }}',
-                                organiser: '{{ event.organiser }}',
-                                eventType: '{{ event.eventType }}',
-                                nbParticipant: {{ event.nbParticipant }},
-                                ticketPrice: '{{ event.ticketPrice }}'
-                            })">
-                                See QR Code
-                            </button>
-                        </div>
-                        <div class="absolute top-1/2 w-full flex justify-between z-20">
-                            <label for="carousel-{{ loop.index == 1 ? events|length : loop.index - 1 }}" class="inline-block text-red-600 cursor-pointer -translate-x-5 bg-white rounded-full shadow-md active:translate-y-0.5">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.707-10.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L9.414 11H13a1 1 0 100-2H9.414l1.293-1.293z" clip-rule="evenodd" />
-                                </svg>
-                            </label>
-                            <label for="carousel-{{ loop.index == events|length ? 1 : loop.index + 1 }}" class="inline-block text-red-600 cursor-pointer translate-x-5 bg-white rounded-full shadow-md active:translate-y-0.5">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </label>
+
+                        <div class="btn-container">
+                            <a href="{% if event.latitude and event.longitude and event.latitude >= -90 and event.latitude <= 90 and event.longitude >= -180 and event.longitude <= 180 %}
+                                    https://www.google.com/maps?q={{ event.latitude }},{{ event.longitude }}
+                                    {% else %}
+                                    https://www.google.com/maps?q={{ event.location }}
+                                    {% endif %}" 
+                               target="_blank" class="btn maps-btn">See Maps</a>
+
+                            <button type="button" class="btn qr-btn" onclick="generatePDF({{ event|json_encode|raw }})">Download Info</button>
+                            <button type="button" class="btn qr-btn" onclick="showQRCode({{ event|json_encode|raw }})">See QR Code</button>
                         </div>
                     </div>
                 </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <div id="qr-modal" class="qr-modal" onclick="closeQRCode()">
-        <div class="qr-modal-content">
-            <h2>Event QR Code</h2>
-            <img id="qr-code-img" src="" alt="QR Code">
-        </div>
-    </div>
-
-    <div class="swipe-text">
-        <p>Swipe to see more events</p>
+            </div>
+        {% endfor %}
     </div>
 </div>
 
-<script src="https://unpkg.com/tailwindcss-jit-cdn"></script>
+<!-- QR Modal -->
+<div id="qr-modal" class="qr-modal" onclick="closeQRCode()">
+    <div class="qr-modal-content">
+        <h2>Event QR Code</h2>
+        <img id="qr-code-img" src="" alt="QR Code">
+    </div>
+</div>
+
+<!-- Swipe Message -->
+<div class="swipe-text">
+    Swipe to see more events
+</div>
+
+{% block javascripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="{{ asset('build/runtime.js') }}"></script>
+{{ encore_entry_script_tags('calendar') }}
+{% endblock %}
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchBar = document.getElementById('search-bar');
-        const eventCards = document.querySelectorAll('.event-card');
-        const noResultsMessage = document.getElementById('no-results');
-        
-        searchBar.addEventListener('input', function() {
-            const searchTerm = this.value.trim().toLowerCase();
-            let visibleCards = 0;
-            
-            // Clear the carousel container and only append the matching events
-            let matchingEvents = [];
-            
-            eventCards.forEach(card => {
-                const searchData = card.getAttribute('data-search');
-                
-                if (searchTerm === '' || searchData.includes(searchTerm)) {
-                    matchingEvents.push(card);
-                    visibleCards++;
-                }
-            });
+document.addEventListener('DOMContentLoaded', function() {
+    const searchBar = document.getElementById('search-bar');
+    const eventCards = document.querySelectorAll('.event-card');
+    const noResultsMessage = document.getElementById('no-results');
 
-            // Clear the carousel container and append only the matching events
-            const container = document.getElementById('carousel-events-container');
-            container.innerHTML = ""; // Clear the existing events
-            matchingEvents.forEach(card => container.appendChild(card));
-            
-            // Show/hide no results message
-            if (visibleCards === 0 && searchTerm !== '') {
-                noResultsMessage.style.display = 'block';
-            } else {
-                noResultsMessage.style.display = 'none';
-            }
-            
-            // Reset carousel navigation for visible cards
-            if (visibleCards > 0) {
-                const firstVisibleCard = document.querySelector('.event-card');
-                if (firstVisibleCard) {
-                    const firstRadio = firstVisibleCard.querySelector('input[type="radio"]');
-                    if (firstRadio) {
-                        firstRadio.checked = true;
-                    }
-                }
+    searchBar.addEventListener('input', function() {
+        const searchTerm = this.value.trim().toLowerCase();
+        let visibleCards = 0;
+        let matchingEvents = [];
+
+        eventCards.forEach(card => {
+            const searchData = card.getAttribute('data-search');
+            if (searchTerm === '' || searchData.includes(searchTerm)) {
+                matchingEvents.push(card);
+                visibleCards++;
             }
         });
+
+        const container = document.getElementById('carousel-events-container');
+        container.innerHTML = '';
+        matchingEvents.forEach(card => container.appendChild(card));
+
+        noResultsMessage.style.display = visibleCards === 0 ? 'block' : 'none';
+
+        if (visibleCards > 0) {
+            const firstVisibleCard = document.querySelector('.event-card');
+            if (firstVisibleCard) {
+                const firstRadio = firstVisibleCard.querySelector('input[type="radio"]');
+                if (firstRadio) firstRadio.checked = true;
+            }
+        }
     });
-    function generatePDF(eventData) {
-        const { jsPDF } = window.jspdf;
+});
 
-        const doc = new jsPDF();
-        const margin = 10;
-        const pageWidth = doc.internal.pageSize.width;
-        const pageHeight = doc.internal.pageSize.height;
-        
-        // Header Section (Event Name with Background)
-        doc.setFillColor(0, 123, 255);  // Blue background for the header
-        doc.rect(margin, margin, pageWidth - 2 * margin, 25, 'F');  // Header box
+function generatePDF(eventData) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-        doc.setTextColor(255, 255, 255);  // White text color
-        doc.setFontSize(18);
-        doc.setFont("helvetica", "bold");
-        doc.text(`Event: ${eventData.name}`, margin + 10, margin + 18);  // Event title
+    doc.setFontSize(16);
+    doc.text(`Event: ${eventData.name}`, 10, 20);
 
-        // Add a horizontal line below the header
-        doc.setDrawColor(0, 0, 0);  // Black line
-        doc.line(margin, margin + 25, pageWidth - margin, margin + 25);  // Line after header
+    const details = [
+        `Date: ${eventData.date}`,
+        `Location: ${eventData.location}`,
+        `Organizer: ${eventData.organiser}`,
+        `Type: ${eventData.eventType}`,
+        `Participants: ${eventData.nbParticipant}`,
+        `Price: ${eventData.ticketPrice} DT`
+    ];
 
-        // Event Details Section
-        const detailsMarginTop = margin + 30;  // Start below the header
-        const sectionMargin = 10;  // Left margin for each section
-        const sectionHeight = 12;  // Height of each line
+    details.forEach((detail, i) => {
+        doc.text(detail, 10, 40 + (i * 10));
+    });
 
-        // Background box for Event Details
-        doc.setFillColor(240, 240, 240);  // Light gray background
-        doc.rect(margin, detailsMarginTop, pageWidth - 2 * margin, sectionHeight * 6, 'F');  // Event info box
+    doc.save(`${eventData.name}_Details.pdf`);
+}
 
-        // Event Info Title
-        doc.setTextColor(0, 0, 0);  // Black text
-        doc.setFontSize(14);
-        doc.setFont("helvetica", "bold");
-        doc.text("Event Details", margin + sectionMargin, detailsMarginTop + sectionHeight / 1.5);
+function showQRCode(eventData) {
+    const eventText = `
+        Event Name: ${eventData.name}
+        Date: ${eventData.date}
+        Location: ${eventData.location}
+        Organizer: ${eventData.organiser}
+        Type: ${eventData.eventType}
+        Participants: ${eventData.nbParticipant}
+        Price: ${eventData.ticketPrice} DT
+    `;
 
-        // Event Info Content
-        doc.setFontSize(12);
-        doc.setFont("helvetica", "normal");
+    const qrModal = document.getElementById('qr-modal');
+    const qrCodeImg = document.getElementById('qr-code-img');
+    qrCodeImg.src = "https://api.qrserver.com/v1/create-qr-code/?data=" + encodeURIComponent(eventText) + "&size=200x200";
+    qrModal.style.display = 'flex';
+}
 
-        const eventDetails = [
-            { label: "Date", value: eventData.date },
-            { label: "Location", value: eventData.location },
-            { label: "Organiser", value: eventData.organiser },
-            { label: "Type", value: eventData.eventType },
-            { label: "Participants", value: eventData.nbParticipant.toString() },
-            { label: "Price", value: `${eventData.ticketPrice} DT` }
-        ];
-
-        let detailMargin = detailsMarginTop + sectionHeight * 1.5;  // Start after the title
-
-        eventDetails.forEach(detail => {
-            doc.setFont("helvetica", "bold");
-            doc.setTextColor(0, 123, 255);  // Blue for labels
-            doc.text(`${detail.label}: `, margin + sectionMargin, detailMargin);
-
-            doc.setFont("helvetica", "normal");
-            doc.setTextColor(0, 0, 0);  // Black for content
-            doc.text(detail.value, margin + sectionMargin + 50, detailMargin);
-
-            detailMargin += sectionHeight;  // Move down for the next detail
-        });
-
-        // Line under the event details
-        doc.setDrawColor(0, 0, 0);
-        doc.line(margin, detailMargin + sectionHeight / 2, pageWidth - margin, detailMargin + sectionHeight / 2);
-
-        // Footer Section with Professional Style
-        doc.setFontSize(10);
-        doc.setTextColor(100, 100, 100);  // Gray color for footer text
-        doc.text("Generated by Event System", margin, pageHeight - 10);
-
-        // Save the generated PDF
-        doc.save(`${eventData.name}_Details.pdf`);
-    }
-
-    function showQRCode(eventData) {
-        var eventText = `
-            Event Name: ${eventData.name}
-            Date: ${eventData.date}
-            Location: ${eventData.location}
-            Organiser: ${eventData.organiser}
-            Type: ${eventData.eventType}
-            Participants: ${eventData.nbParticipant}
-            Price: ${eventData.ticketPrice} DT
-        `;
-        
-        var qrModal = document.getElementById('qr-modal');
-        var qrCodeImg = document.getElementById('qr-code-img');
-
-        qrCodeImg.src = "https://api.qrserver.com/v1/create-qr-code/?data=" + encodeURIComponent(eventText) + "&size=200x200";
-        
-        qrModal.style.display = 'flex';
-    }
-
-    function closeQRCode() {
-        var qrModal = document.getElementById('qr-modal');
-        qrModal.style.display = 'none';
-    }
+function closeQRCode() {
+    document.getElementById('qr-modal').style.display = 'none';
+}
 </script>
-
 {% endblock %}
