@@ -1,0 +1,134 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Job Applications{% endblock %}
+
+{% block body %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap');
+    body {
+        font-family: 'Be Vietnam Pro', sans-serif;
+        background-color: #f8fafc;
+        margin: 0;
+        padding: 0;
+    }
+    #search-user-id {
+        display: none; /* Hides the search bar */
+    }
+    #calendar-holder {
+        width: 90%;
+        max-width: 900px;
+        height: 70vh;
+        margin: 50px auto;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        display: none;
+    }
+    @media (max-width: 768px) {
+        #calendar-holder {
+            padding: 10px;
+        }
+        .fc-toolbar-title {
+            font-size: 20px;
+        }
+    }
+    .no-results {
+        text-align: center;
+        color: #999;
+        font-size: 18px;
+        margin-top: 20px;
+        display: none;
+    }
+</style>
+
+<!-- Search Bar for user_id -->
+<div class="search-container">
+    <input type="number" id="search-user-id" placeholder="Enter your user ID..." min="1" />
+</div>
+
+<div id="calendar-holder"
+     data-applications="{{ applications|map(a => {
+         'id': a.id,
+         'userId': a.userId,
+         'jobId': a.jobId,
+         'companyId': a.companyId,
+         'comment': a.comment,
+         'appliedDate': a.appliedDate ? a.appliedDate|date('Y-m-d') : '',
+         'status': a.status
+     })|json_encode|e('html_attr') }}">
+</div>
+<div class="no-results" id="no-results">No applications found for this user ID.</div>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-user-id');
+    const calendarHolder = document.getElementById('calendar-holder');
+    const noResults = document.getElementById('no-results');
+    let calendar;
+
+    // Function to show the calendar with filtered events
+    function showCalendar(userId) {
+        const raw = JSON.parse(calendarHolder.dataset.applications || "[]");
+        const events = raw.filter(a => a && String(a.userId) === userId)
+            .map(a => ({
+                id: a.id,
+                title: `Application #${a.id} (${a.status})`,
+                start: a.appliedDate,
+                allDay: true,
+            }));
+
+        // Clear previous calendar if it exists
+        calendarHolder.innerHTML = '';
+        if (calendar) {
+            calendar.destroy();
+        }
+
+        if (events.length > 0) {
+            noResults.style.display = "none";
+            calendarHolder.style.display = "block";
+
+            const calDiv = document.createElement('div');
+            calDiv.id = "user-app-calendar";
+            calendarHolder.appendChild(calDiv);
+
+            calendar = new FullCalendar.Calendar(calDiv, {
+                initialView: 'dayGridMonth',
+                height: 500,
+                events: events,
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek'
+                },
+            });
+            calendar.render();
+        } else {
+            noResults.style.display = "block";
+            calendarHolder.style.display = "none";
+        }
+    }
+
+    // Event listener for the search input
+    searchInput.addEventListener('input', function() {
+        const userId = this.value.trim();
+        if (userId) {
+            showCalendar(userId);
+        } else {
+            calendarHolder.style.display = "none";
+            noResults.style.display = "none";
+        }
+    });
+
+    // Autofill search from localStorage if present
+    const employeeId = localStorage.getItem('candidat_id');
+    if (employeeId) {
+        searchInput.value = employeeId;
+        const event = new Event('input');
+        searchInput.dispatchEvent(event);
+    }
+});
+</script>
+{% endblock %}

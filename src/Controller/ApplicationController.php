@@ -233,4 +233,28 @@ class ApplicationController extends AbstractController
 
         return $this->redirectToRoute('app_user_applications', ['user_id' => $applicant->getUserId()]);
     }
+
+
+#[Route('/applications/user-carousel', name: 'app_user_applications_carousel', methods: ['GET'])]
+public function userApplicationsCarousel(ApplicantRepository $applicantRepository): Response
+{
+    // Get ALL applications; filtering is handled in the browser by JS search bar
+    $applications = $applicantRepository->findBy([], ['appliedDate' => 'DESC']);
+
+    return $this->render('application/user_applications_carousel.html.twig', [
+        'applications' => $applications,
+    ]);
+}
+
+#[Route('/applications/company-carousel', name: 'app_company_applications_carousel', methods: ['GET'])]
+public function companyApplicationsCarousel(ApplicantRepository $applicantRepository): Response
+{
+    // Get ALL applications; filtering is handled in the browser by JS search bar
+    $applications = $applicantRepository->findBy([], ['appliedDate' => 'DESC']);
+
+    return $this->render('application/company_applications_carousel.html.twig', [
+        'applications' => $applications,
+    ]);
+}
+
 }

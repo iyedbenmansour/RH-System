@@ -14,6 +14,12 @@
                 </ol>
             </nav>
         </div>
+        <!-- "My Calendar" Button -->
+        <div>
+            <a href="{{ path('app_user_applications_carousel') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-calendar-event me-2"></i>My Calendar
+            </a>
+        </div>
     </div>
     
     {% if user_id is defined and user_id %}

@@ -1,0 +1,101 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Company Applications{% endblock %}
+
+{% block body %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap');
+    body {
+        font-family: 'Be Vietnam Pro', sans-serif;
+        background-color: #f8fafc;
+        margin: 0;
+        padding: 0;
+    }
+    #calendar-holder {
+        width: 90%;
+        max-width: 900px;
+        height: 60vh;
+        margin: 30px auto;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+    }
+    .no-company {
+        text-align: center;
+        color: #999;
+        font-size: 20px;
+        margin-top: 60px;
+        font-weight: 600;
+    }
+    @media (max-width: 768px) {
+        #calendar-holder {
+            padding: 10px;
+        }
+        .fc-toolbar-title {
+            font-size: 20px;
+        }
+    }
+</style>
+
+<!-- Calendar Container -->
+<div id="calendar-holder"
+     data-applications="{{ applications|map(a => {
+         'id': a.id,
+         'companyId': a.companyId,
+         'userId': a.userId,
+         'jobId': a.jobId,
+         'comment': a.comment,
+         'appliedDate': a.appliedDate ? a.appliedDate|date('Y-m-d') : '',
+         'status': a.status
+     })|json_encode|e('html_attr') }}">
+</div>
+<div id="no-company-message" class="no-company" style="display:none;">No company selected.</div>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarHolder = document.getElementById('calendar-holder');
+    const noCompanyMsg = document.getElementById('no-company-message');
+
+    // Get company_id from localStorage
+    const companyId = localStorage.company_id ? String(localStorage.company_id).trim() : "";
+
+    if (!companyId) {
+        // No company_id available
+        calendarHolder.style.display = "none";
+        noCompanyMsg.style.display = "block";
+        return;
+    }
+
+    // Filter applications for this company
+    const raw = JSON.parse(calendarHolder.dataset.applications || "[]");
+    const events = raw.filter(a => a && a.companyId && String(a.companyId) === companyId)
+        .map(a => ({
+            id: a.id,
+            title: `App #${a.id} (User ${a.userId}) - ${a.status}`,
+            start: a.appliedDate,
+            allDay: true,
+        }));
+
+    // Render calendar
+    calendarHolder.innerHTML = '';
+    const calDiv = document.createElement('div');
+    calDiv.id = "company-app-calendar";
+    calendarHolder.appendChild(calDiv);
+
+    const calendar = new FullCalendar.Calendar(calDiv, {
+        initialView: 'dayGridMonth',
+        height: 500,
+        events: events,
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek'
+        },
+    });
+    calendar.render();
+});
+</script>
+{% endblock %}
