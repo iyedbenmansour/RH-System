@@ -1,85 +1,352 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}My Applications{% endblock %}
+{% block title %}My Applications - Career Bridge{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<style>
+    /* Base Styles */
+    body {
+        background-color: #f8f9fa;
+        padding-top: 80px; /* Account for fixed navbar */
+    }
+    
+    .page-header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stats-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .empty-state {
+        padding: 4rem 2rem;
+    }
+    
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Status Badge Styles */
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .bg-soft-primary { background-color: rgba(42, 82, 152, 0.1); }
+    .bg-soft-success { background-color: rgba(25, 135, 84, 0.1); }
+    .bg-soft-warning { background-color: rgba(255, 193, 7, 0.1); }
+    .bg-soft-info { background-color: rgba(13, 202, 240, 0.1); }
+    .bg-soft-danger { background-color: rgba(220, 53, 69, 0.1); }
+    .bg-soft-secondary { background-color: rgba(108, 117, 125, 0.1); }
+    
+    /* Table Styles */
+    .applications-table {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .table-hover tbody tr {
+        transition: background-color 0.2s ease;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(42, 82, 152, 0.03);
+    }
+    
+    .table-header {
+        background-color: #f8f9fa;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .company-icon, .job-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        font-size: 1.2rem;
+    }
+    
+    /* Action Button Styles */
+    .action-btn {
+        border-radius: 8px;
+        padding: 0.4rem 0.8rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    /* Calendar Button Style */
+    .calendar-btn {
+        border-radius: 10px;
+        padding: 0.6rem 1.2rem;
+        font-weight: 500;
+        background: white;
+        border: 1px solid #dee2e6;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+    }
+    
+    .calendar-btn:hover {
+        background-color: #f8f9fa;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Add Application Button */
+    .add-application-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #2a5298;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(42, 82, 152, 0.3);
+        transition: all 0.3s ease;
+        z-index: 100;
+    }
+    
+    .add-application-btn:hover {
+        transform: scale(1.1);
+        background: #1e3c72;
+    }
+    
+    .add-application-btn i {
+        font-size: 1.5rem;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+        .stats-card {
+            margin-bottom: 1rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 1.5rem;
+        }
+        
+        .table-responsive {
+            border-radius: 12px;
+        }
+    }
+    
+    /* Career Bridge specific styling */
+    .section-padding {
+        padding: 80px 0;
+    }
+    
+    /* Add a primary button style that matches branding */
+    .btn-primary-brand {
+        background-color: #2a5298;
+        border-color: #1e3c72;
+        color: white;
+    }
+    
+    .btn-primary-brand:hover {
+        background-color: #1e3c72;
+        border-color: #162955;
+        color: white;
+    }
+    
+    /* Add a little padding to the main container */
+    .main-container {
+        padding-bottom: 80px;
+    }
+</style>
+{% endblock %}
 
 {% block body %}
-<div class="container-fluid px-lg-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="fw-bold text-dark mb-1">My Applications</h1>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Applications</li>
-                </ol>
-            </nav>
-        </div>
-        <!-- "My Calendar" Button -->
-        <div>
-            <a href="{{ path('app_user_applications_carousel') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-calendar-event me-2"></i>My Calendar
-            </a>
+<div class="main-container container-fluid px-lg-5 py-4">
+    <!-- Page Header with Search -->
+    <div class="page-header text-white mb-4">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="fw-bold mb-2">My Applications</h1>
+                <p class="opacity-75 mb-0">Track and manage your job applications in one place</p>
+            </div>
+            <div class="col-lg-6">
+                <div class="d-flex justify-content-lg-end mt-3 mt-lg-0">
+                    <a href="{{ path('app_user_applications_carousel') }}" class="calendar-btn d-flex align-items-center">
+                        <i class="bi bi-calendar-event me-2"></i>
+                        <span>Calendar View</span>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
     
     {% if user_id is defined and user_id %}
         {% if applications|length == 0 %}
-            <div class="card border-0 shadow-sm rounded-lg overflow-hidden">
+            <!-- Empty State -->
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                 <div class="card-body p-5 text-center bg-light">
                     <div class="empty-state">
-                        <div class="empty-state-icon bg-soft-primary rounded-circle">
-                            <i class="bi bi-file-earmark-text-fill text-primary fs-1"></i>
+                        <div class="empty-state-icon bg-soft-primary rounded-circle mb-4">
+                            <i class="bi bi-clipboard-plus text-primary fs-1"></i>
                         </div>
-                        <h3 class="mt-4 fw-bold">No applications yet</h3>
-                        <p class="text-muted mb-4">Start tracking your job search by adding your first application</p>
-                        <a href="{{ path('app_new_application') }}" class="btn btn-primary px-4 py-2">
-                            <i class="bi bi-plus-lg me-2"></i>Add Application
+                        <h3 class="fw-bold mb-3">No applications yet</h3>
+                        <p class="text-muted mb-4">Start tracking your job search journey by adding your first application</p>
+                        <a href="{{ path('app_new_application') }}" class="btn btn-primary-brand btn-lg">
+                            <i class="bi bi-plus-circle me-2"></i>Add Your First Application
                         </a>
                     </div>
                 </div>
             </div>
         {% else %}
-            <!-- Stats Cards -->
-            <div class="row g-4 mb-4">
-                <div class="col-lg-3 col-md-6">
-                    <div class="card border-0 shadow-sm rounded-lg">
-                        <div class="card-body text-center">
-                            <h6 class="text-muted text-uppercase">Total Applications</h6>
-                            <h2 class="fw-bold">{{ applications|length }}</h2>
+            <!-- Stats Cards Row -->
+            <div class="row mb-4">
+                <!-- Total Applications -->
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <div class="stats-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-soft-primary p-3 rounded-circle me-3">
+                                    <i class="bi bi-file-earmark-text text-primary"></i>
+                                </div>
+                                <h6 class="text-uppercase mb-0 text-muted">Total</h6>
+                            </div>
+                            <h2 class="fw-bold mb-0">{{ applications|length }}</h2>
+                            <div class="progress mt-3" style="height: 6px;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: 100%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="card border-0 shadow-sm rounded-lg">
-                        <div class="card-body text-center">
-                            <h6 class="text-muted text-uppercase">Pending</h6>
-                            <h2 class="fw-bold text-warning">{{ applications|filter(a => a.status == 'Pending')|length }}</h2>
+                
+                <!-- Pending Applications -->
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <div class="stats-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-soft-warning p-3 rounded-circle me-3">
+                                    <i class="bi bi-hourglass-split text-warning"></i>
+                                </div>
+                                <h6 class="text-uppercase mb-0 text-muted">Pending</h6>
+                            </div>
+                            {% set pendingCount = applications|filter(a => a.status == 'Pending' or a.status == 'Interviewing')|length %}
+                            {% set pendingPercentage = (pendingCount / applications|length) * 100 %}
+                            <h2 class="fw-bold mb-0">{{ pendingCount }}</h2>
+                            <div class="progress mt-3" style="height: 6px;">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ pendingPercentage }}%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="card border-0 shadow-sm rounded-lg">
-                        <div class="card-body text-center">
-                            <h6 class="text-muted text-uppercase">Accepted</h6>
-                            <h2 class="fw-bold text-success">{{ applications|filter(a => a.status == 'Accepted')|length }}</h2>
+                
+                <!-- Accepted Applications -->
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <div class="stats-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-soft-success p-3 rounded-circle me-3">
+                                    <i class="bi bi-check-circle text-success"></i>
+                                </div>
+                                <h6 class="text-uppercase mb-0 text-muted">Accepted</h6>
+                            </div>
+                            {% set acceptedCount = applications|filter(a => a.status == 'Accepted')|length %}
+                            {% set acceptedPercentage = (acceptedCount / applications|length) * 100 %}
+                            <h2 class="fw-bold mb-0">{{ acceptedCount }}</h2>
+                            <div class="progress mt-3" style="height: 6px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: {{ acceptedPercentage }}%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="card border-0 shadow-sm rounded-lg">
-                        <div class="card-body text-center">
-                            <h6 class="text-muted text-uppercase">Rejected</h6>
-                            <h2 class="fw-bold text-danger">{{ applications|filter(a => a.status == 'Rejected')|length }}</h2>
+                
+                <!-- Rejected Applications -->
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <div class="stats-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-soft-danger p-3 rounded-circle me-3">
+                                    <i class="bi bi-x-circle text-danger"></i>
+                                </div>
+                                <h6 class="text-uppercase mb-0 text-muted">Rejected</h6>
+                            </div>
+                            {% set rejectedCount = applications|filter(a => a.status == 'Rejected')|length %}
+                            {% set rejectedPercentage = (rejectedCount / applications|length) * 100 %}
+                            <h2 class="fw-bold mb-0">{{ rejectedCount }}</h2>
+                            <div class="progress mt-3" style="height: 6px;">
+                                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ rejectedPercentage }}%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             
             <!-- Applications Table -->
-            <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="applications-table mb-4">
+                <div class="card-header bg-white p-4 border-0">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        <h5 class="mb-0 fw-bold">Application History</h5>
+                        <div class="d-flex gap-2">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-funnel me-1"></i> Filter
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#">All Applications</a></li>
+                                    <li><a class="dropdown-item" href="#">Pending</a></li>
+                                    <li><a class="dropdown-item" href="#">Accepted</a></li>
+                                    <li><a class="dropdown-item" href="#">Rejected</a></li>
+                                </ul>
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-sort-down me-1"></i> Sort
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#">Date (newest)</a></li>
+                                    <li><a class="dropdown-item" href="#">Date (oldest)</a></li>
+                                    <li><a class="dropdown-item" href="#">Company name (A-Z)</a></li>
+                                    <li><a class="dropdown-item" href="#">Status</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
-                        <thead class="bg-light">
+                        <thead class="table-header">
                             <tr>
                                 <th class="py-3 px-4 fw-bold text-uppercase text-muted small">Job Title</th>
                                 <th class="py-3 px-4 fw-bold text-uppercase text-muted small">Company</th>
@@ -90,69 +357,159 @@
                         </thead>
                         <tbody>
                             {% for application in applications %}
-                                <tr class="border-bottom border-light">
+                                <tr class="border-bottom">
                                     <td class="py-3 px-4 align-middle">
                                         <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0 bg-soft-primary rounded-circle p-2 me-3">
+                                            <div class="job-icon bg-soft-primary me-3">
                                                 <i class="bi bi-briefcase-fill text-primary"></i>
                                             </div>
                                             <div>
                                                 <h6 class="mb-0 fw-bold">{{ application.jobTitle|default(application.jobId) }}</h6>
-                                                <small class="text-muted">ID: {{ application.jobId }}</small>
+                                                <small class="text-muted d-block">ID: {{ application.jobId }}</small>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="py-3 px-4 align-middle">
                                         <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0 bg-soft-info rounded-circle p-2 me-3">
+                                            <div class="company-icon bg-soft-info me-3">
                                                 <i class="bi bi-building text-info"></i>
                                             </div>
                                             <div>
                                                 <h6 class="mb-0">{{ application.companyName|default(application.companyId) }}</h6>
-                                                <small class="text-muted">ID: {{ application.companyId }}</small>
+                                                <small class="text-muted d-block">ID: {{ application.companyId }}</small>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="py-3 px-4 align-middle">
-                                        <div class="fw-bold">{{ application.appliedDate|date('M d, Y') }}</div>
-                                        <small class="text-muted">{{ application.appliedDate|date('l') }}</small>
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-3">
+                                                <div class="bg-soft-secondary rounded text-center p-2" style="width: 45px;">
+                                                    <small class="text-muted d-block">{{ application.appliedDate|date('M') }}</small>
+                                                    <span class="fw-bold">{{ application.appliedDate|date('d') }}</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">{{ application.appliedDate|date('Y') }}</div>
+                                                <small class="text-muted">{{ application.appliedDate|date('l') }}</small>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td class="py-3 px-4 align-middle">
-                                        <span class="badge rounded-pill py-2 px-3 bg-soft-{% if application.status == 'Accepted' %}success text-success{% elseif application.status == 'Rejected' %}danger text-danger{% elseif application.status == 'Interviewing' %}info text-info{% else %}warning text-warning{% endif %}">
-                                            <i class="bi {% if application.status == 'Accepted' %}bi-check-circle{% elseif application.status == 'Rejected' %}bi-x-circle{% elseif application.status == 'Interviewing' %}bi-people{% else %}bi-hourglass-split{% endif %} me-1"></i>
+                                        <span class="status-badge bg-soft-{% if application.status == 'Accepted' %}success text-success{% elseif application.status == 'Rejected' %}danger text-danger{% elseif application.status == 'Interviewing' %}warning text-warning{% else %}warning text-warning{% endif %}">
+                                            <i class="bi {% if application.status == 'Accepted' %}bi-check-circle{% elseif application.status == 'Rejected' %}bi-x-circle{% elseif application.status == 'Interviewing' %}bi-hourglass-split{% else %}bi-hourglass-split{% endif %}"></i>
                                             {{ application.status }}
                                         </span>
                                     </td>
                                     <td class="py-3 px-4 text-end align-middle">
-                                        <!-- Action Buttons -->
-                                        <a href="{{ path('app_update_application', {'id': application.id}) }}" class="btn btn-outline-primary btn-sm me-2">
-                                            <i class="bi bi-pencil-square"></i> Edit
-                                        </a>
-                                        <form method="post" action="{{ path('app_delete_application', {'id': application.id}) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this application?');">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ application.id) }}">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm">
-                                                <i class="bi bi-trash"></i> Delete
-                                            </button>
-                                        </form>
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <a href="{{ path('app_update_application', {'id': application.id}) }}" class="btn btn-outline-primary action-btn">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
+                                            <form method="post" action="{{ path('app_delete_application', {'id': application.id}) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this application?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ application.id) }}">
+                                                <button type="submit" class="btn btn-outline-danger action-btn">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-                <div class="card-footer bg-light border-0 py-3">
-                    <div class="d-flex justify-content-between align-items-center">
+                
+                <div class="card-footer bg-white border-0 p-4">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
                         <div class="text-muted">
                             Showing <span class="fw-bold">1</span> to <span class="fw-bold">{{ applications|length }}</span> of <span class="fw-bold">{{ applications|length }}</span> entries
+                        </div>
+                        <nav aria-label="Applications pagination">
+                            <ul class="pagination mb-0">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" aria-label="Previous">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" aria-label="Next">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Stats and Insights -->
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-header bg-white border-0 pt-4 pb-0">
+                            <h5 class="fw-bold mb-0">Application Timeline</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center py-4">
+                                <div class="empty-state-icon bg-soft-secondary rounded-circle mb-3">
+                                    <i class="bi bi-bar-chart text-secondary"></i>
+                                </div>
+                                <p class="text-muted">Timeline data will appear here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 mb-4">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-header bg-white border-0 pt-4 pb-0">
+                            <h5 class="fw-bold mb-0">Recent Activity</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="bg-soft-primary rounded-circle p-2 me-3">
+                                    <i class="bi bi-briefcase text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">Application submitted</h6>
+                                    <small class="text-muted">{{ applications[0].appliedDate|date('M d, Y') }}</small>
+                                </div>
+                            </div>
+                            
+                            {% if applications|length > 1 %}
+                            <div class="d-flex align-items-start">
+                                <div class="bg-soft-info rounded-circle p-2 me-3">
+                                    <i class="bi bi-clock-history text-info"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">Status updated</h6>
+                                    <small class="text-muted">{{ applications[1].appliedDate|date('M d, Y') }}</small>
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
+            
+            <!-- Add Application Floating Button -->
+            <a href="{{ path('app_jobs_all') }}" class="add-application-btn">
+                <i class="bi bi-plus-lg"></i>
+            </a>
         {% endif %}
     {% else %}
         <div class="alert alert-warning mt-4" id="no-user-alert" style="display:none;">
-            No user selected. Please set your candidate ID in local storage.<br>
-            <code>localStorage.setItem('candidat_id', 'YOUR_USER_ID')</code>
+            <div class="d-flex">
+                <div class="me-3">
+                    <i class="bi bi-exclamation-triangle-fill fs-3"></i>
+                </div>
+                <div>
+                    <h5 class="alert-heading">No user selected</h5>
+                    <p class="mb-0">Please set your candidate ID in local storage to view your applications.</p>
+                    <code>localStorage.setItem('candidat_id', 'YOUR_USER_ID')</code>
+                </div>
+            </div>
         </div>
     {% endif %}
 </div>
@@ -179,28 +536,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-{% endblock %}
-
-{% block stylesheets %}
-{{ parent() }}
-<style>
-    .bg-soft-primary {
-        background-color: rgba(13, 110, 253, 0.1);
-    }
-    .bg-soft-success {
-        background-color: rgba(25, 135, 84, 0.1);
-    }
-    .bg-soft-warning {
-        background-color: rgba(255, 193, 7, 0.1);
-    }
-    .bg-soft-info {
-        background-color: rgba(13, 202, 240, 0.1);
-    }
-    .bg-soft-danger {
-        background-color: rgba(220, 53, 69, 0.1);
-    }
-    .table-hover tbody tr:hover {
-        background-color: rgba(248, 249, 250, 0.8);
-    }
-</style>
 {% endblock %}

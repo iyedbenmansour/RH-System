@@ -1,65 +1,230 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}My Job Applications{% endblock %}
+{% block title %}Calendar View - Career Track{% endblock %}
 
-{% block body %}
+{% block stylesheets %}
+{{ parent() }}
 <style>
+    /* Base Styles */
     @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap');
+    
     body {
         font-family: 'Be Vietnam Pro', sans-serif;
-        background-color: #f8fafc;
-        margin: 0;
-        padding: 0;
+        background-color: #f8f9fa;
     }
+    
+    .page-header {
+        background: linear-gradient(135deg, #083270 0%, #0d6efd 100%);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
     #search-user-id {
         display: none; /* Hides the search bar */
     }
+    
     #calendar-holder {
-        width: 90%;
-        max-width: 900px;
-        height: 70vh;
-        margin: 50px auto;
-        background: #ffffff;
-        padding: 20px;
-        border-radius: 16px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-        overflow-y: auto;
-        display: none;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        min-height: 600px;
     }
+    
+    .list-view-btn {
+        border-radius: 10px;
+        padding: 0.6rem 1.2rem;
+        font-weight: 500;
+        background: white;
+        border: 1px solid #dee2e6;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+    }
+    
+    .list-view-btn:hover {
+        background-color: #f8f9fa;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Status indicator styles for FullCalendar events */
+    .fc-event {
+        border-radius: 6px;
+        border: none !important;
+        padding: 2px 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+    
+    .fc-event:hover {
+        transform: translateY(-2px);
+    }
+    
+    .fc-event-pending {
+        background-color: rgba(255, 193, 7, 0.15) !important;
+        border-left: 3px solid #ffc107 !important;
+        color: #997404 !important;
+    }
+    
+    .fc-event-interviewing {
+        background-color: rgba(13, 202, 240, 0.15) !important;
+        border-left: 3px solid #0dcaf0 !important;  
+        color: #087990 !important;
+    }
+    
+    .fc-event-accepted {
+        background-color: rgba(25, 135, 84, 0.15) !important;
+        border-left: 3px solid #198754 !important;
+        color: #0f5132 !important;
+    }
+    
+    .fc-event-rejected {
+        background-color: rgba(220, 53, 69, 0.15) !important;
+        border-left: 3px solid #dc3545 !important;
+        color: #842029 !important;
+    }
+    
+    /* FullCalendar custom styling */
+    .fc-button-primary {
+        background-color: #0d6efd !important;
+        border-color: #0a58ca !important;
+    }
+    
+    .fc-button-primary:hover {
+        background-color: #0b5ed7 !important;
+        border-color: #0a58ca !important;
+    }
+    
+    .fc-button-active {
+        background-color: #0a58ca !important;
+        border-color: #0a53be !important;
+    }
+    
+    .fc-col-header-cell {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .fc-toolbar-title {
+        font-weight: 600;
+        color: #212529;
+    }
+    
+    .fc-daygrid-day-number {
+        font-weight: 500;
+        color: #495057;
+    }
+    
+    .fc .fc-daygrid-day.fc-day-today {
+        background-color: rgba(13, 110, 253, 0.08);
+    }
+    
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+    
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .bg-soft-primary { background-color: rgba(13, 110, 253, 0.1); }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+        .page-header {
+            padding: 1.5rem;
+        }
+    }
+    
     @media (max-width: 768px) {
         #calendar-holder {
-            padding: 10px;
+            padding: 1rem;
         }
+        
         .fc-toolbar-title {
-            font-size: 20px;
+            font-size: 1.25rem !important;
         }
-    }
-    .no-results {
-        text-align: center;
-        color: #999;
-        font-size: 18px;
-        margin-top: 20px;
-        display: none;
+        
+        .fc-toolbar {
+            flex-direction: column;
+            gap: 10px;
+        }
     }
 </style>
+{% endblock %}
 
-<!-- Search Bar for user_id -->
-<div class="search-container">
-    <input type="number" id="search-user-id" placeholder="Enter your user ID..." min="1" />
+{% block body %}
+<div class="container-fluid px-lg-5 py-4">
+    <!-- Page Header with View Toggle -->
+    <div class="page-header text-white mb-4">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="fw-bold mb-2">Calendar View</h1>
+                <p class="opacity-75 mb-0">See your application timeline at a glance</p>
+            </div>
+            <div class="col-lg-6">
+                <div class="d-flex justify-content-lg-end mt-3 mt-lg-0">
+                    <a href="{{ path('app_user_applications') }}" class="list-view-btn d-flex align-items-center">
+                        <i class="bi bi-list-ul me-2"></i>
+                        <span>List View</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Search Bar for user_id (hidden) -->
+    <div class="search-container">
+        <input type="number" id="search-user-id" placeholder="Enter your user ID..." min="1" />
+    </div>
+
+    <!-- Calendar Container -->
+    <div id="calendar-holder" 
+         class="mb-4"
+         data-applications="{{ applications|map(a => {
+             'id': a.id,
+             'userId': a.userId,
+             'jobId': a.jobId,
+             'companyId': a.companyId,
+             'jobTitle': a.jobTitle|default('Job Application'),
+             'companyName': a.companyName|default('Company'),
+             'comment': a.comment,
+             'appliedDate': a.appliedDate ? a.appliedDate|date('Y-m-d') : '',
+             'status': a.status
+         })|json_encode|e('html_attr') }}">
+        <!-- Calendar will be rendered here -->
+    </div>
+    
+    <!-- Empty State -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden" id="no-results" style="display:none;">
+        <div class="card-body p-5 text-center bg-light">
+            <div class="empty-state">
+                <div class="empty-state-icon bg-soft-primary rounded-circle mb-4">
+                    <i class="bi bi-calendar-x text-primary fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-3">No applications found</h3>
+                <p class="text-muted mb-4">Start tracking your job search journey by adding your first application</p>
+                    <i class="bi bi-plus-circle me-2"></i>Add Your First Application
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div id="calendar-holder"
-     data-applications="{{ applications|map(a => {
-         'id': a.id,
-         'userId': a.userId,
-         'jobId': a.jobId,
-         'companyId': a.companyId,
-         'comment': a.comment,
-         'appliedDate': a.appliedDate ? a.appliedDate|date('Y-m-d') : '',
-         'status': a.status
-     })|json_encode|e('html_attr') }}">
-</div>
-<div class="no-results" id="no-results">No applications found for this user ID.</div>
 
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
 <script>
@@ -69,15 +234,36 @@ document.addEventListener('DOMContentLoaded', function() {
     const noResults = document.getElementById('no-results');
     let calendar;
 
+    // Function to get status-based CSS class
+    function getStatusClass(status) {
+        switch(status.toLowerCase()) {
+            case 'accepted':
+                return 'fc-event-accepted';
+            case 'rejected':
+                return 'fc-event-rejected';
+            case 'interviewing':
+                return 'fc-event-interviewing';
+            default:
+                return 'fc-event-pending';
+        }
+    }
+
     // Function to show the calendar with filtered events
     function showCalendar(userId) {
         const raw = JSON.parse(calendarHolder.dataset.applications || "[]");
         const events = raw.filter(a => a && String(a.userId) === userId)
             .map(a => ({
                 id: a.id,
-                title: `Application #${a.id} (${a.status})`,
+                title: a.jobTitle ? `${a.jobTitle} at ${a.companyName || 'Company'}` : `Application #${a.id}`,
                 start: a.appliedDate,
                 allDay: true,
+                extendedProps: {
+                    status: a.status,
+                    company: a.companyName || 'Company',
+                    jobTitle: a.jobTitle || 'Job Application',
+                    comment: a.comment || ''
+                },
+                classNames: [getStatusClass(a.status)]
             }));
 
         // Clear previous calendar if it exists
@@ -96,13 +282,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
             calendar = new FullCalendar.Calendar(calDiv, {
                 initialView: 'dayGridMonth',
-                height: 500,
+                height: 'auto',
                 events: events,
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'dayGridMonth,timeGridWeek'
+                    right: 'dayGridMonth,listMonth'
                 },
+                eventDidMount: function(info) {
+                    // Add tooltip with application details
+                    const tooltip = document.createElement('div');
+                    tooltip.classList.add('fc-event-tooltip');
+                    
+                    // You can add Bootstrap tooltips or custom tooltip logic here
+                    info.el.title = `${info.event.extendedProps.jobTitle} at ${info.event.extendedProps.company}\nStatus: ${info.event.extendedProps.status}`;
+                },
+                eventClick: function(info) {
+                    // You could add a modal popup here to show application details
+                    alert(`
+                        Application Details:
+                        Job: ${info.event.extendedProps.jobTitle}
+                        Company: ${info.event.extendedProps.company}
+                        Status: ${info.event.extendedProps.status}
+                        ${info.event.extendedProps.comment ? '\nComment: ' + info.event.extendedProps.comment : ''}
+                    `);
+                }
             });
             calendar.render();
         } else {
@@ -128,6 +332,10 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput.value = employeeId;
         const event = new Event('input');
         searchInput.dispatchEvent(event);
+    } else {
+        // Show empty state with instructions if no user ID is found
+        calendarHolder.style.display = "none";
+        noResults.style.display = "block";
     }
 });
 </script>

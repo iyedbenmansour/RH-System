@@ -2,68 +2,189 @@
 
 {% block title %}Apply for {{ job.title }}{% endblock %}
 
+{% block stylesheets %}
+<style>
+    .apply-container {
+        padding: 3rem 0;
+    }
+    .card-header-custom {
+        background: linear-gradient(135deg, #083270 0%, #0d6efd 100%);
+        border-radius: 12px 12px 0 0;
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .card-header-custom::after {
+        content: '';
+        position: absolute;
+        bottom: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+    .card-title-custom {
+        color: white;
+        font-weight: 700;
+        margin-bottom: 0;
+        position: relative;
+        z-index: 1;
+    }
+    .card-body-custom {
+        background: white;
+        border-radius: 0 0 12px 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+    }
+    .form-group-custom {
+        margin-bottom: 1.5rem;
+    }
+    .form-label-custom {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    .form-control-custom {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    .form-control-custom:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+    .form-text-custom {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    .action-buttons-custom {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+    .back-btn-custom {
+        display: flex;
+        align-items: center;
+        color: #6c757d;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    .back-btn-custom:hover {
+        background-color: #f8f9fa;
+        transform: translateX(-5px);
+    }
+    .submit-btn-custom {
+        padding: 0.75rem 2.5rem;
+        border-radius: 50px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    .submit-btn-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+    }
+    .error-alert-custom {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1.5rem;
+        display: none;
+    }
+    .error-alert-custom.show {
+        display: block;
+    }
+    @media (max-width: 768px) {
+        .action-buttons-custom {
+            flex-direction: column-reverse;
+            gap: 1rem;
+        }
+        .back-btn-custom, .submit-btn-custom {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block body %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h2>Apply for: {{ job.title }}</h2>
-                    </div>
-                    <div class="card-body">
-                        <form method="post" id="apply-form">
-                            <input type="hidden" name="job_id" value="{{ job.id }}">
-                            <input type="hidden" name="company_id" value="{{ job.companyId }}">
-                            <input type="hidden" id="user_id" name="user_id" required>
-                            
-                            <div class="mb-3">
-                                <label for="comment" class="form-label">Cover Letter/Message</label>
-                                <textarea class="form-control" id="comment" name="comment" rows="5" required></textarea>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="additional_file" class="form-label">Resume/CV (URL or brief description)</label>
-                                <input type="text" class="form-control" id="additional_file" name="additional_file" required>
-                                <div class="form-text">Example: "https://example.com/myresume.pdf" or "See LinkedIn profile at..."</div>
-                            </div>
-                            
-                            <div class="d-flex justify-content-between mt-4">
-                                <a href="{{ path('app_job_show', {'id': job.id}) }}" class="btn btn-outline-secondary">
-                                    <i class="bi bi-arrow-left"></i> Back to Job
-                                </a>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-send"></i> Submit Application
-                                </button>
-                            </div>
-                        </form>
-                        <div id="userid-error" class="alert alert-danger mt-3 d-none">
+<div class="container apply-container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Apply Header -->
+            <div class="card">
+                <div class="card-header card-header-custom">
+                    <h2 class="card-title-custom">Apply for: {{ job.title }}</h2>
+                </div>
+                <div class="card-body card-body-custom">
+                    <form method="post" id="apply-form">
+                        <input type="hidden" name="job_id" value="{{ job.id }}">
+                        <input type="hidden" name="company_id" value="{{ job.companyId }}">
+                        <input type="hidden" id="user_id" name="user_id" required>
+
+                        <!-- Cover Letter Section -->
+                        <div class="form-group-custom">
+                            <label for="comment" class="form-label-custom">Cover Letter/Message</label>
+                            <textarea class="form-control form-control-custom" id="comment" name="comment" rows="5" required></textarea>
+                        </div>
+
+                        <!-- Resume/CV Section -->
+                        <div class="form-group-custom">
+                            <label for="additional_file" class="form-label-custom">Resume/CV (URL or brief description)</label>
+                            <input type="text" class="form-control form-control-custom" id="additional_file" name="additional_file" required>
+                            <div class="form-text form-text-custom">Example: "https://example.com/myresume.pdf" or "See LinkedIn profile at..."</div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons-custom">
+                            <a href="{{ path('app_job_show', {'id': job.id}) }}" class="btn btn-outline-secondary back-btn-custom">
+                                <i class="bi bi-arrow-left"></i> Back to Job
+                            </a>
+                            <button type="submit" class="btn btn-primary submit-btn-custom">
+                                <i class="bi bi-send"></i> Submit Application
+                            </button>
+                        </div>
+
+                        <!-- Error Alert -->
+                        <div id="userid-error" class="error-alert-custom">
                             Error: User ID not found in your session. Please log in again.
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const candidatId = localStorage.getItem('candidat_id');
-            const userIdInput = document.getElementById('user_id');
-            const form = document.getElementById('apply-form');
-            const errorDiv = document.getElementById('userid-error');
+</div>
 
-            if (candidatId && userIdInput) {
-                userIdInput.value = candidatId;
-            } else {
-                if (errorDiv) {
-                    errorDiv.classList.remove('d-none');
-                }
-                if (form) {
-                    form.addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        alert('User ID not found. Please log in again.');
-                    });
-                }
-            }
-        });
-    </script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const candidatId = localStorage.getItem('candidat_id');
+    const userIdInput = document.getElementById('user_id');
+    const form = document.getElementById('apply-form');
+    const errorDiv = document.getElementById('userid-error');
+
+    if (candidatId && userIdInput) {
+        userIdInput.value = candidatId;
+    } else {
+        if (errorDiv) {
+            errorDiv.classList.add('show');
+        }
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('User ID not found. Please log in again.');
+            });
+        }
+    }
+});
+</script>
 {% endblock %}

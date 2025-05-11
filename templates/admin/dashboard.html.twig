@@ -236,7 +236,6 @@
                             <tr>
                                 <th>Nom</th>
                                 <th>Email</th>
-                                <th>CV</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -249,13 +248,7 @@
                                     </div>
                                 </td>
                                 <td>{{ user.email }}</td>
-                                <td>
-                                    {% if user.cv %}
-                                        <span class="badge badge-success">Disponible</span>
-                                    {% else %}
-                                        <span class="badge badge-primary">Non disponible</span>
-                                    {% endif %}
-                                </td>
+                               
                                 
                             </tr>
                             {% else %}

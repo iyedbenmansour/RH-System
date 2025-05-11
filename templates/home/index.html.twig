@@ -1,95 +1,507 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello HomeController!{% endblock %}
+{% block title %}Career Bridge | Modern HR Platform{% endblock %}
 
 {% block body %}
-<!-- slider section -->
-<section class="slider_section" style="background-color: #231a6f;"> <!-- Bootstrap blue -->
-  <div id="customCarousel1" class="carousel slide" data-ride="carousel">
-    <div class="carousel-inner">
-      <div class="carousel-item active">
-        <div class="container ">
-          <div class="row">
-            <div class="col-md-6 ">
-              <div class="detail-box">
-                <h1>
-                  Career <br>
-                  Bridge
-                </h1>
-                <p>
-                  Transform your hiring process and employee experience with our comprehensive HR system. Streamline recruitment, simplify onboarding, and manage talent development—all from a single, intuitive platform. Our solution empowers HR teams to make data-driven decisions while creating meaningful connections with candidates and employees throughout their journey with your organization.                </p>
-                <div class="btn-box">
-                  <a href="" class="btn1">
-                    Read More
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="img-box">
-                <img src="Front/images/slider-img.png" alt="">
-              </div>
+    <!-- ====== Header Start ====== -->
+    <header class="header">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="navbar-wrapper">
+              {# Navbar content removed as requested #}
             </div>
           </div>
         </div>
       </div>
-      <div class="carousel-item ">
-        <div class="container ">
-          <div class="row">
-            <div class="col-md-6 ">
-              <div class="detail-box">
-                <h1>
-                  Crypto <br>
-                  Currency
-                </h1>
-                <p>
-                  Explicabo esse amet tempora quibusdam laudantium, laborum eaque magnam fugiat hic? Esse dicta aliquid error repudiandae earum suscipit fugiat molestias, veniam, vel architecto veritatis delectus repellat modi impedit sequi.
+    </header>
+    <!-- ====== Header End ====== -->
+
+    <!-- ====== Hero Start ====== -->
+    <section class="hero" id="home">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-md-10 col-lg-6 col-xl-6">
+            <div class="hero-content wow fadeInUp" data-wow-delay=".2s">
+              <h1 class="hero-title">Career Bridge – Smart & Modern HR Platform</h1>
+              <p class="hero-desc">
+                Empower your HR management with an all-in-one solution: dashboards, document management, automated mailing, collaborative planning, and AI-powered analytics.
+              </p>
+              <a href="javascript:void(0)" class="main-btn">Discover Career Bridge</a>
+            </div>
+          </div>
+          <div class="col-lg-6 col-xl-6">
+            <div class="hero-image wow fadeInUp" data-wow-delay=".25s">
+              <div class="video-btn-wrapper">
+                <a href="javascript:void(0)" class="video-btn glightbox">
+                  <i class="lni lni-play"></i>
+                </a>
+              </div>
+              <img
+                src="{{ asset('Front/images/hero/hero-image.jpg') }}"
+                alt="hero-image"
+                class="image"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ====== Hero End ====== -->
+
+    <!-- ====== Features Start ====== -->
+    <section id="features" class="features">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="section-title mx-auto text-center">
+              <span>Features</span>
+              <h2>What Career Bridge Offers</h2>
+              <p>
+                A comprehensive, modern, and scalable HR platform designed for organizations seeking to automate and streamline talent management.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="row justify-content-center">
+          <div class="col-xl-4 col-md-6 col-sm-9">
+            <div class="single-feature wow fadeInUp" data-wow-delay=".1s">
+              <div class="feature-icon">
+                <i class="lni lni-bar-chart"></i>
+              </div>
+              <div class="feature-content">
+                <h3 class="feature-title">Statistics & Visualization</h3>
+                <p class="feature-desc">
+                  Interactive dashboards powered by Chart.js: employee distribution by department, attendance and absence tracking, application statistics.<br>
+                  Access via <strong>/admin/dashboard</strong>.
                 </p>
-                <div class="btn-box">
-                  <a href="" class="btn1">
-                    Read More
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="img-box">
-                <img src="images/slider-img.png" alt="">
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <div class="container ">
-          <div class="row">
-            <div class="col-md-6 ">
-              <div class="detail-box">
-                <h1>
-                  Crypto <br>
-                  Currency
-                </h1>
-                <p>
-                  Explicabo esse amet tempora quibusdam laudantium, laborum eaque magnam fugiat hic? Esse dicta aliquid error repudiandae earum suscipit fugiat molestias, veniam, vel architecto veritatis delectus repellat modi impedit sequi.
+          <div class="col-xl-4 col-md-6 col-sm-9">
+            <div class="single-feature wow fadeInUp" data-wow-delay=".15s">
+              <div class="feature-icon">
+                <i class="lni lni-files"></i>
+              </div>
+              <div class="feature-content">
+                <h3 class="feature-title">Documents & CV Management</h3>
+                <p class="feature-desc">
+                  Upload files (CVs, diplomas) with VichUploaderBundle, automatic CV parsing from PDFs, and PDF generation using KnpSnappy (wkhtmltopdf).
                 </p>
-                <div class="btn-box">
-                  <a href="" class="btn1">
-                    Read More
-                  </a>
-                </div>
               </div>
             </div>
-            <div class="col-md-6">
-              <div class="img-box">
-                <img src="images/slider-img.png" alt="">
+          </div>
+          <div class="col-xl-4 col-md-6 col-sm-9">
+            <div class="single-feature wow fadeInUp" data-wow-delay=".2s">
+              <div class="feature-icon">
+                <i class="lni lni-envelope"></i>
+              </div>
+              <div class="feature-content">
+                <h3 class="feature-title">Mailing & Notifications</h3>
+                <p class="feature-desc">
+                  Supports Brevo Mailer & Google Mailer; automated HR notifications (application responses, interview invitations, and more).
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4 col-md-6 col-sm-9 mt-4">
+            <div class="single-feature wow fadeInUp" data-wow-delay=".25s">
+              <div class="feature-icon">
+                <i class="lni lni-calendar"></i>
+              </div>
+              <div class="feature-content">
+                <h3 class="feature-title">Planning & Calendar</h3>
+                <p class="feature-desc">
+                  Manage HR events and availabilities, with schedules displayed using Tattali CalendarBundle.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4 col-md-6 col-sm-9 mt-4">
+            <div class="single-feature wow fadeInUp" data-wow-delay=".3s">
+              <div class="feature-icon">
+                <i class="lni lni-brain"></i>
+              </div>
+              <div class="feature-content">
+                <h3 class="feature-title">Artificial Intelligence & Analysis</h3>
+                <p class="feature-desc">
+                  Integrated OpenAI PHP client for profile analysis and HR content generation (cover letters, summaries, etc.).<br>
+                  Ready for advanced AI features.
+                </p>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-   
-  </div>
-</section>
-<!-- end slider section -->
+    </section>
+    <!-- ====== Features End ====== -->
+
+    <!-- ====== FAQ Start ====== -->
+    <section id="faq" class="faq">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="section-title text-center mx-auto">
+              <span>FAQ</span>
+              <h2>Frequently Asked Questions</h2>
+              <p>
+                Here are answers to the most common questions about the Career Bridge platform.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="single-faq wow fadeInUp" data-wow-delay=".1s">
+              <div class="faq-icon">
+                <i class="lni lni-question-circle"></i>
+              </div>
+              <div class="faq-content">
+                <h4>How do I access the HR dashboard?</h4>
+                <p>
+                  Visit <strong>/admin/dashboard</strong> to view all your HR statistics and real-time analytics.
+                </p>
+              </div>
+            </div>
+            <div class="single-faq wow fadeInUp" data-wow-delay=".15s">
+              <div class="faq-icon">
+                <i class="lni lni-question-circle"></i>
+              </div>
+              <div class="faq-content">
+                <h4>Which mailing services are supported?</h4>
+                <p>
+                  Career Bridge works with Brevo Mailer and Gmail (Google Mailer) to send automated notifications and emails.
+                </p>
+              </div>
+            </div>
+            <div class="single-faq wow fadeInUp" data-wow-delay=".2s">
+              <div class="faq-icon">
+                <i class="lni lni-question-circle"></i>
+              </div>
+              <div class="faq-content">
+                <h4>Can I generate PDFs from the platform?</h4>
+                <p>
+                  Yes, PDF generation (CVs, contracts, summaries) is provided via KnpSnappy and wkhtmltopdf.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="single-faq wow fadeInUp" data-wow-delay=".1s">
+              <div class="faq-icon">
+                <i class="lni lni-question-circle"></i>
+              </div>
+              <div class="faq-content">
+                <h4>How does CV parsing work?</h4>
+                <p>
+                  Using smalot/pdfparser, the platform automatically extracts key information from PDF resumes to streamline applicant analysis.
+                </p>
+              </div>
+            </div>
+            <div class="single-faq wow fadeInUp" data-wow-delay=".15s">
+              <div class="faq-icon">
+                <i class="lni lni-question-circle"></i>
+              </div>
+              <div class="faq-content">
+                <h4>Does the platform include an HR calendar?</h4>
+                <p>
+                  Yes, Tattali CalendarBundle integration allows HR teams to schedule meetings, interviews, and manage availability.
+                </p>
+              </div>
+            </div>
+            <div class="single-faq wow fadeInUp" data-wow-delay=".2s">
+              <div class="faq-icon">
+                <i class="lni lni-question-circle"></i>
+              </div>
+              <div class="faq-content">
+                <h4>What AI features are available?</h4>
+                <p>
+                  Career Bridge enables automatic generation of HR texts, profile analysis, and is ready for more advanced AI-powered features via OpenAI.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ====== FAQ End ====== -->
+
+    <!-- ====== Team Start ====== -->
+    <section id="team" class="team">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="section-title mx-auto text-center">
+              <span>Our Team</span>
+              <h2>Meet the Career Bridge Experts</h2>
+              <p>
+                A multidisciplinary team dedicated to HR innovation and the success of your digital transformation projects.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xl-3 col-lg-3 col-sm-6">
+            <div class="single-team wow fadeInUp" data-wow-delay=".1s">
+              <div class="team-image-wrapper">
+                <div class="team-image">
+                  <img src="{{ asset('Front/images/team/iyed.png') }}" alt="team" />
+                </div>
+              </div>
+              <div class="team-info">
+                <h5>Iyed Ben Mansour</h5>
+                <h6>Lead Developer</h6>
+              </div>
+              <ul class="team-socials">
+                <li>
+                  <a href="javascript:void(0)">
+                    <i class="lni lni-facebook-filled"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)">
+                    <i class="lni lni-twitter-filled"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)">
+                    <i class="lni lni-instagram-filled"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-xl-3 col-lg-3 col-sm-6">
+            <div class="single-team wow fadeInUp" data-wow-delay=".15s">
+              <div class="team-image-wrapper">
+                <div class="team-image">
+                  <img src="{{ asset('Front/images/team/chahba.png') }}" alt="team" />
+                </div>
+              </div>
+              <div class="team-info">
+                <h5> Mohammed Chahba</h5>
+                <h6>Product Owner</h6>
+              </div>
+              <ul class="team-socials">
+                <li>
+                  <a href="javascript:void(0)">
+                    <i class="lni lni-facebook-filled"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)">
+                    <i class="lni lni-twitter-filled"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)">
+                    <i class="lni lni-instagram-filled"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-xl-3 col-lg-3 col-sm-6">
+            <div class="single-team wow fadeInUp" data-wow-delay=".2s">
+              <div class="team-image-wrapper">
+                <div class="team-image">
+                  <img src="{{ asset('Front/images/team/aziz.png') }}" alt="team" />
+                </div>
+              </div>
+              <div class="team-info">
+                <h5>Aziz Bensghair</h5>
+                <h6>AI & Data Expert</h6>
+              </div>
+              <ul class="team-socials">
+                <li>
+                  <a href="javascript:void(0)">
+                    <i class="lni lni-facebook-filled"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)">
+                    <i class="lni lni-twitter-filled"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)">
+                    <i class="lni lni-instagram-filled"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-xl-3 col-lg-3 col-sm-6">
+            <div class="single-team wow fadeInUp" data-wow-delay=".25s">
+              <div class="team-image-wrapper">
+                <div class="team-image">
+                  <img src="{{ asset('Front/images/team/yahya.png') }}" alt="team" />
+                </div>
+              </div>
+              <div class="team-info">
+                <h5>Yahya kimiti</h5>
+                <h6>HR Consultant</h6>
+              </div>
+              <ul class="team-socials">
+                <li>
+                  <a href="javascript:void(0)">
+                    <i class="lni lni-facebook-filled"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)">
+                    <i class="lni lni-twitter-filled"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)">
+                    <i class="lni lni-instagram-filled"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-xl-3 col-lg-3 col-sm-6">
+            <div class="single-team wow fadeInUp" data-wow-delay=".25s">
+              <div class="team-image-wrapper">
+                <div class="team-image">
+                  <img src="{{ asset('Front/images/team/ala.png') }}" alt="team" />
+                </div>
+              </div>
+              <div class="team-info">
+                <h5>Ala Ben Daoud</h5>
+                <h6>HR Consultant</h6>
+              </div>
+              <ul class="team-socials">
+                <li>
+                  <a href="javascript:void(0)">
+                    <i class="lni lni-facebook-filled"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)">
+                    <i class="lni lni-twitter-filled"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)">
+                    <i class="lni lni-instagram-filled"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ====== Team End ====== -->
+
+    <!-- ====== Footer Start ====== -->
+    <footer class="footer wow fadeInUp" data-wow-delay=".15s">
+      <div class="footer-widgets">
+        <div class="container">
+          <div class="row">
+            <div class="col-xl-4 col-lg-4 col-md-6">
+              <div class="widget">
+                <a href="index.html" class="footer-logo">
+                  <img src="{{ asset('assets/images/logo/logo.svg') }}" alt="logo" />
+                </a>
+                <p class="widget-desc">
+                  Career Bridge – your partner for HR innovation and intelligent talent management.
+                </p>
+                <ul class="widget-socials">
+                  <li>
+                    <a href="javascript:void(0)">
+                      <i class="lni lni-facebook-filled"></i>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="javascript:void(0)">
+                      <i class="lni lni-twitter-filled"></i>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="javascript:void(0)">
+                      <i class="lni lni-instagram-filled"></i>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="javascript:void(0)">
+                      <i class="lni lni-linkedin-original"></i>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="col-xl-2 col-lg-2 col-md-6 col-sm-6">
+              <div class="widget">
+                <h5 class="widget-title">About</h5>
+                <ul class="widget-links">
+                  <li>
+                    <a href="javascript:void(0)">Home</a>
+                  </li>
+                  <li>
+                    <a href="javascript:void(0)">Features</a>
+                  </li>
+                  <li>
+                    <a href="javascript:void(0)">Team</a>
+                  </li>
+                  <li>
+                    <a href="javascript:void(0)">Contact</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
+              <div class="widget">
+                <h5 class="widget-title">Modules</h5>
+                <ul class="widget-links">
+                  <li>
+                    <a href="javascript:void(0)">HR Visualization</a>
+                  </li>
+                  <li>
+                    <a href="javascript:void(0)">CV Management</a>
+                  </li>
+                  <li>
+                    <a href="javascript:void(0)">HR Mailing</a>
+                  </li>
+                  <li>
+                    <a href="javascript:void(0)">HR Calendar</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
+              <div class="widget">
+                <h5 class="widget-title">Technologies</h5>
+                <ul class="widget-links">
+                  <li>
+                    <a href="https://chartjs.org/" rel="nofollow noopner" target="_blank">Chart.js</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/dustin10/VichUploaderBundle" rel="nofollow noopner" target="_blank">VichUploaderBundle</a>
+                  </li>
+                  <li>
+                    <a href="https://www.openai.com/" rel="nofollow noopner" target="_blank">OpenAI</a>
+                  </li>
+                  <li>
+                    <a href="https://symfony.com/" rel="nofollow noopner" target="_blank">Symfony</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <!-- ====== Footer End ====== -->
+
+    <!-- ====== Back To Top Start ====== -->
+    <a href="javascript:void(0)" class="back-to-top">
+      <i class="lni lni-chevron-up"> </i>
+    </a>
+    <!-- ====== Back To Top End ====== -->
 {% endblock %}

@@ -1,0 +1,321 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register Face | Career Bridge{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Face Registration Specific Styles */
+        #camera-container {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto 2rem;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        #camera-view {
+            width: 100%;
+            display: block;
+            background: #333;
+            min-height: 480px;
+        }
+        
+        #capture-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background: #4285F4;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        
+        #capture-btn:hover {
+            background: #3367d6;
+            transform: translateX(-50%) scale(1.05);
+        }
+        
+        .user-id-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        
+        .registration-section {
+            padding: 80px 0;
+            background-color: #f9fbfd;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .section-header span {
+            color: #4285F4;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .section-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .section-header p {
+            color: #777;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+        
+        #register-btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        #register-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(66, 133, 244, 0.3);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .captured-indicator {
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(40, 167, 69, 0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 600;
+        }
+        
+        .captured-indicator i {
+            margin-right: 5px;
+        }
+        
+        /* Card style container */
+        .registration-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="registration-section">
+    <div class="container">
+        <div class="section-header wow fadeInUp" data-wow-delay=".1s">
+            <span>Face Authentication</span>
+            <h1>Register Your Face</h1>
+            <p>
+                Provide facial biometrics for secure access to your Career Bridge profile.
+                Your face will be used for authentication during login.
+            </p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="registration-card wow fadeInUp" data-wow-delay=".2s">
+                    <div id="message-container"></div>
+
+                    <div class="user-id-display">
+                        <i class="lni lni-user"></i> Your Candidate ID: <span id="display-candidate-id">Loading...</span>
+                    </div>
+
+                    <div id="camera-container">
+                        <video id="camera-view" autoplay playsinline></video>
+                        <button id="capture-btn">
+                            <i class="lni lni-camera"></i> Capture
+                        </button>
+                        <div class="captured-indicator">
+                            <i class="lni lni-checkmark-circle"></i> Captured!
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button id="register-btn" class="btn btn-primary btn-lg">
+                            <i class="lni lni-user-plus"></i> Register Face
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="loading-overlay" id="loading-overlay">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <h3 class="mt-3">Registering your face...</h3>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const video = document.getElementById('camera-view');
+    const captureBtn = document.getElementById('capture-btn');
+    const registerBtn = document.getElementById('register-btn');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const messageContainer = document.getElementById('message-container');
+    const candidateIdDisplay = document.getElementById('display-candidate-id');
+    const capturedIndicator = document.querySelector('.captured-indicator');
+    
+    let capturedImage = null;
+    let candidateId = null;
+    
+    // Animation
+    new WOW().init();
+
+    // Get candidate ID from localStorage
+    function getCandidateId() {
+        candidateId = localStorage.getItem('candidat_id');
+        if (!candidateId) {
+            showMessage('No candidate ID found. Please log in again.', 'danger');
+            candidateIdDisplay.textContent = 'Not found';
+            registerBtn.disabled = true;
+        } else {
+            candidateIdDisplay.textContent = candidateId;
+        }
+        return candidateId;
+    }
+
+    // Initialize camera
+    async function initCamera() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'user' },
+                audio: false 
+            });
+            video.srcObject = stream;
+        } catch (err) {
+            showMessage('Camera error: ' + err.message, 'danger');
+            console.error("Camera error:", err);
+        }
+    }
+
+    // Capture image
+    captureBtn.addEventListener('click', function() {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        capturedImage = canvas.toDataURL('image/jpeg', 0.9);
+        showMessage('Face captured successfully!', 'success');
+        
+        // Show captured indicator
+        capturedIndicator.style.display = 'block';
+        
+        // Add capture effect
+        video.style.opacity = '0.8';
+        setTimeout(() => {
+            video.style.opacity = '1';
+        }, 300);
+    });
+
+    // Register face
+    registerBtn.addEventListener('click', async function() {
+        if (!capturedImage) {
+            showMessage('Please capture an image first', 'danger');
+            return;
+        }
+
+        const candidateId = getCandidateId();
+        if (!candidateId) return;
+
+        loadingOverlay.style.display = 'flex';
+        
+        try {
+            const formData = new FormData();
+            formData.append('user_id', candidateId);
+            formData.append('image_data', capturedImage);
+
+            const response = await fetch('{{ path('face_upload') }}', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                showMessage(data.message, 'success');
+                capturedImage = null;
+                capturedIndicator.style.display = 'none';
+                
+                // Redirect after successful registration (optional)
+                setTimeout(() => {
+                    window.location.href = '{{ path('candidat_dashboard') }}';
+                }, 2000);
+            } else {
+                showMessage(data.error || 'Registration failed', 'danger');
+            }
+        } catch (error) {
+            showMessage('An error occurred: ' + error.message, 'danger');
+            console.error('Error:', error);
+        } finally {
+            loadingOverlay.style.display = 'none';
+        }
+    });
+
+    // Show status messages
+    function showMessage(message, type) {
+        messageContainer.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            const alert = messageContainer.querySelector('.alert');
+            if (alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 5000);
+    }
+
+    // Initialize
+    getCandidateId();
+    initCamera();
+});
+</script>
+{% endblock %}

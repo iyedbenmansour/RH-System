@@ -2,41 +2,383 @@
 
 {% block title %}{{ job.title }}{% endblock %}
 
+{% block stylesheets %}
+<style>
+    /* Job Detail Page Styling */
+    .job-detail-container {
+        padding: 3rem 0;
+        margin-top: 5rem; /* Add space for fixed navbar */
+    }
+    
+    .job-header {
+        background: linear-gradient(135deg, #083270 0%, #0d6efd 100%);
+        border-radius: 12px 12px 0 0;
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .job-header::after {
+        content: '';
+        position: absolute;
+        bottom: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+    
+    .job-title {
+        color: white;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .company-badge {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        margin-bottom: 1rem;
+        backdrop-filter: blur(5px);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .company-logo {
+        width: 30px;
+        height: 30px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.75rem;
+        color: #083270;
+        font-size: 1rem;
+    }
+    
+    .job-meta {
+        background: white;
+        border-radius: 0 0 12px 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+    }
+    
+    .job-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .meta-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .meta-label {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+    }
+    
+    .meta-value {
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .meta-icon {
+        font-size: 1.2rem;
+        margin-right: 0.75rem;
+        color: #083270;
+        opacity: 0.8;
+    }
+    
+    .job-description-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        margin-top: 1.5rem;
+        padding: 2rem;
+    }
+    
+    .section-title {
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -8px;
+        width: 50px;
+        height: 4px;
+        background: #083270;
+        border-radius: 2px;
+    }
+    
+    .job-description {
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        line-height: 1.7;
+    }
+    
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+    
+    .back-btn {
+        display: flex;
+        align-items: center;
+        color: #6c757d;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .back-btn:hover {
+        background-color: #f8f9fa;
+        transform: translateX(-5px);
+    }
+    
+    .back-icon {
+        margin-right: 0.5rem;
+    }
+    
+    .apply-btn {
+        padding: 0.75rem 2.5rem;
+        border-radius: 50px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .apply-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+    }
+    
+    .apply-btn.disabled {
+        opacity: 1;
+        background-color: #198754;
+        border-color: #198754;
+    }
+    
+    .job-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+    
+    .job-tag {
+        background-color: rgba(13, 110, 253, 0.1);
+        color: #0d6efd;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .share-section {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #f0f0f0;
+    }
+    
+    .share-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .share-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+    }
+    
+    .share-btn:hover {
+        transform: translateY(-3px);
+    }
+    
+    .share-btn-linkedin {
+        background-color: #0077b5;
+    }
+    
+    .share-btn-twitter {
+        background-color: #1da1f2;
+    }
+    
+    .share-btn-facebook {
+        background-color: #3b5998;
+    }
+    
+    .share-btn-email {
+        background-color: #ea4335;
+    }
+    
+    @media (max-width: 768px) {
+        .job-header {
+            padding: 1.5rem;
+        }
+        
+        .job-meta {
+            padding: 1.5rem;
+        }
+        
+        .job-meta-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column-reverse;
+            gap: 1rem;
+        }
+        
+        .back-btn, .apply-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block body %}
-<div class="container mt-5">
+<div class="container job-detail-container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h2>{{ job.title }}</h2>
+        <div class="col-lg-8">
+            <!-- Job Header -->
+            <div class="job-header wow fadeInUp" data-wow-delay=".2s">
+                <div class="company-badge">
+                    <div class="company-logo">
+                        <i class="lni lni-briefcase"></i>
+                    </div>
+                    <span>Company Name</span>
                 </div>
-                <div class="card-body">
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <p><strong>Position:</strong> {{ job.position }}</p>
-                            <p><strong>Company ID:</strong> {{ job.companyId }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Location:</strong> {{ job.location }}</p>
-                            <p><strong>Posted:</strong> {{ job.postedDate|date('F j, Y') }}</p>
+                <h1 class="job-title">{{ job.title }}</h1>
+                <div class="d-flex flex-wrap gap-4 text-white">
+                    <div class="d-flex align-items-center">
+                        <i class="lni lni-map-marker me-2"></i>
+                        <span>{{ job.location }}</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="lni lni-timer me-2"></i>
+                        <span>Full-time</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Job Meta Information -->
+            <div class="job-meta wow fadeInUp" data-wow-delay=".3s">
+                <div class="job-meta-grid">
+                    <div class="meta-item">
+                        <div class="meta-label">Position</div>
+                        <div class="meta-value">
+                            <i class="lni lni-briefcase meta-icon"></i>
+                            {{ job.position }}
                         </div>
                     </div>
                     
-                    <h5>Job Description:</h5>
-                    <div class="border p-3 mb-4">{{ job.description }}</div>
+                    <div class="meta-item">
+                        <div class="meta-label">Location</div>
+                        <div class="meta-value">
+                            <i class="lni lni-map-marker meta-icon"></i>
+                            {{ job.location }}
+                        </div>
+                    </div>
                     
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ path('app_jobs_all') }}" class="btn btn-secondary">
-                            Back to All Jobs
+                    <div class="meta-item">
+                        <div class="meta-label">Posted Date</div>
+                        <div class="meta-value">
+                            <i class="lni lni-calendar meta-icon"></i>
+                            {{ job.postedDate|date('F j, Y') }}
+                        </div>
+                    </div>
+                    
+                    <div class="meta-item">
+                        <div class="meta-label">Company ID</div>
+                        <div class="meta-value">
+                            <i class="lni lni-apartment meta-icon"></i>
+                            {{ job.companyId }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="job-tags">
+                    <div class="job-tag">{{ job.position }}</div>
+                    <div class="job-tag">Full-time</div>
+                    <div class="job-tag">{{ job.location }}</div>
+                </div>
+            </div>
+            
+            <!-- Job Description -->
+            <div class="job-description-container wow fadeInUp" data-wow-delay=".4s">
+                <h4 class="section-title">Job Description</h4>
+                <div class="job-description">
+                    {{ job.description|nl2br }}
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <a href="{{ path('app_jobs_all') }}" class="btn btn-outline-secondary back-btn">
+                        <i class="lni lni-arrow-left back-icon"></i> Back to All Jobs
+                    </a>
+                    <div id="apply-btn-placeholder"></div>
+                </div>
+                
+                <!-- Share Section -->
+                <div class="share-section">
+                    <h5 class="mb-3">Share this job</h5>
+                    <div class="share-buttons">
+                        <a href="#" class="share-btn share-btn-linkedin" title="Share on LinkedIn">
+                            <i class="lni lni-linkedin"></i>
                         </a>
-                        <span id="apply-btn-placeholder"></span>
+                        <a href="#" class="share-btn share-btn-twitter" title="Share on Twitter">
+                            <i class="lni lni-twitter"></i>
+                        </a>
+                        <a href="#" class="share-btn share-btn-facebook" title="Share on Facebook">
+                            <i class="lni lni-facebook"></i>
+                        </a>
+                        <a href="#" class="share-btn share-btn-email" title="Share via Email">
+                            <i class="lni lni-envelope"></i>
+                        </a>
                     </div>
                 </div>
+            </div>
+            
+            <!-- Similar Jobs Suggestion -->
+            <div class="mt-4 text-center wow fadeInUp" data-wow-delay=".5s">
+                <h5>Looking for similar opportunities?</h5>
+                <a href="{{ path('app_jobs_all') }}" class="btn btn-link text-primary">
+                    Browse more jobs in {{ job.location }}
+                </a>
             </div>
         </div>
     </div>
 </div>
 
+{% block javascripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const candidatId = localStorage.getItem('candidat_id');
@@ -45,7 +387,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (!candidatId) {
         // Not logged in - show Apply button (could require login)
-        placeholder.innerHTML = `<a href="{{ path('app_job_apply', {'id': job.id}) }}" class="btn btn-primary">Apply for this Job</a>`;
+        placeholder.innerHTML = `<a href="{{ path('app_job_apply', {'id': job.id}) }}" class="btn btn-primary apply-btn">Apply for this Job <i class="lni lni-arrow-right ms-2"></i></a>`;
         return;
     }
 
@@ -53,15 +395,19 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.applied) {
-                placeholder.innerHTML = '<button class="btn btn-success" disabled>Applied</button>';
+                placeholder.innerHTML = '<button class="btn btn-success apply-btn disabled">Applied <i class="lni lni-checkmark-circle ms-2"></i></button>';
             } else {
-                placeholder.innerHTML = `<a href="{{ path('app_job_apply', {'id': job.id}) }}" class="btn btn-primary">Apply for this Job</a>`;
+                placeholder.innerHTML = `<a href="{{ path('app_job_apply', {'id': job.id}) }}" class="btn btn-primary apply-btn">Apply for this Job <i class="lni lni-arrow-right ms-2"></i></a>`;
             }
         })
         .catch(() => {
             // On error, show the apply button
-            placeholder.innerHTML = `<a href="{{ path('app_job_apply', {'id': job.id}) }}" class="btn btn-primary">Apply for this Job</a>`;
+            placeholder.innerHTML = `<a href="{{ path('app_job_apply', {'id': job.id}) }}" class="btn btn-primary apply-btn">Apply for this Job <i class="lni lni-arrow-right ms-2"></i></a>`;
         });
+        
+    // Initialize WOW.js animations
+    new WOW().init();
 });
 </script>
+{% endblock %}
 {% endblock %}

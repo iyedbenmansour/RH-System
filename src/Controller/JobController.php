@@ -98,7 +98,7 @@ class JobController extends AbstractController
         $pagination = $paginator->paginate(
             $queryBuilder, // Query to paginate
             $request->query->getInt('page', 1), // Current page number, default to 1
-            3 // Items per page
+            4 // Items per page
         );
     
         return $this->render('job/all.html.twig', [

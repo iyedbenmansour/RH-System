@@ -1,387 +1,466 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Event Carousel{% endblock %}
-{%block head%}<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">{% endblock %}
+{% block title %}Event Explorer{% endblock %}
+{% block head %}<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">{% endblock %}
 
 {% block body %}
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap');
 
     body {
         font-family: 'Be Vietnam Pro', sans-serif;
         background-color: #f8fafc;
         margin: 0;
         padding: 0;
-    }
-
-    .carousel-wrapper {
-        max-width: 1200px;
-        margin: 50px auto 0 auto;
-        padding: 0 20px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    #carousel-events-container {
-        display: flex;
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        gap: 40px;
-        padding-bottom: 30px;
-        scrollbar-width: none;
-    }
-
-    #carousel-events-container::-webkit-scrollbar {
-        display: none;
-    }
-
-    .event-card {
-        scroll-snap-align: center;
-        flex: 0 0 auto;
-        width: 450px;
-        position: relative;
-    }
-
-    .card {
-        background: linear-gradient(135deg, #ffffff, #f1f3f5);
-        border-radius: 20px;
-        padding: 30px 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-    }
-
-    .card-title {
-        font-size: 28px;
-        font-weight: bold;
         color: #2d3748;
-        margin-bottom: 15px;
+    }
+
+    /* Hero Section */
+    .hero {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        padding: 80px 0 60px;
+        color: white;
+        margin-bottom: 60px;
+    }
+
+    .hero-content {
+        max-width: 800px;
+        margin: 0 auto;
         text-align: center;
     }
 
-    .card-text {
-        font-size: 16px;
-        color: #4a5568;
-        margin-bottom: 10px;
-        text-align: center;
+    .hero-title {
+        font-size: 42px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        line-height: 1.2;
     }
 
-    .btn-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px;
-        margin-top: 20px;
+    .hero-desc {
+        font-size: 18px;
+        margin-bottom: 30px;
+        opacity: 0.9;
     }
 
-    .btn {
-        padding: 10px 20px;
-        font-size: 14px;
-        font-weight: 600;
-        text-transform: uppercase;
-        border-radius: 30px;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-        color: #fff;
-        border: none;
+    .main-btn {
         display: inline-block;
+        background: white;
+        color: #3b82f6;
+        padding: 14px 30px;
+        border-radius: 30px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: 2px solid white;
     }
-    #calendar-view-btn {
-    background-color: #4299e1; /* nice blue */
-    color: white;
-    padding: 12px 24px;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
-    margin: 30px auto;
-    display: block;
-}
 
-#calendar-view-btn:hover {
-    background-color: #2b6cb0;
-    transform: translateY(-2px);
-}
+    .main-btn:hover {
+        background: transparent;
+        color: white;
+    }
 
-    .show-btn { background: #38a169; }
-    .show-btn:hover { background: #2f855a; transform: scale(1.05); }
+    /* Container & Cards */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
 
-    .display-btn { background: #4299e1; }
-    .display-btn:hover { background: #2b6cb0; transform: scale(1.05); }
+    .section-title {
+        text-align: center;
+        margin-bottom: 50px;
+    }
 
-    .maps-btn { background: #ed8936; }
-    .maps-btn:hover { background: #dd6b20; transform: scale(1.05); }
+    .section-title span {
+        display: block;
+        color: #3b82f6;
+        font-weight: 600;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        font-size: 14px;
+    }
 
-    .qr-btn { background: #9f7aea; }
-    .qr-btn:hover { background: #6b46c1; transform: scale(1.05); }
+    .section-title h2 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+    .section-title p {
+        color: #64748b;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    /* Search Features */
+    .search-container {
+        max-width: 600px;
+        margin: 0 auto 40px;
+    }
 
     #search-bar {
-        width: 90%;
-        max-width: 500px;
-        padding: 14px 22px;
-        border: 2px solid #ddd;
-        border-radius: 30px;
+        width: 100%;
+        padding: 16px 24px;
+        border: 2px solid #e2e8f0;
+        border-radius: 40px;
         font-size: 16px;
-        margin: 30px auto;
-        display: block;
-        outline: none;
-        transition: 0.3s;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
     }
 
     #search-bar:focus {
-        border-color: #4299e1;
-        box-shadow: 0 0 8px rgba(66, 153, 225, 0.3);
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.15);
     }
 
     .no-results {
         text-align: center;
-        color: #999;
+        color: #94a3b8;
         font-size: 18px;
-        margin-top: 20px;
+        padding: 20px;
         display: none;
     }
 
+    /* Calendar Button */
+    #calendar-view-btn {
+        background-color: #3b82f6;
+        color: white;
+        padding: 14px 30px;
+        font-size: 16px;
+        font-weight: 600;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        margin: 0 auto 40px;
+        display: block;
+    }
+
+    #calendar-view-btn:hover {
+        background-color: #2563eb;
+        transform: translateY(-3px);
+    }
+
+    /* Events Grid */
+    .events-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 30px;
+        margin-bottom: 60px;
+    }
+
+    .event-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .event-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+
+    .event-header {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        padding: 20px;
+        color: white;
+        text-align: center;
+    }
+
+    .event-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 0;
+    }
+
+    .event-content {
+        padding: 25px;
+    }
+
+    .event-info {
+        margin-bottom: 20px;
+    }
+
+    .event-info-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .event-info-item i {
+        color: #3b82f6;
+        font-size: 18px;
+        margin-right: 12px;
+        width: 20px;
+        text-align: center;
+    }
+
+    .event-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .btn {
+        padding: 10px 18px;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn i {
+        margin-right: 6px;
+    }
+
+    .btn-primary {
+        background-color: #3b82f6;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #2563eb;
+        transform: translateY(-2px);
+    }
+
+    .btn-success {
+        background-color: #10b981;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #059669;
+        transform: translateY(-2px);
+    }
+
+    .btn-warning {
+        background-color: #f59e0b;
+        color: white;
+    }
+
+    .btn-warning:hover {
+        background-color: #d97706;
+        transform: translateY(-2px);
+    }
+
+    .btn-info {
+        background-color: #6366f1;
+        color: white;
+    }
+
+    .btn-info:hover {
+        background-color: #4f46e5;
+        transform: translateY(-2px);
+    }
+
+    /* Calendar Styles */
+    #calendar-holder {
+        width: 90%;
+        max-width: 1000px;
+        height: 70vh;
+        margin: 0 auto 40px;
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        display: none;
+    }
+
+    .close-calendar-btn {
+        background-color: #ef4444;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        font-weight: 600;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: none;
+        margin: 20px auto;
+    }
+
+    .close-calendar-btn:hover {
+        background-color: #dc2626;
+        transform: translateY(-2px);
+    }
+
+    /* QR Modal */
     .qr-modal {
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(0, 0, 0, 0.7);
         justify-content: center;
         align-items: center;
         z-index: 9999;
     }
 
     .qr-modal-content {
-        background: #fff;
-        padding: 25px;
-        border-radius: 12px;
+        background: white;
+        padding: 30px;
+        border-radius: 16px;
         text-align: center;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        max-width: 90%;
+        width: 350px;
+    }
+
+    .qr-modal-content h2 {
+        margin-top: 0;
+        color: #2d3748;
+        margin-bottom: 20px;
     }
 
     .qr-modal img {
-        max-width: 220px;
+        max-width: 100%;
+        height: auto;
     }
 
-    .swipe-text {
-        text-align: center;
-        font-size: 18px;
+    /* Notification Styles */
+    .notification-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+    }
+
+    #notification-btn {
+        background: white;
+        border: none;
+        cursor: pointer;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
+    #notification-btn svg {
+        width: 24px;
+        height: 24px;
+        color: #3b82f6;
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: #ef4444;
+        color: white;
+        border-radius: 9999px;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .notification-dropdown {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 60px;
+        width: 350px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .notification-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid #e2e8f0;
         font-weight: 600;
-        margin-top: 30px;
-        color: #718096;
     }
-    .close-calendar-btn {
-    margin-top: 20px;
-    background-color: #e53e3e;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    font-weight: 600;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
 
-.close-calendar-btn:hover {
-    background-color: #c53030;
-    transform: translateY(-2px);
-}
-#calendar-holder {
-    width: 70%;
-    height: 60vh;
-    margin: 30px auto; /* center horizontally */
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    overflow-y: auto; /* enable vertical scroll inside if needed */
-}
-
-#calendar-holder .fc {
-    height: 100% !important; /* force FullCalendar to use the container height */
-}
-
-/* Toolbar */
-.fc-toolbar-title {
-    font-size: 26px;
-    font-weight: bold;
-    color: #2d3748;
-}
-
-.fc-toolbar-chunk button {
-    background-color: #4299e1;
-    border: none;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-weight: 600;
-    transition: 0.3s;
-}
-
-.fc-toolbar-chunk button:hover {
-    background-color: #2b6cb0;
-}
-
-/* Button active */
-.fc-button-active {
-    background-color: #2b6cb0 !important;
-}
-
-/* Calendar grid */
-.fc-daygrid-day-number {
-    font-weight: 600;
-    color: #4a5568;
-}
-
-/* Event styles */
-.fc-event {
-    background-color: #38b2ac;
-    color: white;
-    border: none;
-    padding: 5px;
-    font-size: 14px;
-    border-radius: 6px;
-    transition: background-color 0.3s ease;
-}
-
-.fc-event:hover {
-    background-color: #319795;
-}
-
-/* Day cells */
-.fc-daygrid-day {
-    background-color: #f7fafc;
-    transition: background 0.3s;
-}
-
-.fc-daygrid-day:hover {
-    background-color: #edf2f7;
-}
-
-/* Today cell */
-.fc-day-today {
-    background: #bee3f8;
-    font-weight: bold;
-}
-
-/* View switch buttons (month/week/day) */
-.fc-button-group > .fc-button {
-    margin: 0 2px;
-}
-
-/* Make calendar responsive */
-@media (max-width: 768px) {
-    #calendar-holder {
-        padding: 10px;
+    .notification-list {
+        padding: 0;
     }
-    .fc-toolbar-title {
-        font-size: 20px;
+
+    .notification-item {
+        padding: 15px 20px;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background 0.2s;
     }
-    
-}
-.notification-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 9999; /* Ensures it stays above other content */
-}
 
-/* BELL ICON STYLING ONLY */
-#notification-btn {
-    position:  !important ;
-    transform: none !important;
-    top:80px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 8px;
-    position: relative; /* Required for badge positioning */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+    .notification-item:hover {
+        background: #f8fafc;
+    }
 
-#notification-btn svg {
-    width: 24px; 
-    height: 24px;
-    color:rgb(0, 106, 255);
-    stroke-width: 2;
-}
+    .notification-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
 
-.notification-badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background-color: #EF4444;
-    color: white;
-    border-radius: 9999px;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: bold;
-}
+    .notification-date {
+        font-size: 12px;
+        color: #64748b;
+    }
 
-.notification-dropdown {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: 140px !important;
-    width: 350px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    max-height: 500px;
-    overflow-y: auto;
-}
+    /* Swipe text (only for mobile) */
+    .swipe-text {
+        display: none;
+        text-align: center;
+        font-size: 16px;
+        color: #64748b;
+        margin: 30px 0;
+    }
 
-.notification-header {
-    padding: 15px;
-    border-bottom: 1px solid #eee;
-}
-
-.notification-list {
-    padding: 0;
-}
-
-.notification-item {
-    padding: 12px 15px;
-    border-bottom: 1px solid #f1f1f1;
-    transition: background 0.2s;
-}
-
-.notification-item:hover {
-    background: #f8f9fa;
-}
-
-.notification-item:last-child {
-    border-bottom: none;
-}
-
-.notification-title {
-    font-weight: 600;
-    margin-bottom: 5px;
-}
-
-.notification-date {
-    font-size: 12px;
-    color: #718096;
-}
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 32px;
+        }
+        
+        .events-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .swipe-text {
+            display: block;
+        }
+        
+        #calendar-holder {
+            width: 95%;
+            padding: 15px;
+        }
+    }
 </style>
 
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-title">Discover Amazing Events</h1>
+            <p class="hero-desc">
+                Browse and search for events, view details, download information, and get directions - all in one place.
+            </p>
+            <a href="#events" class="main-btn">Explore Events</a>
+        </div>
+    </div>
+</section>
+
 <!-- Calendar Button -->
-<button id="calendar-view-btn">See Calendar</button>
+<button id="calendar-view-btn">
+    <i class="fas fa-calendar-alt"></i> View Event Calendar
+</button>
 
 <!-- Calendar holder -->
 <div id="calendar-holder" 
@@ -391,72 +470,103 @@
          'date': event.date ? event.date|date('Y-m-d') : ''
      })|json_encode|e('html_attr') }}">
 </div>
-<div id="calendar-close-holder" style="text-align: center; margin-top: 15px;"></div>
+<div id="calendar-close-holder" style="text-align: center;"></div>
 
 <!-- Search Bar -->
-<div class="search-container">
-    <input type="text" id="search-bar" placeholder="Search events by name, location, organizer, type..." autocomplete="off">
-</div>
+<div class="container">
+    <div class="section-title">
+        <span>Event Explorer</span>
+        <h2>Find Your Next Event</h2>
+        <p>
+            Search through our collection of events by name, location, organizer, or type to find the perfect match for you.
+        </p>
+    </div>
+    
+    <div class="search-container">
+        <input type="text" id="search-bar" placeholder="Search events by name, location, organizer, type..." autocomplete="off">
+    </div>
 
-<!-- No Results Message -->
-<div class="no-results" id="no-results">No events found matching your search.</div>
+    <!-- No Results Message -->
+    <div class="no-results" id="no-results">No events found matching your search.</div>
 
-<!-- Carousel -->
-<div class="carousel-wrapper">
-    <div id="carousel-events-container">
+    <!-- Events Grid -->
+    <div class="events-grid" id="events">
         {% for event in events %}
             <div class="event-card" data-search="{{ event.name|lower }} {{ event.location|lower }} {{ event.organiser|lower }} {{ event.eventType|lower }}">
-                <input class="sr-only peer" type="radio" name="carousel" id="carousel-{{ loop.index }}" {% if loop.first %}checked{% endif %} />
-                <div class="card">
-                    <div class="card-content">
-                        <h1 class="card-title">{{ event.name }}</h1>
-                        <p class="card-text"><strong>Date:</strong> {{ event.date ? event.date|date('Y-m-d') : '' }}</p>
-                        <p class="card-text"><strong>Location:</strong> {{ event.location }}</p>
-                        <p class="card-text"><strong>Organizer:</strong> {{ event.organiser }}</p>
-                        <p class="card-text"><strong>Type:</strong> {{ event.eventType }}</p>
-                        <p class="card-text"><strong>Participants:</strong> {{ event.nbParticipant }}</p>
-                        <p class="card-text"><strong>Price:</strong> {{ event.ticketPrice }} DT</p>
-
-                        <div class="btn-container">
-                            <a href="{{ path('app_event_show', {'id': event.id}) }}" class="btn show-btn">Show</a>
-                            <a href="{% if event.hasFormation and event.formationId %}{{ path('app_formation_show', {'id': event.formationId}) }}{% else %}#{% endif %}" 
-                            class="btn display-btn" 
-                            {% if not event.hasFormation or not event.formationId %}style="pointer-events: none; opacity: 0.5;"{% endif %}>
-                            Display Formation
-                         </a>
+                <div class="event-header">
+                    <h3 class="event-title">{{ event.name }}</h3>
+                </div>
+                <div class="event-content">
+                    <div class="event-info">
+                        <div class="event-info-item">
+                            <i class="fas fa-calendar-day"></i>
+                            <span>{{ event.date ? event.date|date('Y-m-d') : 'Date not specified' }}</span>
                         </div>
-
-                        <div class="btn-container">
-                            <a href="{% if event.latitude and event.longitude and event.latitude >= -90 and event.latitude <= 90 and event.longitude >= -180 and event.longitude <= 180 %}
-                                    https://www.google.com/maps?q={{ event.latitude }},{{ event.longitude }}
-                                    {% else %}
-                                    https://www.google.com/maps?q={{ event.location }}
-                                    {% endif %}" 
-                               target="_blank" class="btn maps-btn">See Maps</a>
-
-                            <button type="button" class="btn qr-btn" onclick="generatePDF({
-                                    name: '{{ event.name }}',
-                                    date: '{{ event.date ? event.date|date('Y-m-d') : '' }}',
-                                    location: '{{ event.location }}',
-                                    organiser: '{{ event.organiser }}',
-                                    eventType: '{{ event.eventType }}',
-                                    nbParticipant: {{ event.nbParticipant }},
-                                    ticketPrice: '{{ event.ticketPrice }}'
-                                })">
-                                    Download Event Info
-                                </button>
-                                <button type="button" class="btn qr-btn" onclick="showQRCode({
-                                    name: '{{ event.name }}',
-                                    date: '{{ event.date ? event.date|date('Y-m-d') : '' }}',
-                                    location: '{{ event.location }}',
-                                    organiser: '{{ event.organiser }}',
-                                    eventType: '{{ event.eventType }}',
-                                    nbParticipant: {{ event.nbParticipant }},
-                                    ticketPrice: '{{ event.ticketPrice }}'
-                                })">
-                                    See QR Code
-                                </button>
+                        <div class="event-info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>{{ event.location }}</span>
                         </div>
+                        <div class="event-info-item">
+                            <i class="fas fa-user-tie"></i>
+                            <span>{{ event.organiser }}</span>
+                        </div>
+                        <div class="event-info-item">
+                            <i class="fas fa-tag"></i>
+                            <span>{{ event.eventType }}</span>
+                        </div>
+                        <div class="event-info-item">
+                            <i class="fas fa-users"></i>
+                            <span>{{ event.nbParticipant }} Participants</span>
+                        </div>
+                        <div class="event-info-item">
+                            <i class="fas fa-ticket-alt"></i>
+                            <span>{{ event.ticketPrice }} DT</span>
+                        </div>
+                    </div>
+                    
+                    <div class="event-actions">
+                        <a href="{{ path('app_event_show', {'id': event.id}) }}" class="btn btn-primary">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                        
+                        <a href="{% if event.hasFormation and event.formationId %}{{ path('app_formation_show', {'id': event.formationId}) }}{% else %}#{% endif %}" 
+                           class="btn btn-success" 
+                           {% if not event.hasFormation or not event.formationId %}style="pointer-events: none; opacity: 0.5;"{% endif %}>
+                            <i class="fas fa-chalkboard-teacher"></i> View Formation
+                        </a>
+                        
+                        <a href="{% if event.latitude and event.longitude and event.latitude >= -90 and event.latitude <= 90 and event.longitude >= -180 and event.longitude <= 180 %}
+                                https://www.google.com/maps?q={{ event.latitude }},{{ event.longitude }}
+                                {% else %}
+                                https://www.google.com/maps?q={{ event.location }}
+                                {% endif %}" 
+                           target="_blank" class="btn btn-warning">
+                            <i class="fas fa-map-marked-alt"></i> Maps
+                        </a>
+                        
+                        <button type="button" class="btn btn-info" onclick="generatePDF({
+                                name: '{{ event.name }}',
+                                date: '{{ event.date ? event.date|date('Y-m-d') : '' }}',
+                                location: '{{ event.location }}',
+                                organiser: '{{ event.organiser }}',
+                                eventType: '{{ event.eventType }}',
+                                nbParticipant: {{ event.nbParticipant }},
+                                ticketPrice: '{{ event.ticketPrice }}'
+                            })">
+                            <i class="fas fa-file-download"></i> Download
+                        </button>
+                        
+                        <button type="button" class="btn btn-info" onclick="showQRCode({
+                                name: '{{ event.name }}',
+                                date: '{{ event.date ? event.date|date('Y-m-d') : '' }}',
+                                location: '{{ event.location }}',
+                                organiser: '{{ event.organiser }}',
+                                eventType: '{{ event.eventType }}',
+                                nbParticipant: {{ event.nbParticipant }},
+                                ticketPrice: '{{ event.ticketPrice }}'
+                            })">
+                            <i class="fas fa-qrcode"></i> QR Code
+                        </button>
                     </div>
                 </div>
             </div>
@@ -466,23 +576,18 @@
 
 <!-- QR Modal -->
 <div id="qr-modal" class="qr-modal" onclick="closeQRCode()">
-    <div class="qr-modal-content">
+    <div class="qr-modal-content" onclick="event.stopPropagation()">
         <h2>Event QR Code</h2>
         <img id="qr-code-img" src="" alt="QR Code">
     </div>
 </div>
 
-<!-- Swipe Message -->
-<div class="swipe-text">
-    Swipe to see more events
-</div>
+<!-- Notification System -->
 <div class="notification-container">
-    <button id="notification-btn" class="notification-bell">
-        <!-- Here, use a Heroicon SVG instead of <i class="fas fa-bell"></i> -->
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.657A4.002 4.002 0 0112 19c-1.193 0-2.27-.524-3-1.343M6.343 17.657A8.001 8.001 0 0112 4a8.001 8.001 0 015.657 13.657M8 21h8" />
+    <button id="notification-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>
-        
         <span class="notification-badge" id="notification-count">0</span>
     </button>
 
@@ -495,6 +600,12 @@
         </div>
     </div>
 </div>
+
+<!-- Swipe message for mobile -->
+<div class="swipe-text">
+    <i class="fas fa-arrow-left"></i> Swipe to see more events <i class="fas fa-arrow-right"></i>
+</div>
+
 {% block javascripts %}
     <script src="https://unpkg.com/tailwindcss-jit-cdn"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -503,133 +614,188 @@
 {% endblock %}
 
 <script>
-        document.addEventListener('DOMContentLoaded', function() {
-    const searchBar        = document.getElementById('search-bar');
-    const eventCards       = document.querySelectorAll('.event-card');
-    const noResultsMessage = document.getElementById('no-results');
-    
-
-    searchBar.addEventListener('input', function() {
-        const searchTerm = this.value.trim().toLowerCase();
-        let visibleCards = 0;
-        let matchingEvents = [];
-
-        eventCards.forEach(card => {
-            const searchData = card.getAttribute('data-search');
-            if (searchTerm === '' || searchData.includes(searchTerm)) {
-                matchingEvents.push(card);
-                visibleCards++;
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hide calendar by default
+        const calendarHolder = document.getElementById('calendar-holder');
+        calendarHolder.style.display = 'none';
+        
+        // Calendar view button
+        const calendarBtn = document.getElementById('calendar-view-btn');
+        calendarBtn.addEventListener('click', function() {
+            calendarHolder.style.display = 'block';
+            
+            // Create close button if it doesn't exist
+            if (!document.querySelector('.close-calendar-btn')) {
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'close-calendar-btn';
+                closeBtn.innerHTML = '<i class="fas fa-times"></i> Close Calendar';
+                closeBtn.addEventListener('click', function() {
+                    calendarHolder.style.display = 'none';
+                    this.style.display = 'none';
+                });
+                document.getElementById('calendar-close-holder').appendChild(closeBtn);
+            }
+            
+            document.querySelector('.close-calendar-btn').style.display = 'block';
+            
+            // Scroll to calendar
+            calendarHolder.scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        // Search functionality
+        const searchBar = document.getElementById('search-bar');
+        const eventCards = document.querySelectorAll('.event-card');
+        const noResultsMessage = document.getElementById('no-results');
+        
+        searchBar.addEventListener('input', function() {
+            const searchTerm = this.value.trim().toLowerCase();
+            let visibleCards = 0;
+            
+            eventCards.forEach(card => {
+                const searchData = card.getAttribute('data-search');
+                if (searchTerm === '' || searchData.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    visibleCards++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            if (visibleCards === 0 && searchTerm !== '') {
+                noResultsMessage.style.display = 'block';
+            } else {
+                noResultsMessage.style.display = 'none';
             }
         });
-
-        const container = document.getElementById('carousel-events-container');
-        container.innerHTML = '';
-        matchingEvents.forEach(card => container.appendChild(card));
-
-        if (visibleCards === 0 && searchTerm !== '') {
-            noResultsMessage.style.display = 'block';
-        } else {
-            noResultsMessage.style.display = 'none';
-        }
-
-        if (visibleCards > 0) {
-            const firstVisibleCard = document.querySelector('.event-card');
-            if (firstVisibleCard) {
-                const firstRadio = firstVisibleCard.querySelector('input[type="radio"]');
-                if (firstRadio) firstRadio.checked = true;
+        
+        // Notification System
+        const notificationBtn = document.getElementById('notification-btn');
+        const notificationModal = document.getElementById('notification-modal');
+        
+        notificationBtn.addEventListener('click', function() {
+            notificationModal.style.display = notificationModal.style.display === 'block' ? 'none' : 'block';
+        });
+        
+        // Click outside to close notification modal
+        document.addEventListener('click', function(event) {
+            if (!notificationBtn.contains(event.target) && !notificationModal.contains(event.target)) {
+                notificationModal.style.display = 'none';
             }
-        }
+        });
+        
+        // For demonstration, add some sample notifications
+        const notificationList = document.getElementById('notification-list');
+        const notificationCount = document.getElementById('notification-count');
+        
+        // Sample data - in production this would come from server
+        const upcomingEvents = [
+            { title: 'Tech Conference starts tomorrow', date: 'Tomorrow, 9:00 AM' },
+            { title: 'Workshop registration closing soon', date: 'In 2 days' },
+            { title: 'New event added: AI Symposium', date: 'Just now' }
+        ];
+        
+        notificationCount.textContent = upcomingEvents.length;
+        
+        upcomingEvents.forEach(event => {
+            const notificationItem = document.createElement('div');
+            notificationItem.className = 'notification-item';
+            notificationItem.innerHTML = `
+                <div class="notification-title">${event.title}</div>
+                <div class="notification-date">${event.date}</div>
+            `;
+            notificationList.appendChild(notificationItem);
+        });
     });
-});
 
-function generatePDF(eventData) {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const margin = 10;
-    const pageWidth = doc.internal.pageSize.width;
-    const pageHeight = doc.internal.pageSize.height;
+    function generatePDF(eventData) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const margin = 10;
+        const pageWidth = doc.internal.pageSize.width;
+        const pageHeight = doc.internal.pageSize.height;
 
-    doc.setFillColor(0, 123, 255);
-    doc.rect(margin, margin, pageWidth - 2 * margin, 25, 'F');
+        // Header
+        doc.setFillColor(59, 130, 246);
+        doc.rect(margin, margin, pageWidth - 2 * margin, 25, 'F');
 
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18);
-    doc.setFont("helvetica", "bold");
-    doc.text(`Event: ${eventData.name}`, margin + 10, margin + 18);
-
-    doc.setDrawColor(0, 0, 0);
-    doc.line(margin, margin + 25, pageWidth - margin, margin + 25);
-
-    const detailsMarginTop = margin + 30;
-    const sectionMargin = 10;
-    const sectionHeight = 12;
-
-    doc.setFillColor(240, 240, 240);
-    doc.rect(margin, detailsMarginTop, pageWidth - 2 * margin, sectionHeight * 6, 'F');
-
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.text("Event Details", margin + sectionMargin, detailsMarginTop + sectionHeight / 1.5);
-
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-
-    const eventDetails = [
-        { label: "Date", value: eventData.date },
-        { label: "Location", value: eventData.location },
-        { label: "Organiser", value: eventData.organiser },
-        { label: "Type", value: eventData.eventType },
-        { label: "Participants", value: eventData.nbParticipant.toString() },
-        { label: "Price", value: `${eventData.ticketPrice} DT` }
-    ];
-
-    let detailMargin = detailsMarginTop + sectionHeight * 1.5;
-
-    eventDetails.forEach(detail => {
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(18);
         doc.setFont("helvetica", "bold");
-        doc.setTextColor(0, 123, 255);
-        doc.text(`${detail.label}: `, margin + sectionMargin, detailMargin);
+        doc.text(`Event: ${eventData.name}`, margin + 10, margin + 18);
 
-        doc.setFont("helvetica", "normal");
+        doc.setDrawColor(0, 0, 0);
+        doc.line(margin, margin + 25, pageWidth - margin, margin + 25);
+
+        const detailsMarginTop = margin + 30;
+        const sectionMargin = 10;
+        const sectionHeight = 12;
+
+        // Details background
+        doc.setFillColor(240, 240, 240);
+        doc.rect(margin, detailsMarginTop, pageWidth - 2 * margin, sectionHeight * 6, 'F');
+
         doc.setTextColor(0, 0, 0);
-        doc.text(detail.value, margin + sectionMargin + 50, detailMargin);
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("Event Details", margin + sectionMargin, detailsMarginTop + sectionHeight / 1.5);
 
-        detailMargin += sectionHeight;
-    });
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
 
-    doc.setDrawColor(0, 0, 0);
-    doc.line(margin, detailMargin + sectionHeight / 2, pageWidth - margin, detailMargin + sectionHeight / 2);
+        const eventDetails = [
+            { label: "Date", value: eventData.date },
+            { label: "Location", value: eventData.location },
+            { label: "Organiser", value: eventData.organiser },
+            { label: "Type", value: eventData.eventType },
+            { label: "Participants", value: eventData.nbParticipant.toString() },
+            { label: "Price", value: `${eventData.ticketPrice} DT` }
+        ];
 
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text("Generated by Event System", margin, pageHeight - 10);
+        let detailMargin = detailsMarginTop + sectionHeight * 1.5;
 
-    doc.save(`${eventData.name}_Details.pdf`);
-}
+        eventDetails.forEach(detail => {
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(59, 130, 246);
+            doc.text(`${detail.label}: `, margin + sectionMargin, detailMargin);
 
-function showQRCode(eventData) {
-    var eventText = `
-        Event Name: ${eventData.name}
-        Date: ${eventData.date}
-        Location: ${eventData.location}
-        Organiser: ${eventData.organiser}
-        Type: ${eventData.eventType}
-        Participants: ${eventData.nbParticipant}
-        Price: ${eventData.ticketPrice} DT
-    `;
-    
-    var qrModal = document.getElementById('qr-modal');
-    var qrCodeImg = document.getElementById('qr-code-img');
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(0, 0, 0);
+            doc.text(detail.value, margin + sectionMargin + 50, detailMargin);
 
-    qrCodeImg.src = "https://api.qrserver.com/v1/create-qr-code/?data=" + encodeURIComponent(eventText) + "&size=200x200";
-    qrModal.style.display = 'flex';
-}
+            detailMargin += sectionHeight;
+        });
 
-function closeQRCode() {
-    var qrModal = document.getElementById('qr-modal');
-    qrModal.style.display = 'none';
-}
-    </script>
+        doc.setDrawColor(0, 0, 0);
+        doc.line(margin, detailMargin + sectionHeight / 2, pageWidth - margin, detailMargin + sectionHeight / 2);
 
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text("Generated by Event Explorer", margin, pageHeight - 10);
+
+        doc.save(`${eventData.name}_Details.pdf`);
+    }
+
+    function showQRCode(eventData) {
+        var eventText = `
+            Event Name: ${eventData.name}
+            Date: ${eventData.date}
+            Location: ${eventData.location}
+            Organiser: ${eventData.organiser}
+            Type: ${eventData.eventType}
+            Participants: ${eventData.nbParticipant}
+            Price: ${eventData.ticketPrice} DT
+        `;
+        
+        var qrModal = document.getElementById('qr-modal');
+        var qrCodeImg = document.getElementById('qr-code-img');
+
+        qrCodeImg.src = "https://api.qrserver.com/v1/create-qr-code/?data=" + encodeURIComponent(eventText) + "&size=200x200";
+        qrModal.style.display = 'flex';
+    }
+
+    function closeQRCode() {
+        var qrModal = document.getElementById('qr-modal');
+        qrModal.style.display = 'none';
+    }
+</script>
 {% endblock %}

@@ -2,89 +2,242 @@
 
 {% block title %}All Posts{% endblock %}
 
+{% block stylesheets %}
+<style>
+  /* Post card styling */
+  .post-card {
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+  
+  .post-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+  }
+  
+  .post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+  }
+  
+  .post-content {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .post-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+  
+  .action-btn {
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .like-btn {
+    color: #198754;
+    border: 1px solid #198754;
+    background-color: transparent;
+  }
+  
+  .like-btn:hover, .like-btn.active {
+    background-color: #19875420;
+  }
+  
+  .dislike-btn {
+    color: #dc3545;
+    border: 1px solid #dc3545;
+    background-color: transparent;
+  }
+  
+  .dislike-btn:hover, .dislike-btn.active {
+    background-color: #dc354520;
+  }
+  
+  /* Reply section styling */
+  .replies-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(0,0,0,0.1);
+  }
+  
+  .reply-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .reply-header {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+  }
+  
+  .reply-form {
+    margin-top: 1.5rem;
+  }
+  
+  .reply-input {
+    border-radius: 20px 0 0 20px;
+    border: 1px solid rgba(0,0,0,0.2);
+  }
+  
+  .reply-submit {
+    border-radius: 0 20px 20px 0;
+  }
+  
+  /* Posts container */
+  .posts-container {
+    padding-top: 100px;
+    padding-bottom: 60px;
+    min-height: 80vh;
+  }
+
+  .page-title {
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: #333;
+  }
+  
+  .create-btn {
+    border-radius: 25px;
+    padding: 0.5rem 1.25rem;
+    font-weight: 600;
+    transition: all 0.3s;
+  }
+  
+  .create-btn:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Attachment styling */
+  .attachment-preview {
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+  
+  .pdf-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid #6c757d;
+    border-radius: 20px;
+    transition: all 0.2s;
+  }
+  
+  .pdf-link:hover {
+    background-color: #f8f9fa;
+  }
+</style>
+{% endblock %}
+
 {% block body %}
-<div class="container mt-5">
+<section class="posts-container">
+  <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>All Posts</h1>
-        <a href="{{ path('app_post_create') }}" class="btn btn-primary">
-            Create New Post
-        </a>
+      <h2 class="page-title wow fadeInUp">Community Posts</h2>
+      <a href="{{ path('app_post_create') }}" class="btn btn-primary create-btn wow fadeInUp" data-wow-delay="0.2s">
+        <i class="lni lni-plus"></i> Create New Post
+      </a>
     </div>
     
     {% for postWithReplies in postsWithReplies %}
     {% set post = postWithReplies.post %}
     {% set replies = postWithReplies.replies %}
     
-    <div id="post-{{ post.id }}" class="card mb-4">
-        <div class="card-body">
-            <div class="d-flex justify-content-between mb-2">
-                <small class="text-muted">Posted by User #{{ post.userId }}</small>
-                <small class="text-muted">{{ post.createdAt|date('Y-m-d H:i') }}</small>
-            </div>
-            
-            <p class="card-text">{{ post.content }}</p>
-            
-            {% if post.imagePath %}
-            <div class="mt-3">
-                <img src="{{ asset('uploads/' ~ post.imagePath) }}" class="img-fluid rounded" alt="Post image">
-            </div>
-            {% endif %}
-            
-            {% if post.pdfPath %}
-            <div class="mt-3">
-                <a href="{{ asset('uploads/' ~ post.pdfPath) }}" class="btn btn-sm btn-outline-secondary" target="_blank">
-                    View PDF Attachment
-                </a>
-            </div>
-            {% endif %}
-            
-            <div class="d-flex justify-content-start mt-3">
-                <button class="btn btn-sm btn-outline-success me-2 like-button" data-post-id="{{ post.id }}">
-                    Like (<span class="like-count">{{ post.likeCount }}</span>)
-                </button>
-                <button class="btn btn-sm btn-outline-danger dislike-button" data-post-id="{{ post.id }}">
-                    Dislike (<span class="dislike-count">{{ post.dislikeCount }}</span>)
-                </button>
-            </div>
-
-            <!-- Replies Section -->
-            <div class="mt-4 border-top pt-3">
-                <h6>Replies ({{ replies|length }})</h6>
-                
-                {% if replies|length > 0 %}
-                    {% for reply in replies %}
-                    <div class="card mb-2">
-                        <div class="card-body p-3">
-                            <div class="d-flex justify-content-between small text-muted mb-1">
-                                <span>User #{{ reply.userId }}</span>
-                                <!-- Removed datetime display -->
-                            </div>
-                            <p class="mb-0">{{ reply.content }}</p>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="text-muted">No replies yet.</p>
-                {% endif %}
-                
-                <!-- Reply Form -->
-                <form method="post" action="{{ path('app_reply_create', {'postId': post.id}) }}" class="mt-3">
-                    <div class="input-group mb-3">
-                        <input type="text" 
-                               name="content" 
-                               class="form-control" 
-                               placeholder="Write a reply..." 
-                               required>
-                        <button class="btn btn-primary" type="submit">Post Reply</button>
-                    </div>
-                </form>
-            </div>
+    <div id="post-{{ post.id }}" class="post-card wow fadeInUp" data-wow-delay="{{ loop.index * 0.1 }}s">
+      <div class="card-body p-4">
+        <div class="post-header">
+          <span>Posted by User #{{ post.userId }}</span>
+          <span>{{ post.createdAt|date('Y-m-d H:i') }}</span>
         </div>
+        
+        <div class="post-content">
+          {{ post.content }}
+        </div>
+        
+        {% if post.imagePath %}
+        <div class="attachment-preview">
+          <img src="{{ asset('uploads/' ~ post.imagePath) }}" class="img-fluid rounded" alt="Post image">
+        </div>
+        {% endif %}
+        
+        {% if post.pdfPath %}
+        <div class="mt-3 mb-3">
+          <a href="{{ asset('uploads/' ~ post.pdfPath) }}" class="pdf-link" target="_blank">
+            <i class="lni lni-file"></i> View PDF Attachment
+          </a>
+        </div>
+        {% endif %}
+        
+        <div class="post-actions">
+          <button class="action-btn like-btn like-button" data-post-id="{{ post.id }}">
+            <i class="lni lni-thumbs-up"></i> <span class="like-count">{{ post.likeCount }}</span>
+          </button>
+          <button class="action-btn dislike-btn dislike-button" data-post-id="{{ post.id }}">
+            <i class="lni lni-thumbs-down"></i> <span class="dislike-count">{{ post.dislikeCount }}</span>
+          </button>
+        </div>
+
+        <!-- Replies Section -->
+        <div class="replies-section">
+          <h6 class="mb-3"><i class="lni lni-comments"></i> Replies ({{ replies|length }})</h6>
+          
+          {% if replies|length > 0 %}
+            {% for reply in replies %}
+            <div class="reply-card">
+              <div class="reply-header">
+                <span>User #{{ reply.userId }}</span>
+              </div>
+              <p class="mb-0">{{ reply.content }}</p>
+            </div>
+            {% endfor %}
+          {% else %}
+            <p class="text-muted">No replies yet. Be the first to reply!</p>
+          {% endif %}
+          
+          <!-- Reply Form -->
+          <form method="post" action="{{ path('app_reply_create', {'postId': post.id}) }}" class="reply-form">
+            <div class="input-group">
+              <input type="text" 
+                     name="content" 
+                     class="form-control reply-input" 
+                     placeholder="Write a reply..." 
+                     required>
+              <button class="btn btn-primary reply-submit" type="submit">
+                <i class="lni lni-telegram-original"></i> Reply
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
     {% else %}
-    <div class="alert alert-info">No posts found.</div>
+    <div class="alert alert-info wow fadeInUp">No posts found. Be the first to create a post!</div>
     {% endfor %}
-</div>
+  </div>
+</section>
+{% endblock %}
 
 {% block javascripts %}
 <script>
@@ -160,5 +313,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-{% endblock %}
 {% endblock %}

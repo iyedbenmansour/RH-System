@@ -1,266 +1,199 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Your Website Title{% endblock %}</title>
 
-<head>
-  <!-- Basic -->
-  {% block stylesheet %}
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <!-- Mobile Metas -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <!-- Site Metas -->
-  <meta name="keywords" content="" />
-  <meta name="description" content="" />
-  <meta name="author" content="" />
-  <link rel="shortcut icon" href="{{ asset('Front/images/favicon.png')}}" type="">
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{{ asset('Front/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('Front/css/animate.css') }}">
+    <link rel="stylesheet" href="{{ asset('Front/css/glightbox.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('Front/css/lineicons.css') }}">
+    <link rel="stylesheet" href="{{ asset('Front/css/styles.css') }}">
+    <style>
+      /* Transparent Navbar with Black Text */
+      .navbar {
+        background-color: transparent !important;
+        color: black !important;
+        transition: background-color 0.3s ease-in-out;
+      }
 
-  <title> {% block title %}Career Bridge {% endblock %}</title>
+      .navbar .nav-link,
+      .navbar-brand span,
+      .navbar-toggler-icon {
+        color: black !important;
+      }
 
-  <!-- bootstrap core css -->
-  <link rel="stylesheet" type="text/css" href="{{ asset('Front/css/bootstrap.css')}}" />
+      /* Navbar Text Hover */
+      .navbar .nav-link:hover {
+        color: #555 !important;
+      }
 
-  <!-- fonts style -->
-  <link href="{{ asset('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap')}}" rel="stylesheet">
-
-  <!--owl slider stylesheet -->
-  <link rel="stylesheet" type="text/css" href="{{ asset('https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css')}}" />
-
-  <!-- font awesome style -->
-  <link href="{{ asset('Front/css/font-awesome.min.css')}}" rel="stylesheet" />
-
-  <!-- Custom styles for this template -->
-  <link href="{{ asset('Front/css/style.css')}}" rel="stylesheet" />
-  <!-- responsive style -->
-  <link href="{{ asset('Front/css/responsive.css')}}" rel="stylesheet" />
-  
-  <!-- Added custom style for header background color -->
-  <style>
-    .header_section {
-      background-color: #231a6f;
-    }
-    .info_section {
-      background-color: #231a6f;
-      color: white;
-    }
-    .footer_section {
-      background-color: #1a1357;
-    }
-  </style>
-  {% endblock %}
-</head>
-
-<body>
-  <div class="hero_area">
-
-    <div class="hero_bg_box">
-      <div class="bg_img_box">
-        <img src="images/hero-bg.png" alt="">
-      </div>
-    </div>
-
-    <!-- header section strats -->
-    <header class="header_section">
-      <div class="container-fluid">
-        <nav class="navbar navbar-expand-lg custom_nav-container ">
-          <a class="navbar-brand" href="index.html">
-            <span>
-              Carrer Bridge
-            </span>
+      /* Sticky Navbar Background on Scroll */
+      .navbar.scrolled {
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+    {% block stylesheets %}{% endblock %}
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <nav class="navbar navbar-expand-lg fixed-top">
+          <a class="navbar-brand" href="{{ path('app_post_list') }}">
+            <i class="bi-back"></i>
+            <span>Career Bridge</span>
           </a>
 
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class=""> </span>
+          <!-- Mobile Profile Icon -->
+          <div class="d-lg-none ms-auto me-4">
+            <a href="#" id="navbar-mobile-profile" class="navbar-icon bi-person"></a>
+          </div>
+
+          <!-- Navbar Toggler -->
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
           </button>
 
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav">
-              <li class="nav-item active">
-                <a class="nav-link" href="{{ path('app_post_list') }}">Home <span class="sr-only">(current)</span></a>
-              </li>
+          <!-- Navbar Links -->
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-lg-5 me-lg-auto">
+              <!-- Home -->
               <li class="nav-item">
-                <a class="nav-link" href="{{ path('app_jobs_all') }}"> Jobs</a>
+                <a class="nav-link" href="{{ path('app_post_list') }}">Home</a>
               </li>
+              <!-- Jobs -->
               <li class="nav-item">
-                <a class="nav-link" href="{{ path('best_match') }}">Best Match</a>
+                <a class="nav-link" href="{{ path('app_jobs_all') }}">Jobs</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('app_user_applications') }}">My Applications</a>
+              <!-- Dropdown: My Activities -->
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="activitiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  My Activities
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="activitiesDropdown">
+                  <li><a class="dropdown-item" href="{{ path('best_match') }}">Best Match</a></li>
+                  <li><a class="dropdown-item" href="{{ path('app_user_applications') }}">My Applications</a></li>
+                  <li><a class="dropdown-item" href="{{ path('employee_leave_requests') }}">My Requests</a></li>
+                  <li><a class="dropdown-item" id="reclamation-link" href="#">My Reclamation</a></li>
+                </ul>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('employee_leave_requests') }}">My Requests</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#" id="reclamation-link">My Reclamation</a>
-              </li>
+              <!-- Events -->
               <li class="nav-item">
                 <a class="nav-link" href="{{ path('app_event_index') }}">Events</a>
               </li>
+              <!-- Chatbot -->
               <li class="nav-item">
-                <a class="nav-link" href="{{ path('chatbot_index') }}">CHATBOT</a>
+                <a class="nav-link" href="{{ path('chatbot_index') }}">Chatbot</a>
               </li>
-              <!-- This is the login/profile item -->
+              <!-- Login/Profile -->
               <li class="nav-item" id="login-profile-nav">
-                <a class="nav-link" href="{{ path('login_page') }}">
-                  <i class="fa fa-user" aria-hidden="true"></i> Login
+                <a class="nav-link" href="{% if app.user %}{{ path('candidat_dashboard') }}{% else %}{{ path('login_page') }}{% endif %}">
+                  <i class="bi-person"></i> {% if app.user %}Profile{% else %}Login{% endif %}
                 </a>
               </li>
-              <form class="form-inline">
-                <button class="btn my-2 my-sm-0 nav_search-btn" type="submit">
-                  <i class="fa fa-search" aria-hidden="true"></i>
-                </button>
-              </form>
             </ul>
+
+            <!-- Desktop Profile Icon -->
+            <div class="d-none d-lg-block">
+              <a href="#" id="navbar-desktop-profile" class="navbar-icon bi-person"></a>
+            </div>
           </div>
         </nav>
       </div>
     </header>
-    <!-- end header section -->
-    
-    {% block body %}{% endblock %}
-  </div>
-     <!-- info section -->
 
-  <section class="info_section layout_padding2">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-6 col-lg-3 info_col">
-          <div class="info_contact">
-            <h4>
-              Address
-            </h4>
-            <div class="contact_link_box">
-              <a href="">
-                <i class="fa fa-map-marker" aria-hidden="true"></i>
-                <span>
-                  Location
-                </span>
-              </a>
-              <a href="">
-                <i class="fa fa-phone" aria-hidden="true"></i>
-                <span>
-                  Call +01 1234567890
-                </span>
-              </a>
-              <a href="">
-                <i class="fa fa-envelope" aria-hidden="true"></i>
-                <span>
-                  demo@gmail.com
-                </span>
-              </a>
-            </div>
-          </div>
-          <div class="info_social">
-            <a href="">
-              <i class="fa fa-facebook" aria-hidden="true"></i>
+    <!-- Main Content -->
+    <main>
+      {% block body %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-4">
+            <a href="#" class="footer-logo">
+              <img src="{{ asset('Front/images/logo/logo.svg') }}" alt="Logo">
             </a>
-            <a href="">
-              <i class="fa fa-twitter" aria-hidden="true"></i>
-            </a>
-            <a href="">
-              <i class="fa fa-linkedin" aria-hidden="true"></i>
-            </a>
-            <a href="">
-              <i class="fa fa-instagram" aria-hidden="true"></i>
-            </a>
+            <p>Some description about your company.</p>
           </div>
-        </div>
-        <div class="col-md-6 col-lg-3 info_col">
-          <div class="info_detail">
-            <h4>
-              Info
-            </h4>
-            <p>
-              necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with a handful
-            </p>
+          <div class="col-lg-2">
+            <h5>About Us</h5>
+            <ul>
+              <li><a href="#features">Features</a></li>
+              <li><a href="#faq">FAQ</a></li>
+              <li><a href="#team">Team</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
           </div>
-        </div>
-        <div class="col-md-6 col-lg-2 mx-auto info_col">
-          <div class="info_link_box">
-            <h4>
-              Links
-            </h4>
-            <div class="info_links">
-              <a class="active" href="index.html">
-                Home
-              </a>
-              <a class="" href="about.html">
-                About
-              </a>
-              <a class="" href="service.html">
-                Services
-              </a>
-              <a class="" href="why.html">
-                Why Us
-              </a>
-              <a class="" href="team.html">
-                Team
-              </a>
-            </div>
+          <div class="col-lg-2">
+            <h5>Features</h5>
+            <ul>
+              <li><a href="javascript:void(0)">How It Works</a></li>
+              <li><a href="javascript:void(0)">Privacy Policy</a></li>
+              <li><a href="javascript:void(0)">Terms of Service</a></li>
+            </ul>
           </div>
-        </div>
-        <div class="col-md-6 col-lg-3 info_col ">
-          <h4>
-            Subscribe
-          </h4>
-          <form action="#">
-            <input type="text" placeholder="Enter email" />
-            <button type="submit">
-              Subscribe
-            </button>
-          </form>
+          <div class="col-lg-4">
+            <h5>Contact Us</h5>
+            <p>Email: <a href="mailto:info@example.com">info@example.com</a></p>
+            <p>Phone: <a href="tel:+123456789">+123456789</a></p>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </footer>
 
-  <!-- end info section -->
+    <!-- Back to Top -->
+    <a href="#top" class="back-to-top"><i class="lni lni-chevron-up"></i></a>
 
-  <!-- footer section -->
-  <section class="footer_section">
-    <div class="container">
-      <p>
-        &copy; <span id="displayYear"></span> All Rights Reserved By
-        <a href="{{ asset('https://html.design/')}}">Free Html Templates</a>
-      </p>
-    </div>
-  </section>
-  <!-- footer section -->
+    <!-- Scripts -->
+    <script src="{{ asset('Front/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('Front/js/wow.min.js') }}"></script>
+    <script src="{{ asset('Front/js/glightbox.min.js') }}"></script>
+    <script src="{{ asset('Front/js/main.js') }}"></script>
 
-  <!-- jQery -->
-  <script type="text/javascript" src="{{ asset('Front/js/jquery-3.4.1.min.js')}}"></script>
-  <!-- popper js -->
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-  <!-- bootstrap js -->
-  <script type="text/javascript" src="{{ asset('Front/js/bootstrap.js')}}"></script>
-  <!-- owl slider -->
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-  <!-- custom js -->
-  <script type="text/javascript" src="{{ asset('Front/js/custom.js')}}"></script>
-  <!-- Google Map -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
-  <!-- End Google Map -->
+    <!-- Dynamic Links Logic -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var navItem = document.getElementById('login-profile-nav');
+        if (navItem && localStorage.getItem('candidat_id')) {
+          var link = navItem.querySelector('a');
+          link.innerHTML = '<i class="bi-person"></i> Profile';
+          link.setAttribute('href', "{{ path('candidat_dashboard') }}");
+        }
 
-  <!-- Script to handle login/profile and reclamation link -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Handle login/profile link
-      var navItem = document.getElementById('login-profile-nav');
-      if (navItem && localStorage.getItem('candidat_id')) {
-        var link = navItem.querySelector('a');
-        link.innerHTML = '<i class="fa fa-user" aria-hidden="true"></i> Profile';
-        link.setAttribute('href', "{{ path('candidat_dashboard') }}");
-      }
+        var reclamationLink = document.getElementById('reclamation-link');
+        if (reclamationLink) {
+          var employeeId = localStorage.getItem('employee_id');
+          reclamationLink.setAttribute('href', employeeId ? `/reclamation/my-reclamations/${employeeId}` : "{{ path('login_page') }}");
+        }
 
-      // Handle reclamation link
-      var reclamationLink = document.getElementById('reclamation-link');
-      var employeeId = localStorage.getItem('employee_id');
-      if (reclamationLink && employeeId) {
-        reclamationLink.setAttribute('href', "/reclamation/my-reclamations/" + employeeId);
-      } else if (reclamationLink) {
-        reclamationLink.setAttribute('href', "{{ path('login_page') }}");
-      }
-    });
-  </script>
+        var mobileProfile = document.getElementById('navbar-mobile-profile');
+        if (mobileProfile) {
+          mobileProfile.setAttribute('href', localStorage.getItem('candidat_id') ? "{{ path('candidat_dashboard') }}" : "{{ path('login_page') }}");
+        }
 
-</body>
+        var desktopProfile = document.getElementById('navbar-desktop-profile');
+        if (desktopProfile) {
+          desktopProfile.setAttribute('href', localStorage.getItem('candidat_id') ? "{{ path('candidat_dashboard') }}" : "{{ path('login_page') }}");
+        }
+      });
+
+      // Add class to navbar when scrolling
+      window.addEventListener('scroll', function () {
+        const navbar = document.querySelector('.navbar');
+        if (window.scrollY > 50) {
+          navbar.classList.add('scrolled');
+        } else {
+          navbar.classList.remove('scrolled');
+        }
+      });
+    </script>
+
+    {% block javascripts %}{% endblock %}
+  </body>
 </html>

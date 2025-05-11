@@ -1,0 +1,317 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Face Recognition | Career Bridge{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Face Recognition Specific Styles */
+        .face-recognition-container {
+            padding: 100px 0 60px;
+            background-color: #f9fafb;
+            min-height: 100vh;
+        }
+
+        .face-recognition-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease;
+        }
+
+        .face-recognition-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .section-heading {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #333;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .section-heading:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(to right, #4361ee, #3f37c9);
+        }
+
+        .permission-error {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        #camera-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        #camera-view {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        #capture-btn {
+            background: linear-gradient(to right, #4361ee, #3f37c9);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #capture-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        #capture-btn i {
+            margin-right: 8px;
+        }
+
+        .result-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: none;
+        }
+
+        .result-header {
+            background: linear-gradient(to right, #4361ee, #3f37c9);
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .result-body {
+            padding: 20px;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .result-table th, .result-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .result-table th {
+            text-align: left;
+            font-weight: 600;
+            width: 40%;
+            color: #555;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4361ee;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 767px) {
+            .face-recognition-container {
+                padding: 80px 0 40px;
+            }
+
+            .section-heading {
+                font-size: 2rem;
+            }
+
+            #camera-view {
+                max-width: 100%;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<section class="face-recognition-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <h1 class="section-heading wow fadeInUp" data-wow-delay=".1s">Face Recognition</h1>
+
+                <div class="face-recognition-card wow fadeInUp" data-wow-delay=".2s">
+                    <div class="permission-error" id="permission-error">
+                        <i class="lni lni-warning" style="font-size: 3rem; color: #d32f2f; margin-bottom: 15px;"></i>
+                        <h3>Camera Access Denied</h3>
+                        <p class="mb-4">Please enable camera permissions in your browser to use face recognition.</p>
+                        <button class="btn" id="retry-btn" onclick="window.location.reload()" style="background: linear-gradient(to right, #4361ee, #3f37c9); color: white;">
+                            <i class="lni lni-reload me-2"></i>Try Again
+                        </button>
+                    </div>
+
+                    <div id="camera-container">
+                        <video id="camera-view" autoplay playsinline></video>
+                        <button id="capture-btn">
+                            <i class="lni lni-camera"></i>Capture Face
+                        </button>
+                    </div>
+
+                    <div id="result-container">
+                        <div class="result-card">
+                            <div class="result-header">Recognition Results</div>
+                            <div class="result-body">
+                                <table class="result-table">
+                                    <tr>
+                                        <th>Confidence</th>
+                                        <td id="confidence-value">-</td>
+                                    </tr>
+                                    <tr>
+                                        <th>User ID</th>
+                                        <td id="user-id-value">-</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Face Token</th>
+                                        <td id="face-token-value">-</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="loading-overlay" id="loading-overlay">
+    <div class="spinner"></div>
+    <h3>Processing Face Recognition...</h3>
+</div>
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const video = document.getElementById('camera-view');
+    const captureBtn = document.getElementById('capture-btn');
+    const resultContainer = document.getElementById('result-container');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const permissionError = document.getElementById('permission-error');
+    const confidenceValue = document.getElementById('confidence-value');
+    const userIdValue = document.getElementById('user-id-value');
+    const faceTokenValue = document.getElementById('face-token-value');
+
+    // Initialize animation
+    new WOW().init();
+
+    const constraints = {
+        video: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            facingMode: 'user'
+        }
+    };
+
+    async function initCamera() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            video.srcObject = stream;
+            video.onloadedmetadata = () => video.play();
+
+            document.getElementById('camera-container').style.display = 'block';
+            permissionError.style.display = 'none';
+        } catch (err) {
+            console.error("Camera error:", err);
+            permissionError.style.display = 'block';
+            document.getElementById('camera-container').style.display = 'none';
+        }
+    }
+
+    async function captureAndProcess() {
+        loadingOverlay.style.display = 'flex';
+        document.querySelector('.result-card').style.display = 'none';
+
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+
+            const formData = new FormData();
+            formData.append('image', blob, 'face_capture.jpg');
+
+            const response = await fetch('{{ path('face_check') }}', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.error) throw new Error(data.error);
+
+            confidenceValue.textContent = data.confidence ? `${data.confidence.toFixed(2)}%` : 'N/A';
+            userIdValue.textContent = data.user_id ?? 'Unknown';
+            faceTokenValue.textContent = data.face_token ?? 'N/A';
+
+            document.querySelector('.result-card').style.display = 'block';
+
+            // Redirect if confidence is high
+            if (data.confidence && data.confidence >= 85) {
+                alert("User found! Redirecting...");
+                window.location.href = "/posts";
+            }
+
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+            console.error(error);
+        } finally {
+            loadingOverlay.style.display = 'none';
+        }
+    }
+
+    captureBtn.addEventListener('click', captureAndProcess);
+    initCamera();
+});
+</script>
+{% endblock %}
+{% endblock %}

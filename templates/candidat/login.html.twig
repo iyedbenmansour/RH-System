@@ -1,109 +1,65 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Connexion Candidat | JobPlatform{% endblock %}
-
 {% block stylesheets %}
     {{ parent() }}
     <style>
-        .login-container {
-            max-width: 500px;
-            margin: 5rem auto;
-            padding: 2.5rem;
-            border-radius: 12px;
+        .face-auth-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .face-auth-modal.active {
+            display: flex !important;
+        }
+        .face-auth-container {
             background: white;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .login-header h2 {
-            color: var(--primary-color);
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .login-header i {
-            font-size: 2.5rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-control {
-            height: 50px;
+            padding: 2rem;
             border-radius: 8px;
-            border: 1px solid #e0e0e0;
-            padding: 0.75rem 1rem;
-            transition: all 0.3s ease;
+            max-width: 500px;
+            width: 95vw;
+            box-shadow: 0 6px 32px rgba(0,0,0,0.18);
         }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
-        }
-
-        .btn-login {
+        #camera-view {
             width: 100%;
-            padding: 0.75rem;
-            border-radius: 8px;
-            font-weight: 600;
-            background-color: var(--primary-color);
-            border: none;
-            transition: all 0.3s ease;
-        }
-
-        .btn-login:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-2px);
-        }
-
-        .register-link {
-            text-align: center;
-            margin-top: 1.5rem;
-        }
-
-        .register-link a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .register-link a:hover {
-            text-decoration: underline;
-        }
-
-        .input-group-text {
-            background-color: #f8f9fa;
-            border-right: none;
-        }
-
-        .input-group .form-control {
-            border-left: none;
-        }
-
-        /* New styles for forgot password */
-        .forgot-password {
-            text-align: right;
+            max-height: 300px;
+            border: 1px solid #ccc;
             margin-bottom: 1rem;
+            aspect-ratio: 4 / 3;
+            background: #000;
         }
-
-        .forgot-password a {
-            color: #6c757d;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
         }
-
-        .forgot-password a:hover {
-            color: var(--primary-color);
-            text-decoration: underline;
+        .loading-overlay.active {
+            display: flex !important;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #ccc;
+            border-top: 5px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 {% endblock %}
@@ -111,98 +67,184 @@
 {% block body %}
 <div class="container">
     <div class="login-container">
-        <div class="login-header">
-            <i class="fas fa-user"></i>
-            <h2>Espace Candidat</h2>
-            <p class="text-muted">Connectez-vous pour postuler à des offres</p>
-        </div>
-
-        <form method="post" class="needs-validation" novalidate>
+        <h2 class="text-center mb-4">Login</h2>
+        <form id="loginForm" method="post" action="{{ path('candidat_login') }}">
             <div class="form-group">
-                <label for="email" class="form-label">Email</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                    <input type="email" 
-                           class="form-control" 
-                           id="email" 
-                           name="email" 
-                           required
-                           placeholder="exemple@domaine.com">
-                    <div class="invalid-feedback">
-                        Veuillez entrer une adresse email valide.
-                    </div>
-                </div>
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email" required autocomplete="username">
             </div>
-
             <div class="form-group">
-                <label for="password" class="form-label">Mot de passe</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                    <input type="password" 
-                           class="form-control" 
-                           id="password" 
-                           name="password" 
-                           required
-                           placeholder="••••••••">
-                    <div class="invalid-feedback">
-                        Veuillez entrer votre mot de passe.
-                    </div>
-                </div>
-                <div class="forgot-password">
-                    <a href="{{ path('candidat_forgot_password') }}">Mot de passe oublié ?</a>
-                </div>
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
             </div>
-
-            <div class="form-group form-check mb-3">
-                <input type="checkbox" class="form-check-input" id="rememberMe" name="_remember_me">
-                <label class="form-check-label" for="rememberMe">Se souvenir de moi</label>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-login mb-3">
-                <i class="fas fa-sign-in-alt me-2"></i> Se connecter
-            </button>
-
-            <div class="register-link">
-                <p>Pas encore de compte ? <a href="{{ path('candidat_register') }}">Créer un compte candidat</a></p>
-            </div>
+            <button type="submit" class="btn btn-primary btn-block">Login</button>
         </form>
     </div>
 </div>
-{% endblock %}
 
-{% block javascripts %}
-    {{ parent() }}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            if (localStorage.getItem('candidat_id')) {
-                window.location.href = "{{ path('candidat_dashboard') }}";
-            }
+<!-- Face Verification Modal -->
+<div class="face-auth-modal" id="faceAuthModal" tabindex="-1" aria-modal="true" role="dialog">
+    <div class="face-auth-container">
+        <h3 class="text-center mb-3">Verify Your Identity</h3>
+        <p class="text-center mb-3">Please look at the camera to verify your identity</p>
+        <video id="camera-view" autoplay playsinline></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <div class="text-center">
+            <button id="capture-btn" class="btn btn-secondary mb-2">Capture Face</button><br>
+            <button id="verify-btn" class="btn btn-primary" disabled>Verify</button>
+            <button id="cancel-btn" class="btn btn-danger ml-2">Cancel</button>
+        </div>
+    </div>
+</div>
 
-            // Validation du formulaire
-            (function() {
-                'use strict';
-                const forms = document.querySelectorAll('.needs-validation');
-                Array.from(forms).forEach(form => {
-                    form.addEventListener('submit', event => {
-                        if (!form.checkValidity()) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                        }
-                        form.classList.add('was-validated');
-                    }, false);
-                });
-            })();
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loading-overlay">
+    <div class="spinner"></div>
+    <p class="mt-2">Authenticating...</p>
+</div>
 
-            // Animation d'entrée
-            const loginContainer = document.querySelector('.login-container');
-            loginContainer.style.opacity = '0';
-            loginContainer.style.transform = 'translateY(20px)';
-            loginContainer.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const loginForm = document.getElementById('loginForm');
+    const faceAuthModal = document.getElementById('faceAuthModal');
+    const video = document.getElementById('camera-view');
+    const captureBtn = document.getElementById('capture-btn');
+    const canvas = document.getElementById('canvas');
+    const verifyBtn = document.getElementById('verify-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const loadingOverlay = document.getElementById('loading-overlay');
 
+    let capturedImage = null;
+    let stream = null;
+
+    // Show loading overlay
+    function showLoading() {
+        loadingOverlay.classList.add('active');
+    }
+    function hideLoading() {
+        loadingOverlay.classList.remove('active');
+    }
+
+    // Show and activate modal, start camera
+    async function showFaceModal() {
+        faceAuthModal.classList.add('active');
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            video.srcObject = stream;
+            video.play();
             setTimeout(() => {
-                loginContainer.style.opacity = '1';
-                loginContainer.style.transform = 'translateY(0)';
-            }, 100);
-        });
-    </script>
+                captureBtn.focus();
+            }, 200);
+        } catch (err) {
+            faceAuthModal.classList.remove('active');
+            alert("Camera access denied or not available.");
+        }
+        verifyBtn.disabled = true;
+        capturedImage = null;
+    }
+
+    // Hide modal, stop camera
+    function hideFaceModal() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        video.srcObject = null;
+        faceAuthModal.classList.remove('active');
+        capturedImage = null;
+    }
+
+    captureBtn.addEventListener('click', function () {
+        if (!video.srcObject) {
+            alert("Camera not started.");
+            return;
+        }
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        capturedImage = canvas.toDataURL('image/jpeg');
+        verifyBtn.disabled = false;
+    });
+
+    verifyBtn.addEventListener('click', async function () {
+        if (!capturedImage) return;
+        showLoading();
+        try {
+            const response = await fetch('{{ path('candidat_face_verify') }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'image_data=' + encodeURIComponent(capturedImage)
+            });
+            const data = await response.json();
+            if (data.success) {
+                if (data.candidat_id) localStorage.setItem('candidat_id', data.candidat_id);
+                if (data.candidat_name) localStorage.setItem('candidat_name', data.candidat_name);
+                if (data.employee_id) localStorage.setItem('employee_id', data.employee_id);
+                window.location.href = data.redirect;
+            } else {
+                alert('Verification failed: ' + (data.error || 'Unknown error'));
+                capturedImage = null;
+                verifyBtn.disabled = true;
+            }
+        } catch (error) {
+            alert('Verification error');
+            console.error(error);
+        } finally {
+            hideLoading();
+        }
+    });
+
+    cancelBtn.addEventListener('click', function () {
+        hideFaceModal();
+    });
+
+    // Trap ESC and close modal if needed
+    document.addEventListener('keydown', function (e) {
+        if (faceAuthModal.classList.contains('active') && e.key === 'Escape') {
+            hideFaceModal();
+        }
+    });
+
+    loginForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        showLoading();
+        try {
+            const formData = new FormData(loginForm);
+            const response = await fetch(loginForm.action, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                if (data.has_face) {
+                    // Immediately open modal and force verification
+                    hideLoading();
+                    await showFaceModal();
+                } else {
+                    // Normal login: Save to localStorage and redirect
+                    if (data.candidat_id) localStorage.setItem('candidat_id', data.candidat_id);
+                    if (data.candidat_name) localStorage.setItem('candidat_name', data.candidat_name);
+                    if (data.employee_id) localStorage.setItem('employee_id', data.employee_id);
+                    window.location.href = data.redirect;
+                }
+            } else {
+                alert('Login failed: ' + (data.error || 'Invalid credentials'));
+            }
+        } catch (error) {
+            alert('Login error');
+            console.error(error);
+        } finally {
+            hideLoading();
+        }
+    });
+
+    // Clean up camera stream on page exit
+    window.addEventListener('beforeunload', function () {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+    });
+});
+</script>
 {% endblock %}

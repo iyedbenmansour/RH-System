@@ -12,12 +12,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class ChatbotController extends AbstractController
 {
     private $client;
-    private $openaiApiKey;
+    private $openRouterApiKey;
 
     public function __construct(HttpClientInterface $client)
     {
         $this->client = $client;
-        $this->openaiApiKey = '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'; // replace this
+        $this->openRouterApiKey = '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'; // Replace securely in production
     }
 
     #[Route('/chat', name: 'chatbot_index')]
@@ -33,13 +33,13 @@ class ChatbotController extends AbstractController
         $userMessage = $data['message'] ?? '';
 
         try {
-            $response = $this->client->request('POST', 'https://api.openai.com/v1/chat/completions', [
+            $response = $this->client->request('POST', 'https://openrouter.ai/api/v1/chat/completions', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $this->openaiApiKey,
+                    'Authorization' => 'Bearer ' . $this->openRouterApiKey,
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'model' => 'gpt-3.5-turbo',
+                    'model' => 'openai/gpt-3.5-turbo', // Adjust model if needed
                     'messages' => [
                         ['role' => 'system', 'content' => 'You are a helpful assistant.'],
                         ['role' => 'user', 'content' => $userMessage]
@@ -58,6 +58,4 @@ class ChatbotController extends AbstractController
             return new JsonResponse(['response' => 'Error: ' . $e->getMessage()], 500);
         }
     }
-
-    
 }

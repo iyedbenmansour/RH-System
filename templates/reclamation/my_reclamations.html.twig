@@ -4,108 +4,409 @@
 
 {% block stylesheets %}
     {{ parent() }}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        .transition-hover:hover {
+        /* Base Styles */
+        body {
+            background-color: #f8f9fa;
+            padding-top: 80px; /* Account for fixed navbar */
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: #111827;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Card styling */
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-        .status-indicator {
-            width: 15px;
-            height: 15px;
+        
+        .card-header-custom {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1.5rem;
+        }
+        
+        /* Status indicators */
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-right: 1rem;
+        }
+        
+        .status-not-treated {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: #92400e;
+        }
+        
+        .status-in-progress {
+            background-color: rgba(6, 182, 212, 0.1);
+            color: #0e7490;
+        }
+        
+        .status-resolved {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+        }
+        
+        .status-rejected {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #b91c1c;
+        }
+        
+        /* Buttons */
+        .btn {
+            font-weight: 500;
+            border-radius: 10px;
+            padding: 0.625rem 1.25rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background-color: #4f46e5;
+            border-color: #4f46e5;
+        }
+        
+        .btn-primary:hover {
+            background-color: #4338ca;
+            border-color: #4338ca;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        
+        .btn-outline-primary {
+            border-color: #4f46e5;
+            color: #4f46e5;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: #4f46e5;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        
+        /* Empty state */
+        .empty-state {
+            padding: 4rem 2rem;
+            text-align: center;
+            background-color: #ffffff;
+        }
+        
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(79, 70, 229, 0.1);
+            color: #4f46e5;
             border-radius: 50%;
-            display: inline-block;
+            font-size: 2rem;
         }
-        .bg-warning { background-color: #ffc107; }
-        .bg-info { background-color: #0dcaf0; }
-        .bg-success { background-color: #198754; }
-        .bg-danger { background-color: #dc3545; }
+        
+        /* Add Request Button */
+        .add-reclamation-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #4f46e5;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .add-reclamation-btn:hover {
+            transform: scale(1.1);
+            background: #4338ca;
+        }
+        
+        .add-reclamation-btn i {
+            font-size: 1.5rem;
+        }
+        
+        /* Reclamation cards */
+        .reclamation-date {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .reclamation-user {
+            font-size: 0.875rem;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+        }
+        
+        .reclamation-user i {
+            margin-right: 0.5rem;
+        }
+        
+        .reclamation-title {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 1.125rem;
+            color: #111827;
+        }
+        
+        .reclamation-description {
+            margin-bottom: 1.5rem;
+            color: #4b5563;
+        }
+        
+        /* Pagination styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            padding: 1.5rem 0;
+            gap: 0.5rem;
+        }
+        
+        .page-item {
+            margin: 0;
+        }
+        
+        .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2.5rem;
+            height: 2.5rem;
+            padding: 0 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            color: #111827;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .page-link:hover {
+            background-color: #f3f4f6;
+            color: #4f46e5;
+            text-decoration: none;
+        }
+        
+        .page-item.active .page-link {
+            background-color: #4f46e5;
+            border-color: #4f46e5;
+            color: white;
+        }
+        
+        .page-item.disabled .page-link {
+            color: #d1d5db;
+            pointer-events: none;
+        }
+        
+        /* Container spacing */
+        .main-container {
+            max-width: 1200px;
+            padding: 2rem 1.5rem;
+        }
+        
+        /* Stats card */
+        .stats-card {
+            margin-bottom: 2rem;
+        }
+        
+        .stats-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .stats-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .bg-soft-primary {
+            background-color: rgba(79, 70, 229, 0.1);
+            color: #4f46e5;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 1.5rem;
+            }
+            
+            .stats-row {
+                flex-direction: column;
+            }
+            
+            .reclamation-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .reclamation-user {
+                margin-top: 0.5rem;
+            }
+        }
     </style>
 {% endblock %}
 
 {% block body %}
-<div class="container py-5">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1 class="h2 mb-0 text-primary fw-bold">Réclamations de l'utilisateur #{{ searchTerm }}</h1>
-        </div>
-        <div class="col-md-4 text-end">
-            <a href="{{ path('app_reclamation_new') }}" class="btn btn-primary">
-                <i class="fas fa-plus-circle me-2"></i>Nouvelle Réclamation
-            </a>
+<div class="container main-container py-4">
+    <!-- Page Header -->
+    <div class="page-header text-white mb-4">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="fw-bold mb-2">Mes Réclamations</h1>
+                <p class="opacity-75 mb-0">Suivi et gestion de vos demandes</p>
+            </div>
+            <div class="col-lg-6">
+                <div class="d-flex justify-content-lg-end mt-3 mt-lg-0">
+                    <a href="{{ path('app_reclamation_new') }}" class="btn btn-light rounded-pill">
+                        <i class="bi bi-plus-lg me-2"></i>Nouvelle Réclamation
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Stats Card -->
+    {% if reclamations|length > 0 %}
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-soft-primary">
+                        <i class="bi bi-clipboard-data"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-1">Total Réclamations</h6>
+                        <h3 class="fw-bold mb-0">{{ reclamations.getTotalItemCount }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 
     <!-- Reclamations List -->
     <div id="reclamations-container">
         {% if reclamations|length > 0 %}
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle me-2"></i> 
-                L'utilisateur a <strong>{{ reclamations.getTotalItemCount }}</strong> réclamation(s)
-            </div>
-
             {% for reclamation in reclamations %}
-                <div class="card mb-4 shadow-sm transition-hover">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start">
-                            <!-- Status Indicator -->
-                            <div class="status-indicator 
-                                {% if reclamation.statueOfReclamation == 'Not Treated' %}bg-warning
-                                {% elseif reclamation.statueOfReclamation == 'In Progress' %}bg-info
-                                {% elseif reclamation.statueOfReclamation == 'Resolved' %}bg-success
-                                {% else %}bg-danger{% endif %}"
-                                title="{{ reclamation.statueOfReclamation }}">
-                            </div>
-
-                            <!-- Content -->
-                            <div class="ms-3 flex-grow-1">
-                                <h5 class="card-title">
-                                    {{ reclamation.title }}
-                                </h5>
-                                <div class="d-flex justify-content-between">
-                                    <small class="text-muted">
-                                        <i class="far fa-calendar-alt me-1"></i>
-                                        {{ reclamation.date|date('d/m/Y H:i') }}
-                                    </small>
-                                    <small class="text-muted">
-                                        <i class="fas fa-user me-1"></i>
-                                        User ID: {{ reclamation.userId }}
-                                    </small>
-                                </div>
-                                <p class="card-text mt-2">
-                                    {{ reclamation.description|slice(0, 120) ~ (reclamation.description|length > 120 ? '...' : '') }}
-                                </p>
-                                <div class="text-end mt-3">
-                                    <a href="{{ path('app_reclamation_client', {'id': reclamation.id}) }}" 
-                                       class="btn btn-outline-primary btn-sm">
-                                        <i class="fas fa-eye me-1"></i> Voir les détails
-                                    </a>
+                <div class="card">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between flex-wrap mb-3 reclamation-info">
+                            <div class="d-flex align-items-center">
+                                {% if reclamation.statueOfReclamation == 'Not Treated' %}
+                                    <span class="status-badge status-not-treated">
+                                        <i class="bi bi-clock-history"></i>
+                                        Non Traitée
+                                    </span>
+                                {% elseif reclamation.statueOfReclamation == 'In Progress' %}
+                                    <span class="status-badge status-in-progress">
+                                        <i class="bi bi-hourglass-split"></i>
+                                        En Cours
+                                    </span>
+                                {% elseif reclamation.statueOfReclamation == 'Resolved' %}
+                                    <span class="status-badge status-resolved">
+                                        <i class="bi bi-check-circle"></i>
+                                        Résolue
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge status-rejected">
+                                        <i class="bi bi-x-circle"></i>
+                                        Rejetée
+                                    </span>
+                                {% endif %}
+                                <div class="reclamation-date">
+                                    <i class="bi bi-calendar3 me-2"></i>
+                                    {{ reclamation.date|date('d/m/Y H:i') }}
                                 </div>
                             </div>
+                            <div class="reclamation-user">
+                                <i class="bi bi-person-circle"></i>
+                                ID Utilisateur: {{ reclamation.userId }}
+                            </div>
+                        </div>
+                        
+                        <h4 class="reclamation-title">{{ reclamation.title }}</h4>
+                        <p class="reclamation-description">
+                            {{ reclamation.description|slice(0, 120) ~ (reclamation.description|length > 120 ? '...' : '') }}
+                        </p>
+                        
+                        <div class="text-end">
+                            <a href="{{ path('app_reclamation_client', {'id': reclamation.id}) }}" 
+                               class="btn btn-outline-primary">
+                                <i class="bi bi-eye me-1"></i> Voir les détails
+                            </a>
                         </div>
                     </div>
                 </div>
             {% endfor %}
 
             <!-- Pagination -->
-            <div class="navigation">
-                {{ knp_pagination_render(reclamations) }}
+            <div class="d-flex justify-content-between align-items-center flex-wrap mt-4">
+                <div class="text-muted">
+                    Affichage de <span class="fw-bold">1</span> à <span class="fw-bold">{{ reclamations|length }}</span> sur <span class="fw-bold">{{ reclamations.getTotalItemCount }}</span> réclamations
+                </div>
+                <div class="navigation">
+                    {{ knp_pagination_render(reclamations) }}
+                </div>
             </div>
         {% else %}
-            <div class="alert alert-warning text-center py-5">
-                <i class="fas fa-inbox fa-3x mb-3 text-muted"></i>
-                <h4>Aucune réclamation trouvée</h4>
-                <p>L'utilisateur #{{ searchTerm }} n'a pas encore de réclamations</p>
-                <a href="{{ path('app_reclamation_new') }}" class="btn btn-primary mt-3">
-                    <i class="fas fa-plus-circle me-2"></i>Créer une réclamation
-                </a>
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-5 text-center bg-light">
+                    <div class="empty-state">
+                        <div class="empty-state-icon mb-4">
+                            <i class="bi bi-clipboard-x"></i>
+                        </div>
+                        <h3 class="fw-bold mb-3">Aucune réclamation trouvée</h3>
+                        <p class="text-muted mb-4">L'utilisateur #{{ searchTerm }} n'a pas encore de réclamations</p>
+                        <a href="{{ path('app_reclamation_new') }}" class="btn btn-primary btn-lg rounded-pill">
+                            <i class="bi bi-plus-lg me-2"></i>Créer une réclamation
+                        </a>
+                    </div>
+                </div>
             </div>
         {% endif %}
     </div>
+
+    <!-- Add Reclamation Floating Button -->
+    <a href="{{ path('app_reclamation_new') }}" class="add-reclamation-btn">
+        <i class="bi bi-plus-lg"></i>
+    </a>
 </div>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
-    {# Removed the search-related JavaScript #}
 {% endblock %}
